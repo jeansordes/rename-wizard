@@ -1,11 +1,11 @@
 {
-    "id": "rename-wizard",
-    "name": "Rename Wizard",
-    "version": "0.0.1",
-    "minAppVersion": "0.15.0",
-    "description": "Add suggestions when renaming a file in your Obsidian vault",
-    "author": "jeansordes",
-    "authorUrl": "https://github.com/jeansordes",
-    "isDesktopOnly": false,
-    "fundingUrl": "https://github.com/sponsors/jeansordes"
+	"id": "rename-wizard",
+	"name": "Rename Wizard",
+	"version": "0.0.2",
+	"minAppVersion": "0.15.0",
+	"description": "Add suggestions when renaming a file in your Obsidian vault",
+	"author": "jeansordes",
+	"authorUrl": "https://github.com/jeansordes",
+	"isDesktopOnly": false,
+	"fundingUrl": "https://github.com/sponsors/jeansordes"
 }
