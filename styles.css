@@ -1,0 +1,227 @@
+.modal-no-title {
+    box-shadow: none !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.modal-no-title .modal-content.complex-rename-modal {
+    display: flex;
+    flex-direction: column;
+    position: fixed !important;
+    top: 8vh !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: var(--prompt-width);
+    max-width: 90vw;
+    max-height: 84vh;
+    background-color: var(--background-primary);
+    border: var(--prompt-border-width) solid var(--prompt-border-color);
+    box-shadow: var(--shadow-l);
+    border-radius: var(--radius-l);
+    z-index: 1;
+    padding-top: var(--size-4-2);
+}
+
+.modal-content.complex-rename-modal .input-container {
+    display: flex;
+    padding: var(--size-4-1) var(--size-4-3);
+    gap: var(--size-4-2);
+    background: none;
+}
+
+.rename-input {
+    width: 100%;
+    padding: var(--size-4-2);
+    border-radius: var(--radius-s);
+    border: var(--input-border-width) solid var(--background-modifier-border);
+    background: var(--background-primary);
+    font-size: var(--font-ui-medium);
+}
+
+.preview {
+    padding: var(--size-4-1) var(--size-4-3);
+    color: var(--text-muted);
+    font-size: var(--font-ui-medium);
+    background: var(--background-secondary-alt);
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+}
+
+/* Remove old error styles */
+.error {
+    display: none;  /* This will be overridden by the more specific selector below */
+}
+
+.complex-rename-modal .error,
+.complex-rename-modal .preview-folder-creation {
+    padding: var(--size-4-2) var(--size-4-3);
+    margin: var(--size-4-1) var(--size-4-3);
+    font-size: var(--font-ui-small);
+    display: none;  /* Hidden by default */
+    align-items: center;
+    gap: var(--size-4-2);
+    box-sizing: border-box;
+    border-radius: var(--radius-m);
+}
+
+.complex-rename-modal .error {
+    background-color: rgba(var(--color-red-rgb), 0.1);
+    color: var(--text-error);
+}
+
+.complex-rename-modal .error.show {
+    display: flex;
+}
+
+.complex-rename-modal .preview-folder-creation {
+    color: var(--color-green);
+    background-color: rgba(var(--color-green-rgb), 0.1);
+    display: flex;  /* Always show when present */
+}
+
+.complex-rename-modal .preview-folder-creation .suggestion-icon,
+.complex-rename-modal .error .suggestion-icon {
+    color: inherit;
+    opacity: 1;
+}
+
+.complex-rename-modal .input-container {
+    display: flex;
+    gap: var(--size-4-2);
+    padding: var(--size-4-2) var(--size-4-3);
+    align-items: center;
+}
+
+.complex-rename-modal .rename-input {
+    flex: 1;
+}
+
+.complex-rename-modal .filter-input {
+    width: calc(100% - var(--size-4-3) * 2);
+    padding: var(--size-4-2);
+    margin: var(--size-4-1) var(--size-4-3);
+    border-radius: var(--radius-s);
+    border: var(--input-border-width) solid var(--background-modifier-border);
+    position: sticky;
+    top: 0;
+    background: var(--background-primary);
+    font-size: var(--font-ui-medium);
+    z-index: 1;
+}
+
+.suggestions {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(84vh - 170px);
+    padding: var(--size-4-1) 0;
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.complex-rename-modal .suggestion-item {
+    display: flex;
+    padding: var(--size-4-2) var(--size-4-3);
+    cursor: pointer;
+    align-items: center;
+    gap: var(--size-4-2);
+    color: var(--text-normal);
+    margin: 1px var(--size-4-1);
+    border-radius: var(--radius-s);
+}
+
+.suggestion-item:hover,
+.complex-rename-modal .suggestion-item.is-selected {
+    background-color: var(--background-modifier-hover);
+}
+
+.complex-rename-modal .suggestion-name {
+    flex: 1;
+    min-width: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: var(--font-interface);
+    font-size: var(--font-ui-small);
+    padding: 2px 0;
+    line-height: 1.4;
+}
+
+.complex-rename-modal .suggestion-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    color: var(--text-muted);
+}
+
+.complex-rename-modal .suggestion-name .highlight-rename,
+.complex-rename-modal .suggestion-name .highlight-filter {
+    border-radius: var(--radius-s);
+    padding: 0 2px;
+    margin: 0 -2px;
+}
+
+.complex-rename-modal .suggestion-name .highlight-rename {
+    background-color: var(--text-highlight-bg);
+}
+
+.complex-rename-modal .suggestion-name .highlight-filter {
+    background-color: var(--text-selection);
+    color: var(--text-on-accent);
+}
+
+/* Remove old styles that are no longer needed */
+.complex-rename-modal .suggestion-source-container,
+.complex-rename-modal .suggestion-source {
+    display: none;
+}
+
+.suggestion-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--size-4-3);
+    margin: 0;
+    font-size: var(--font-ui-small);
+}
+
+/* Custom button styling next to input */
+.rename-modal .setting-item-control,
+.complex-rename-modal .setting-item-control {
+    display: flex;
+    gap: 8px;
+}
+
+.rename-modal .setting-item-control .text-input-wrapper,
+.complex-rename-modal .setting-item-control .text-input-wrapper {
+    flex-grow: 1;
+}
+
+/* Remove SVG-based history icon since we use setIcon */
+.complex-rename-modal .preview-context {
+    color: var(--text-muted);
+    font-size: 0.8em;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.complex-rename-modal .preview-divider {
+    height: 1px;
+    background-color: var(--background-modifier-border);
+    margin: 8px 0;
+    opacity: 0.5;
+}
+
+.complex-rename-modal .preview-path {
+    font-family: var(--font-ui-small);
+    word-break: break-all;
+    font-size: var(--font-ui-medium);
+    padding: var(--size-4-1);
+    background: var(--background-secondary);
+    border-radius: var(--radius-s);
+}
