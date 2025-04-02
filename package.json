@@ -1,24 +1,46 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
-	"main": "main.js",
-	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "MIT",
-	"devDependencies": {
-		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "5.29.0",
-		"@typescript-eslint/parser": "5.29.0",
-		"builtin-modules": "3.3.0",
-		"esbuild": "0.17.3",
-		"obsidian": "latest",
-		"tslib": "2.4.0",
-		"typescript": "4.7.4"
-	}
+    "name": "rename-wizard",
+    "version": "0.0.1",
+    "description": "Add suggestions when renaming a file in your Obsidian vault",
+    "main": "main.js",
+    "scripts": {
+        "dev": "node esbuild.config.mjs",
+        "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+        "version": "node version-bump.mjs && git add manifest.json versions.json",
+        "bump": "node version-bump.mjs patch",
+        "bump:minor": "node version-bump.mjs minor",
+        "bump:major": "node version-bump.mjs major",
+        "bump:beta": "node version-bump.mjs beta",
+        "commit": "cz",
+        "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+        "changelog:first": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+        "release": "npm run build && npm run bump && npm run changelog && git add CHANGELOG.md && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
+        "release:minor": "npm run build && npm run bump:minor && npm run changelog && git add CHANGELOG.md && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
+        "release:major": "npm run build && npm run bump:major && npm run changelog && git add CHANGELOG.md && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
+        "release:beta": "npm run build && npm run bump:beta && npm run changelog && git add CHANGELOG.md beta-manifest.json && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
+        "test": "jest"
+    },
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
+    },
+    "keywords": [],
+    "author": "Jean Sordes",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^16.11.6",
+        "@typescript-eslint/eslint-plugin": "5.29.0",
+        "@typescript-eslint/parser": "5.29.0",
+        "@types/jest": "^29.5.14",
+        "commitizen": "^4.3.0",
+        "conventional-changelog-cli": "^4.1.0",
+        "cz-conventional-changelog": "^3.3.0",
+        "jest": "^29.7.0",
+        "builtin-modules": "3.3.0",
+        "esbuild": "0.17.3",
+        "obsidian": "latest",
+        "tslib": "2.4.0",
+        "typescript": "4.7.4"
+    }
 }
