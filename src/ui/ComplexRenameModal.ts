@@ -93,13 +93,6 @@ export class ComplexRenameModal extends Modal {
             // Preview section (moved below input)
             this.previewEl = contentEl.createDiv('preview');
 
-            // Filter input
-            this.filterEl = contentEl.createEl('input', {
-                type: 'text',
-                placeholder: 'Filter suggestions...',
-                cls: 'filter-input'
-            });
-
             // Suggestions
             this.suggestionsEl = contentEl.createDiv('suggestions');
 
@@ -116,11 +109,11 @@ export class ComplexRenameModal extends Modal {
             this.validateFileName(value);
             
             // Update suggestions and preview
-            await this.updateSuggestions(this.currentFilterValue || value);
+            await this.updateSuggestions();
             this.updatePreview(value);
         });
 
-        // Add Enter key handler
+        // Add keyboard navigation
         this.inputEl.addEventListener('keydown', async (event) => {
             if (event.key === 'Enter' && !event.isComposing) {
                 event.preventDefault();
@@ -129,25 +122,6 @@ export class ComplexRenameModal extends Modal {
                     await this.performRename();
                 }
             } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                event.preventDefault();
-                
-                if (this.suggestionItems.length > 0) {
-                    const targetIndex = event.key === 'ArrowDown' ? 0 : this.suggestionItems.length - 1;
-                    this.selectSuggestion(targetIndex);
-                    // Move focus to filter after selection
-                    this.filterEl.focus();
-                }
-            }
-        });
-
-        this.filterEl.addEventListener('input', async () => {
-            this.currentFilterValue = this.filterEl.value;
-            await this.updateSuggestions(this.currentFilterValue);
-        });
-
-        // Add keyboard navigation for filter field
-        this.filterEl.addEventListener('keydown', async (event) => {
-            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 event.preventDefault();
                 
                 if (this.suggestionItems.length > 0) {
@@ -174,23 +148,22 @@ export class ComplexRenameModal extends Modal {
                 
                 if (this.suggestionItems[this.selectedSuggestionIndex]) {
                     this.suggestionItems[this.selectedSuggestionIndex].click();
-                    this.selectedSuggestionIndex = -1;
-                    this.inputEl.focus();
                 }
             } else if (event.key === 'Escape') {
                 event.preventDefault();
                 this.selectedSuggestionIndex = -1;
-                this.updateSuggestionsList(); // Refresh to clear selection
+                this.updateSuggestionsList();
                 this.inputEl.focus();
             }
         });
 
         // Initialize suggestions with current filename
         this.currentRenameValue = this.file.basename;
-        this.updateSuggestions(this.file.basename);
+        this.updateSuggestions();
 
         // Focus input
         this.inputEl.focus();
+        
         // Handle text selection based on settings
         if (this.plugin.settings.selectLastPart) {
             // Select only the last part of the filename (after the last dot)
@@ -314,10 +287,10 @@ export class ComplexRenameModal extends Modal {
         }
     }
 
-    private async updateSuggestions(input: string): Promise<void> {
+    private async updateSuggestions(): Promise<void> {
         this.suggestions = await getSuggestions(
             this.app,
-            input,
+            this.currentRenameValue,
             this.plugin.settings,
             this.plugin.recentRenames
         );
@@ -571,64 +544,38 @@ export class ComplexRenameModal extends Modal {
         return true;
     }
 
-    private highlightMatches(text: string, searchValue: string, filterValue: string): HTMLSpanElement {
+    private highlightMatches(text: string, input: string): HTMLSpanElement {
         const container = createSpan({ cls: 'suggestion-name' });
-        if (!searchValue && !filterValue) {
+        if (!input) {
             container.setText(text);
             return container;
         }
 
-        let currentPos = 0;
         const textLower = text.toLowerCase();
-        const searchLower = searchValue.toLowerCase();
-        const filterLower = filterValue.toLowerCase();
+        const parts = input.toLowerCase().split(/[\s-_.]+/).filter(Boolean);
         
         // Create a map of positions to highlight
-        const highlights: { start: number; end: number; type: 'rename' | 'filter' }[] = [];
+        const highlights: { start: number; end: number }[] = [];
 
-        // Find rename matches (if any)
-        if (searchValue) {
+        // Find matches for each part
+        for (const part of parts) {
             let pos = 0;
-            while ((pos = textLower.indexOf(searchLower, pos)) !== -1) {
+            while ((pos = textLower.indexOf(part, pos)) !== -1) {
                 highlights.push({
                     start: pos,
-                    end: pos + searchLower.length,
-                    type: 'rename'
+                    end: pos + part.length
                 });
-                pos += searchLower.length;  // Move past the current match
+                pos += part.length;
             }
         }
 
-        // Find filter matches (if any)
-        if (filterValue) {
-            // Split the filter value into parts for more granular matching
-            const parts = filterLower.split(/[\s-_.]+/).filter(Boolean);
-            for (const part of parts) {
-                let pos = 0;
-                while ((pos = textLower.indexOf(part, pos)) !== -1) {
-                    highlights.push({
-                        start: pos,
-                        end: pos + part.length,
-                        type: 'filter'
-                    });
-                    pos += part.length;  // Move past the current match
-                }
-            }
-        }
-
-        // Sort highlights by start position
+        // Sort and merge overlapping highlights
         highlights.sort((a, b) => a.start - b.start);
-
-        // Merge overlapping highlights
         const mergedHighlights: typeof highlights = [];
         for (const highlight of highlights) {
             const last = mergedHighlights[mergedHighlights.length - 1];
             if (last && highlight.start <= last.end) {
                 last.end = Math.max(last.end, highlight.end);
-                // If we're merging different types, prefer filter
-                if (highlight.type === 'filter') {
-                    last.type = 'filter';
-                }
             } else {
                 mergedHighlights.push(highlight);
             }
@@ -636,22 +583,17 @@ export class ComplexRenameModal extends Modal {
 
         // Apply highlights
         let lastEnd = 0;
-        for (const { start, end, type } of mergedHighlights) {
-            // Add non-highlighted text before this highlight
+        for (const { start, end } of mergedHighlights) {
             if (start > lastEnd) {
                 container.appendText(text.slice(lastEnd, start));
             }
-            
-            // Add highlighted text
             container.createSpan({
                 text: text.slice(start, end),
-                cls: `highlight-${type}`
+                cls: 'highlight-rename'
             });
-            
             lastEnd = end;
         }
 
-        // Add remaining non-highlighted text
         if (lastEnd < text.length) {
             container.appendText(text.slice(lastEnd));
         }
@@ -691,30 +633,11 @@ export class ComplexRenameModal extends Modal {
 
         const list = this.suggestionsEl.createEl('ul', { cls: 'suggestion-list' });
         
-        // Helper function to calculate how well a suggestion matches the input
-        const calculateMatchQuality = (suggestion: RenameSuggestion) => {
-            const input = this.currentRenameValue.toLowerCase();
-            const name = suggestion.name.toLowerCase();
-            const path = suggestion.path?.toLowerCase() || '';
-            
-            // Exact match gets highest priority
-            if (name === input || path.endsWith('/' + input)) return 4;
-            // Starts with input gets high priority
-            if (name.startsWith(input) || path.includes('/' + input)) return 3;
-            // Contains input as a whole word gets medium priority
-            if (name.includes(' ' + input) || name.includes('-' + input) || name.includes('.' + input) ||
-                path.includes(' ' + input) || path.includes('-' + input) || path.includes('.' + input)) return 2;
-            // Contains input anywhere gets lower priority
-            if (name.includes(input) || path.includes(input)) return 1;
-            // No direct match, fall back to similarity score
-            return 0;
-        };
-        
         // Sort suggestions by match quality first, then by similarity score, then by length
         const sortedSuggestions = [...this.suggestions]
             .sort((a, b) => {
-                const matchQualityA = calculateMatchQuality(a);
-                const matchQualityB = calculateMatchQuality(b);
+                const matchQualityA = this.calculateMatchQuality(a);
+                const matchQualityB = this.calculateMatchQuality(b);
                 
                 // First sort by match quality
                 if (matchQualityA !== matchQualityB) {
@@ -740,13 +663,8 @@ export class ComplexRenameModal extends Modal {
                 ? (suggestion.path || suggestion.name).slice(0, -3)
                 : (suggestion.path || suggestion.name);
                 
-            item.appendChild(
-                this.highlightMatches(
-                    displayPath,
-                    this.currentRenameValue,
-                    this.currentFilterValue
-                )
-            );
+            // Use the smart highlighting from the filter
+            item.appendChild(this.highlightMatches(displayPath, this.currentRenameValue));
             
             // Add history icon for recent suggestions
             if (suggestion.source === 'recent') {
@@ -794,6 +712,35 @@ export class ComplexRenameModal extends Modal {
                 this.inputEl.focus();
             });
         });
+    }
+
+    private calculateMatchQuality(suggestion: RenameSuggestion): number {
+        const input = this.currentRenameValue.toLowerCase();
+        const name = suggestion.name.toLowerCase();
+        const path = suggestion.path?.toLowerCase() || '';
+        
+        // Split input into parts for more granular matching
+        const parts = input.split(/[\s-_.]+/).filter(Boolean);
+        
+        // If all parts match, give highest priority
+        if (parts.every(part => name.includes(part) || path.includes(part))) return 4;
+        
+        // If most parts match at word boundaries, give high priority
+        const boundaryMatches = parts.filter(part => 
+            name.includes(` ${part}`) || name.includes(`-${part}`) || name.includes(`.${part}`) ||
+            path.includes(` ${part}`) || path.includes(`-${part}`) || path.includes(`.${part}`)
+        ).length;
+        if (boundaryMatches > parts.length / 2) return 3;
+        
+        // If most parts match anywhere, give medium priority
+        const anyMatches = parts.filter(part => name.includes(part) || path.includes(part)).length;
+        if (anyMatches > parts.length / 2) return 2;
+        
+        // If any part matches, give low priority
+        if (anyMatches > 0) return 1;
+        
+        // No matches
+        return 0;
     }
 
     onClose(): void {
