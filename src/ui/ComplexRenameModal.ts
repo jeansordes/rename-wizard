@@ -39,8 +39,7 @@ export class ComplexRenameModal extends Modal {
             const inputContainer = contentEl.createDiv('input-container');
             this.inputEl = inputContainer.createEl('textarea', {
                 type: 'text',
-                cls: 'rename-input',
-                attr: { rows: '1' }
+                cls: 'rename-input'
             });
             this.inputEl.textContent = this.file.basename;
             
@@ -192,6 +191,10 @@ export class ComplexRenameModal extends Modal {
             // Default behavior: place cursor at the end without selecting
             this.inputEl.setSelectionRange(this.file.basename.length, this.file.basename.length);
         }
+
+        // Adjust height based on content
+        this.inputEl.style.height = 'auto';
+        this.inputEl.style.height = this.inputEl.scrollHeight + 'px';
     }
 
     private normalizePath(newName: string): { newPath: string; folderPath: string | null } {
