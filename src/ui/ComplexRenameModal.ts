@@ -7,7 +7,7 @@ export class ComplexRenameModal extends Modal {
     private file: TFile;
     private plugin: RenameWizardPlugin;
     private suggestions: RenameSuggestion[] = [];
-    private inputEl: HTMLInputElement;
+    private inputEl: HTMLTextAreaElement;
     private filterEl: HTMLInputElement;
     private suggestionsEl: HTMLElement;
     private submitBtn: ButtonComponent;
@@ -37,10 +37,32 @@ export class ComplexRenameModal extends Modal {
             
             // Main input and rename button
             const inputContainer = contentEl.createDiv('input-container');
-            this.inputEl = inputContainer.createEl('input', {
+            this.inputEl = inputContainer.createEl('textarea', {
                 type: 'text',
-                value: this.file.basename,
-                cls: 'rename-input'
+                cls: 'rename-input',
+                attr: { rows: '1' }
+            });
+            this.inputEl.textContent = this.file.basename;
+            
+            // Add auto-expansion functionality
+            const adjustHeight = () => {
+                this.inputEl.style.height = 'auto';
+                this.inputEl.style.height = this.inputEl.scrollHeight + 'px';
+            };
+            
+            this.inputEl.addEventListener('input', adjustHeight);
+            // Initial height adjustment
+            adjustHeight();
+            
+            // Add Enter key handler
+            this.inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.isComposing) {
+                    e.preventDefault();
+                    const value = this.inputEl.value;
+                    if (this.validateFileName(value)) {
+                        this.performRename();
+                    }
+                }
             });
             
             // Add rename button
@@ -156,12 +178,18 @@ export class ComplexRenameModal extends Modal {
 
         // Focus input
         this.inputEl.focus();
-        // Select only the last part of the filename (after the last dot)
-        const lastDotIndex = this.file.basename.lastIndexOf('.');
-        if (lastDotIndex !== -1) {
-            this.inputEl.setSelectionRange(lastDotIndex + 1, this.file.basename.length);
+        // Handle text selection based on settings
+        if (this.plugin.settings.selectLastPart) {
+            // Select only the last part of the filename (after the last dot)
+            const lastDotIndex = this.file.basename.lastIndexOf('.');
+            if (lastDotIndex !== -1) {
+                this.inputEl.setSelectionRange(lastDotIndex + 1, this.file.basename.length);
+            } else {
+                // Place cursor at the end without selecting
+                this.inputEl.setSelectionRange(this.file.basename.length, this.file.basename.length);
+            }
         } else {
-            // Place cursor at the end without selecting
+            // Default behavior: place cursor at the end without selecting
             this.inputEl.setSelectionRange(this.file.basename.length, this.file.basename.length);
         }
     }

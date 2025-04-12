@@ -37,6 +37,14 @@
     border: var(--input-border-width) solid var(--background-modifier-border);
     background: var(--background-primary);
     font-size: var(--font-ui-medium);
+    resize: none;
+    overflow: hidden;
+    min-height: 1.5em;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    height: auto;
+    max-height: 200px;
 }
 
 .preview {

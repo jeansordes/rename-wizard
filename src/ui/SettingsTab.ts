@@ -50,5 +50,15 @@ export class RenameWizardSettingTab extends PluginSettingTab {
                     this.plugin.settings.fuzzyMatchThreshold = Math.max(0, Math.min(1, numValue));
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+            .setName('Select last part of filename')
+            .setDesc('When renaming, select only the part after the last dot (e.g., "subtopic" in "topic.subtopic"). By default, the cursor is placed at the end of the filename.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.selectLastPart)
+                .onChange(async (value) => {
+                    this.plugin.settings.selectLastPart = value;
+                    await this.plugin.saveSettings();
+                }));
     }
 } 
