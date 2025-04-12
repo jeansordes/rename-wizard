@@ -156,7 +156,14 @@ export class ComplexRenameModal extends Modal {
 
         // Focus input
         this.inputEl.focus();
-        this.inputEl.select();
+        // Select only the last part of the filename (after the last dot)
+        const lastDotIndex = this.file.basename.lastIndexOf('.');
+        if (lastDotIndex !== -1) {
+            this.inputEl.setSelectionRange(lastDotIndex + 1, this.file.basename.length);
+        } else {
+            // Place cursor at the end without selecting
+            this.inputEl.setSelectionRange(this.file.basename.length, this.file.basename.length);
+        }
     }
 
     private normalizePath(newName: string): { newPath: string; folderPath: string | null } {
