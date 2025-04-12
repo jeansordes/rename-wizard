@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/jeansordes/rename-wizard/compare/0.1.0...0.2.0) (2025-04-12)
+
+
+### Features
+
+* make the text wrap in the input to make it work better on mobile + add a setting for cursor positioning ([5620ebe](https://github.com/jeansordes/rename-wizard/commit/5620ebe1c4c40388cf5ab0941a5be0d37ab5913f))
+
+
+
 # [0.1.0](https://github.com/jeansordes/rename-wizard/compare/0.0.2...0.1.0) (2025-04-12)
 
 
