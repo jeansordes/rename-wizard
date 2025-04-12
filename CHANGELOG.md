@@ -1,3 +1,12 @@
+## [0.3.1-beta.0](https://github.com/jeansordes/rename-wizard/compare/0.3.0...0.3.1-beta.0) (2025-04-12)
+
+
+### Features
+
+* merge the highlighting mechanism of the filter and rename input to simplify the UI ([42b104e](https://github.com/jeansordes/rename-wizard/commit/42b104e042f0a7d1038c0082f7062ae0860e7980))
+
+
+
 # [0.3.0](https://github.com/jeansordes/rename-wizard/compare/0.2.0...0.3.0) (2025-04-12)
 
 
