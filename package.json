@@ -1,6 +1,6 @@
 {
 	"name": "rename-wizard",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Add suggestions when renaming a file in your Obsidian vault",
 	"main": "main.js",
 	"engines": {

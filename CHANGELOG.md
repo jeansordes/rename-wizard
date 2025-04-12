@@ -1,3 +1,17 @@
+# [0.3.0](https://github.com/jeansordes/rename-wizard/compare/0.2.0...0.3.0) (2025-04-12)
+
+
+### Bug Fixes
+
+* init the input height when opening the modal instead of using rows=1 ([e311982](https://github.com/jeansordes/rename-wizard/commit/e3119824ff8eadf1378e699f44c06f6b8eb33533))
+
+
+### Features
+
+* add 2 features : a diff view + reset button ([7563e89](https://github.com/jeansordes/rename-wizard/commit/7563e89f5a9d6ca9513cab5f9142e440cfbeddb2))
+
+
+
 # [0.2.0](https://github.com/jeansordes/rename-wizard/compare/0.1.0...0.2.0) (2025-04-12)
 
 
