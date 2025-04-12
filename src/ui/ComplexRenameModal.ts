@@ -32,16 +32,27 @@ export class ComplexRenameModal extends Modal {
         // Remove any existing content and header
         this.modalEl.empty();
         this.modalEl.createDiv({ cls: 'modal-content complex-rename-modal' }, (contentEl) => {
-            // Create all elements first
-            this.previewEl = contentEl.createDiv('preview');
-            
             // Main input and rename button
             const inputContainer = contentEl.createDiv('input-container');
             this.inputEl = inputContainer.createEl('textarea', {
                 type: 'text',
-                cls: 'rename-input'
+                cls: 'rename-input',
+                attr: { rows: '1' }
             });
             this.inputEl.textContent = this.file.basename;
+            
+            // Add reset button
+            const resetButton = new ButtonComponent(inputContainer)
+                .setIcon('rotate-ccw')
+                .setTooltip('Reset to original filename')
+                .onClick(() => {
+                    this.inputEl.value = this.file.basename;
+                    this.inputEl.dispatchEvent(new Event('input'));
+                    this.validateFileName(this.file.basename);
+                    this.updatePreview(this.file.basename);
+                    this.inputEl.focus();
+                });
+            resetButton.buttonEl.addClass('reset-button');
             
             // Add auto-expansion functionality
             const adjustHeight = () => {
@@ -78,6 +89,9 @@ export class ComplexRenameModal extends Modal {
             this.errorEl = noticesContainer.createDiv({ cls: 'error' });
             this.folderNoticeEl = noticesContainer.createDiv({ cls: 'preview-folder-creation' });
             this.folderNoticeEl.style.display = 'none';
+
+            // Preview section (moved below input)
+            this.previewEl = contentEl.createDiv('preview');
 
             // Filter input
             this.filterEl = contentEl.createEl('input', {
@@ -310,6 +324,81 @@ export class ComplexRenameModal extends Modal {
         this.updateSuggestionsList();
     }
 
+    private computeCharacterDiff(oldText: string, newText: string): { type: 'same' | 'removed' | 'added', text: string }[] {
+        const diff: { type: 'same' | 'removed' | 'added', text: string }[] = [];
+        
+        // Split into parts: path components and extension
+        const oldParts = oldText.split('/');
+        const newParts = newText.split('/');
+        
+        // Handle path components
+        for (let i = 0; i < Math.max(oldParts.length - 1, newParts.length - 1); i++) {
+            if (i > 0) {
+                diff.push({ type: 'same', text: '/' });
+            }
+            
+            const oldPart = oldParts[i] || '';
+            const newPart = newParts[i] || '';
+            
+            if (oldPart === newPart) {
+                if (oldPart) diff.push({ type: 'same', text: oldPart });
+            } else {
+                if (oldPart) diff.push({ type: 'removed', text: oldPart });
+                if (newPart) diff.push({ type: 'added', text: newPart });
+            }
+        }
+        
+        // Add final separator if needed
+        if (oldParts.length > 1 || newParts.length > 1) {
+            diff.push({ type: 'same', text: '/' });
+        }
+        
+        // Handle the filename part
+        const oldFilename = oldParts[oldParts.length - 1] || '';
+        const newFilename = newParts[newParts.length - 1] || '';
+        
+        // Split filename into name and extension
+        const oldMatch = oldFilename.match(/^(.+?)(\.[^.]+)?$/);
+        const newMatch = newFilename.match(/^(.+?)(\.[^.]+)?$/);
+        
+        if (!oldMatch || !newMatch) return diff;
+        
+        const [, oldName, oldExt = ''] = oldMatch;
+        const [, newName, newExt = ''] = newMatch;
+        
+        // Split names into words (by dots, hyphens, and underscores)
+        const oldWords = oldName.split(/([.-_])/);
+        const newWords = newName.split(/([.-_])/);
+        
+        let i = 0, j = 0;
+        while (i < oldWords.length || j < newWords.length) {
+            const oldWord = oldWords[i] || '';
+            const newWord = newWords[j] || '';
+            
+            if (oldWord === newWord) {
+                if (oldWord) diff.push({ type: 'same', text: oldWord });
+                i++;
+                j++;
+            } else if (oldWord === '' || (newWord !== '' && oldWords.indexOf(newWord, i) === -1)) {
+                diff.push({ type: 'added', text: newWord });
+                j++;
+            } else {
+                diff.push({ type: 'removed', text: oldWord });
+                i++;
+            }
+        }
+        
+        // Handle extension
+        if (oldExt === newExt) {
+            if (oldExt) diff.push({ type: 'same', text: oldExt });
+        } else {
+            if (oldExt) diff.push({ type: 'removed', text: oldExt });
+            if (newExt) diff.push({ type: 'added', text: newExt });
+        }
+        
+        return diff;
+    }
+
     private updatePreview(newName: string): void {
         if (!newName.trim()) {
             this.previewEl.setText('Please enter a new name');
@@ -318,26 +407,36 @@ export class ComplexRenameModal extends Modal {
 
         const { newPath, folderPath } = this.normalizePath(newName);
         
-        console.log('[updatePreview] Paths:', {
-            originalPath: this.file.path,
-            newPath,
-            folderPath
-        });
-        
         this.previewEl.empty();
         
-        // Show the path transformation with full paths (including extension)
+        // Create the diff view container
+        const diffContainer = this.previewEl.createDiv({ cls: 'preview-diff' });
+        
+        // Get the paths for comparison
+        const oldPath = this.file.path;
         const displayNewPath = newPath.startsWith('/') && !newPath.includes('/', 1) 
             ? newPath.substring(1) 
             : newPath;
             
-        const displayText = this.file.path + (this.file.path === displayNewPath ? '' : ` → ${displayNewPath}`);
-        console.log('[updatePreview] Display:', { displayText });
-        
-        this.previewEl.createEl('div', { 
-            text: displayText,
-            cls: 'preview-path'
-        });
+        // Only show diff if paths are different
+        if (oldPath !== displayNewPath) {
+            // Compute the character-level diff
+            const diff = this.computeCharacterDiff(oldPath, displayNewPath);
+            
+            // Create elements for each part of the diff
+            diff.forEach(part => {
+                diffContainer.createSpan({
+                    text: part.text,
+                    cls: `diff-${part.type}`
+                });
+            });
+        } else {
+            // If no changes, just show the current path
+            diffContainer.createSpan({
+                text: oldPath,
+                cls: 'diff-same'
+            });
+        }
 
         // Update folder creation notice
         if (folderPath) {
