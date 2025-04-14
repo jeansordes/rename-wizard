@@ -32,17 +32,11 @@ export class ComplexRenameModal extends Modal {
         // Remove any existing content and header
         this.modalEl.empty();
         this.modalEl.createDiv({ cls: 'modal-content complex-rename-modal' }, (contentEl) => {
-            // Main input and rename button
-            const inputContainer = contentEl.createDiv('input-container');
-            this.inputEl = inputContainer.createEl('textarea', {
-                type: 'text',
-                cls: 'rename-input',
-                attr: { rows: '1' }
-            });
-            this.inputEl.textContent = this.file.basename;
+            // Create header with buttons
+            const headerContainer = contentEl.createDiv('header-container');
             
             // Add reset button
-            const resetButton = new ButtonComponent(inputContainer)
+            const resetButton = new ButtonComponent(headerContainer)
                 .setIcon('rotate-ccw')
                 .setTooltip('Reset to original filename')
                 .onClick(() => {
@@ -53,6 +47,24 @@ export class ComplexRenameModal extends Modal {
                     this.inputEl.focus();
                 });
             resetButton.buttonEl.addClass('reset-button');
+
+            // Add rename button
+            this.submitBtn = new ButtonComponent(headerContainer)
+                .setButtonText('Rename')
+                .onClick(async () => {
+                    if (this.validateFileName(this.inputEl.value)) {
+                        await this.performRename();
+                    }
+                });
+
+            // Main input
+            const inputContainer = contentEl.createDiv('input-container');
+            this.inputEl = inputContainer.createEl('textarea', {
+                type: 'text',
+                cls: 'rename-input',
+                attr: { rows: '1' }
+            });
+            this.inputEl.textContent = this.file.basename;
             
             // Add auto-expansion functionality
             const adjustHeight = () => {
@@ -74,15 +86,6 @@ export class ComplexRenameModal extends Modal {
                     }
                 }
             });
-            
-            // Add rename button
-            this.submitBtn = new ButtonComponent(inputContainer)
-                .setButtonText('Rename')
-                .onClick(async () => {
-                    if (this.validateFileName(this.inputEl.value)) {
-                        await this.performRename();
-                    }
-                });
 
             // Error message and folder creation notice between inputs
             const noticesContainer = contentEl.createDiv('notices-container');
@@ -90,7 +93,7 @@ export class ComplexRenameModal extends Modal {
             this.folderNoticeEl = noticesContainer.createDiv({ cls: 'preview-folder-creation' });
             this.folderNoticeEl.style.display = 'none';
 
-            // Preview section (moved below input)
+            // Preview section
             this.previewEl = contentEl.createDiv('preview');
 
             // Suggestions

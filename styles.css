@@ -9,8 +9,8 @@
     display: flex;
     flex-direction: column;
     position: fixed !important;
-    width: min(500px, 50vw) !important;
-    max-width: 90vw;
+    width: min(600px, 80vw) !important;
+    max-width: 95vw;
     background-color: var(--background-primary);
     border: var(--prompt-border-width) solid var(--prompt-border-color);
     box-shadow: var(--shadow-l);
@@ -22,22 +22,22 @@
 /* Desktop positioning */
 .theme-light .modal-no-title .modal-content.complex-rename-modal,
 .theme-dark:not(.is-mobile) .modal-no-title .modal-content.complex-rename-modal {
-    top: 80px !important;
+    top: 100px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    max-height: min(85vh, 600px);
+    max-height: min(85vh, 700px);
 }
 
 /* Mobile positioning */
 .is-mobile .modal-no-title .modal-content.complex-rename-modal {
-    top: calc(var(--safe-area-inset-top) + var(--header-height) + var(--size-4-2)) !important;
-    left: var(--size-4-2) !important;
-    right: var(--size-4-2) !important;
+    top: calc(var(--safe-area-inset-top) + var(--header-height) + var(--size-4-4)) !important;
+    left: var(--size-4-3) !important;
+    right: var(--size-4-3) !important;
     transform: none !important;
     width: auto !important;
     max-width: none;
-    border: none;
-    max-height: min(600px, calc(100vh - var(--safe-area-inset-top) - var(--header-height) - var(--size-4-2) * 4));
+    border: var(--prompt-border-width) solid var(--prompt-border-color);
+    max-height: min(700px, calc(100vh - var(--safe-area-inset-top) - var(--header-height) - var(--size-4-4) * 2));
 }
 
 .modal-content.complex-rename-modal .input-container {
@@ -45,7 +45,6 @@
     padding: var(--size-4-1) var(--size-4-3);
     gap: var(--size-4-2);
     background: none;
-    align-items: center;
 }
 
 /* Remove the duplicate .rename-input class and merge styles */
