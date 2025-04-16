@@ -33,11 +33,11 @@ export class ComplexRenameModal extends Modal {
         // Remove any existing content and header
         this.modalEl.empty();
         this.modalEl.createDiv({ cls: 'modal-content complex-rename-modal' }, (contentEl) => {
-            // Create header with buttons
-            const headerContainer = contentEl.createDiv('header-container');
+            // Create input container first
+            const inputContainer = contentEl.createDiv('input-container');
             
-            // Add reset button
-            const resetButton = new ButtonComponent(headerContainer)
+            // Add reset button inside input container
+            const resetButton = new ButtonComponent(inputContainer)
                 .setIcon('rotate-ccw')
                 .setTooltip('Reset to original filename')
                 .onClick(() => {
@@ -49,23 +49,22 @@ export class ComplexRenameModal extends Modal {
                 });
             resetButton.buttonEl.addClass('reset-button');
 
-            // Add rename button
-            this.submitBtn = new ButtonComponent(headerContainer)
-                .setButtonText('Rename')
-                .onClick(async () => {
-                    if (this.validateFileName(this.inputEl.value)) {
-                        await this.performRename();
-                    }
-                });
-
             // Main input
-            const inputContainer = contentEl.createDiv('input-container');
             this.inputEl = inputContainer.createEl('textarea', {
                 type: 'text',
                 cls: 'rename-input',
                 attr: { rows: '1' }
             });
             this.inputEl.textContent = this.file.basename;
+
+            // Add rename button after input
+            this.submitBtn = new ButtonComponent(inputContainer)
+                .setButtonText('Rename')
+                .onClick(async () => {
+                    if (this.validateFileName(this.inputEl.value)) {
+                        await this.performRename();
+                    }
+                });
             
             // Add auto-expansion functionality
             const adjustHeight = () => {

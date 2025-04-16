@@ -45,6 +45,7 @@
     padding: var(--size-4-1) var(--size-4-3);
     gap: var(--size-4-2);
     background: none;
+    align-items: flex-start;
 }
 
 /* Remove the duplicate .rename-input class and merge styles */
@@ -66,6 +67,7 @@
     word-wrap: break-word;
     height: auto;
     max-height: 200px;
+    order: 1; /* Place input in the middle */
 }
 
 .preview {
@@ -271,8 +273,8 @@
 }
 
 .complex-rename-modal .reset-button {
-    flex-shrink: 0; /* Prevent button from shrinking */
-    width: 28px; /* Slightly larger to match Obsidian's standard button size */
+    flex-shrink: 0;
+    width: 28px;
     height: 28px;
     padding: 6px !important;
     display: flex;
@@ -282,13 +284,22 @@
     border: none;
     background: none;
     border-radius: var(--radius-s);
-    order: -1; /* Places the button before the input */
+    order: 0; /* Place reset button first */
 }
 
 .complex-rename-modal .reset-button:hover {
     opacity: 1;
     color: var(--text-accent);
     background-color: var(--background-modifier-hover);
+}
+
+.complex-rename-modal .clickable {
+    cursor: pointer;
+}
+
+.complex-rename-modal button:not(.reset-button) {
+    flex-shrink: 0;
+    order: 2; /* Place rename button last */
 }
 
 /* Settings textarea styles */
