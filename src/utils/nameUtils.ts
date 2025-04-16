@@ -79,10 +79,14 @@ export function validateTemplate(template: string): { isValid: boolean; error?: 
         return { isValid: false, error: 'Template cannot be empty' };
     }
 
-    // Check for forbidden characters (newlines, control characters)
-    const forbiddenCharsRegex = /[\n\r\x00-\x1F\x7F]/;
-    if (forbiddenCharsRegex.test(template)) {
-        return { isValid: false, error: 'Template contains forbidden characters (newlines or control characters)' };
+    // Check for forbidden characters (newlines and control characters)
+    if (/[\n\r]/.test(template)) {
+        return { isValid: false, error: 'Template cannot contain newlines' };
+    }
+
+    // Check for control characters
+    if (template.split('').some(char => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) {
+        return { isValid: false, error: 'Template cannot contain control characters' };
     }
 
     // Check for valid variables

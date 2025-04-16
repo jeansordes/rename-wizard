@@ -35,8 +35,7 @@ export class RenameModal extends Modal {
                         this.suggestions = await getSuggestions(
                             this.app,
                             value,
-                            this.plugin.settings,
-                            this.plugin.recentRenames
+                            this.plugin.settings
                         );
                         this.updateSuggestionsList();
                         
@@ -60,9 +59,6 @@ export class RenameModal extends Modal {
                     const newPath = oldPath.replace(this.file.basename, newName);
                     
                     await this.app.fileManager.renameFile(this.file, newPath);
-                    
-                    // Add to rename history
-                    this.plugin.addToHistory(this.file.basename, newName);
                     
                     this.close();
                 } catch (error) {
@@ -88,8 +84,7 @@ export class RenameModal extends Modal {
         this.suggestions = await getSuggestions(
             this.app,
             input,
-            this.plugin.settings,
-            this.plugin.recentRenames
+            this.plugin.settings
         );
         this.updateSuggestionsList();
     }
