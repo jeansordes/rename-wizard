@@ -1,0 +1,315 @@
+/* =================
+   Modal Base
+   ================= */
+.modal-no-title {
+    box-shadow: none !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Modal Content Base */
+.modal-no-title .modal-content.complex-rename-modal {
+    display: flex;
+    flex-direction: column;
+    position: fixed !important;
+    width: min(700px, 80vw) !important;
+    max-width: 95vw;
+    background-color: var(--background-primary);
+    border: var(--prompt-border-width) solid var(--prompt-border-color);
+    box-shadow: var(--shadow-l);
+    border-radius: var(--radius-l);
+    z-index: 1;
+    padding-top: var(--size-4-2);
+}
+
+/* Modal Positioning */
+/* Desktop */
+.theme-light .modal-no-title .modal-content.complex-rename-modal,
+.theme-dark:not(.is-mobile) .modal-no-title .modal-content.complex-rename-modal {
+    top: 100px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    max-height: min(85vh, 700px);
+}
+
+/* Mobile */
+.is-mobile .modal-no-title .modal-content.complex-rename-modal {
+    top: calc(var(--safe-area-inset-top) + var(--header-height) + var(--size-4-4)) !important;
+    left: var(--size-4-3) !important;
+    right: var(--size-4-3) !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none;
+    border: var(--prompt-border-width) solid var(--prompt-border-color);
+    max-height: min(700px, calc(100vh - var(--safe-area-inset-top) - var(--header-height) - var(--size-4-4) * 2));
+}
+
+/* =================
+   Input Styles
+   ================= */
+.modal-content.complex-rename-modal .input-container {
+    display: flex;
+    padding: var(--size-4-1) var(--size-4-3);
+    gap: var(--size-4-2);
+    background: none;
+    align-items: flex-start;
+}
+
+/* Common input styles */
+.complex-rename-modal .rename-input,
+.complex-rename-modal .filter-input {
+    background-color: var(--background-modifier-form-field);
+    border: var(--input-border-width) solid var(--background-modifier-border);
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+    font-size: var(--font-ui-medium);
+    border-radius: var(--radius-s);
+    padding: var(--size-4-2) var(--size-4-3);
+}
+
+/* Specific rename input styles */
+.complex-rename-modal .rename-input {
+    flex: 1;
+    width: 100%;
+    resize: none;
+    overflow: hidden;
+    min-height: var(--input-height);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    height: auto;
+    max-height: 200px;
+    order: 1;
+}
+
+/* Filter input styles */
+.complex-rename-modal .filter-input {
+    width: calc(100% - var(--size-4-3) * 2) !important;
+    margin: var(--size-4-1) var(--size-4-3);
+    position: sticky;
+    top: 0;
+    background: var(--background-primary);
+    z-index: 1;
+}
+
+/* =================
+   Preview Styles
+   ================= */
+.preview {
+    padding: var(--size-4-1) var(--size-4-3);
+    color: var(--text-muted);
+    font-size: var(--font-ui-medium);
+    background: var(--background-secondary-alt);
+    border-radius: 0 0 var(--radius-l) var(--radius-l);
+    margin-top: -1px;
+}
+
+/* Preview components */
+.complex-rename-modal .preview-context {
+    color: var(--text-muted);
+    font-size: 0.8em;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.complex-rename-modal .preview-divider {
+    height: 1px;
+    background-color: var(--background-modifier-border);
+    margin: 8px 0;
+    opacity: 0.5;
+}
+
+.complex-rename-modal .preview-path {
+    font-family: var(--font-ui-small);
+    word-break: break-all;
+    font-size: var(--font-ui-medium);
+    padding: var(--size-4-1);
+    background: var(--background-secondary);
+    border-radius: var(--radius-s);
+}
+
+/* =================
+   Error & Warning States
+   ================= */
+.complex-rename-modal .error,
+.complex-rename-modal .preview-folder-creation {
+    padding: var(--size-4-2) var(--size-4-3);
+    margin: var(--size-4-1) var(--size-4-3);
+    font-size: var(--font-ui-small);
+    display: none;
+    align-items: center;
+    gap: var(--size-4-2);
+    box-sizing: border-box;
+    border-radius: var(--radius-m);
+}
+
+.complex-rename-modal .error.show-error {
+    display: flex;
+    background-color: rgba(var(--color-red-rgb), 0.1);
+    color: var(--text-error);
+}
+
+.complex-rename-modal .error.show-warning {
+    display: flex;
+    background-color: rgba(var(--color-yellow-rgb), 0.1);
+    color: var(--color-yellow);
+}
+
+.complex-rename-modal .preview-folder-creation {
+    color: var(--color-green);
+    background-color: rgba(var(--color-green-rgb), 0.1);
+    display: flex;
+}
+
+/* Common icon styles for messages */
+.complex-rename-modal .preview-folder-creation .suggestion-icon,
+.complex-rename-modal .error .suggestion-icon {
+    color: inherit;
+    opacity: 1;
+}
+
+/* =================
+   Suggestions
+   ================= */
+.suggestions {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(84vh - 170px);
+    padding: var(--size-4-1) 0;
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.complex-rename-modal .suggestion-item {
+    display: flex;
+    padding: var(--size-4-2) var(--size-4-3);
+    cursor: pointer;
+    align-items: center;
+    gap: var(--size-4-2);
+    color: var(--text-normal);
+    margin: 1px var(--size-4-1);
+    border-radius: var(--radius-s);
+}
+
+.suggestion-item:hover,
+.complex-rename-modal .suggestion-item.is-selected {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Suggestion item components */
+.complex-rename-modal .suggestion-name {
+    flex: 1;
+    min-width: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: var(--font-interface);
+    font-size: var(--font-ui-small);
+    padding: 2px 0;
+    line-height: 1.4;
+}
+
+.complex-rename-modal .suggestion-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    color: var(--text-muted);
+}
+
+/* Highlight styles */
+.complex-rename-modal .suggestion-name .highlight-rename,
+.complex-rename-modal .suggestion-name .highlight-filter {
+    border-radius: var(--radius-s);
+    padding: 0 2px;
+    margin: 0 -2px;
+}
+
+.complex-rename-modal .suggestion-name .highlight-rename {
+    background-color: var(--text-highlight-bg);
+}
+
+.complex-rename-modal .suggestion-name .highlight-filter {
+    background-color: var(--text-selection);
+    color: var(--text-on-accent);
+}
+
+/* Empty state */
+.suggestion-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--size-4-3);
+    margin: 0;
+    font-size: var(--font-ui-small);
+}
+
+/* =================
+   Preview Diff Styles
+   ================= */
+.preview-diff {
+    font-family: var(--font-monospace);
+    padding: var(--size-4-1);
+    background: var(--background-secondary);
+    border-radius: var(--radius-s);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.preview-diff .diff-same {
+    color: var(--text-normal);
+}
+
+.preview-diff .diff-removed {
+    color: var(--text-error);
+    background-color: rgba(var(--color-red-rgb), 0.1);
+    text-decoration: line-through;
+    margin-right: 0.2em;
+}
+
+.preview-diff .diff-added {
+    color: var(--color-green);
+    background-color: rgba(var(--color-green-rgb), 0.1);
+}
+
+.preview-diff .diff-moved {
+    color: var(--text-accent);
+    background-color: rgba(var(--color-yellow-rgb), 0.1);
+    text-decoration: none;
+    cursor: help;
+}
+
+/* =================
+   Buttons
+   ================= */
+.complex-rename-modal .reset-button {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    padding: 6px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    border: none;
+    background: none;
+    border-radius: var(--radius-s);
+    order: 0;
+}
+
+.complex-rename-modal .reset-button:hover {
+    opacity: 1;
+    color: var(--text-accent);
+    background-color: var(--background-modifier-hover);
+}
+
+.complex-rename-modal button:not(.reset-button) {
+    flex-shrink: 0;
+    order: 2;
+}

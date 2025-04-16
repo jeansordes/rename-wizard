@@ -1,6 +1,9 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import fs from "fs";
+import path from "path";
+import { watch } from "fs/promises";
 
 const banner =
 `/*
@@ -10,6 +13,54 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = (process.argv[2] === "production");
+
+// Function to concatenate CSS files
+async function concatCssFiles() {
+	console.log("Concatenating CSS files...");
+	const cssDir = "src/css";
+	const outputFile = "styles.css";
+	
+	try {
+		// Read all CSS files from the directory
+		const files = fs.readdirSync(cssDir).filter(file => file.endsWith(".css"));
+		let combinedCss = "";
+		
+		// Add banner
+		combinedCss += banner + "\n";
+		
+		// Concatenate all CSS files
+		for (const file of files) {
+			const filePath = path.join(cssDir, file);
+			const content = fs.readFileSync(filePath, "utf8");
+			combinedCss += `/* File: ${file} */\n${content}\n\n`;
+		}
+		
+		// Write the combined CSS to the output file
+		fs.writeFileSync(outputFile, combinedCss);
+		console.log(`CSS files concatenated to ${outputFile}`);
+	} catch (error) {
+		console.error("Error concatenating CSS files:", error);
+	}
+}
+
+// Function to watch CSS directory
+async function watchCssDirectory() {
+	const cssDir = "src/css";
+	
+	try {
+		console.log(`Watch for CSS changes in ${cssDir}...`);
+		const watcher = watch(cssDir, { recursive: true });
+		
+		for await (const event of watcher) {
+			if (event.filename && event.filename.endsWith('.css')) {
+				console.log(`CSS change detected in ${event.filename}`);
+				await concatCssFiles();
+			}
+		}
+	} catch (error) {
+		console.error("Error watching CSS directory:", error);
+	}
+}
 
 const context = await esbuild.context({
 	banner: {
@@ -39,6 +90,14 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	minify: prod,
+	plugins: [{
+		name: 'css-concat',
+		setup(build) {
+			build.onEnd(async () => {
+				await concatCssFiles();
+			});
+		},
+	}],
 });
 
 if (prod) {
@@ -46,4 +105,6 @@ if (prod) {
 	process.exit(0);
 } else {
 	await context.watch();
+	// Start CSS watcher in dev mode
+	watchCssDirectory();
 }
