@@ -29,17 +29,41 @@ export function parseFilePath(path: string): FileComponents {
  * @param suggestionPath Suggestion file path
  * @param template Template string for merging
  * @returns Merged filename
+ * @throws Error if template is invalid or contains unknown variables
  */
 export function mergeFilenames(currentPath: string, suggestionPath: string, template: string): string {
+    if (!template) {
+        throw new Error('Template is required');
+    }
+
     const current = parseFilePath(currentPath);
     const suggestion = parseFilePath(suggestionPath);
     
+    // Check for invalid variables in the template
+    const matches = template.match(/\${([^}]+)}/g) || [];
+    for (const match of matches) {
+        const variable = match.slice(2, -1); // Remove ${ and }
+        const [object, property] = variable.split('.');
+        
+        if (!['current', 'suggestion'].includes(object) || 
+            !['folderPath', 'basename', 'extension'].includes(property)) {
+            throw new Error(`Invalid template variable: ${variable}`);
+        }
+    }
+    
     // Replace template variables with actual values
-    return template
+    let result = template
         .replace(/\${suggestion\.folderPath}/g, suggestion.folderPath)
         .replace(/\${suggestion\.basename}/g, suggestion.basename)
         .replace(/\${suggestion\.extension}/g, suggestion.extension)
         .replace(/\${current\.folderPath}/g, current.folderPath)
         .replace(/\${current\.basename}/g, current.basename)
         .replace(/\${current\.extension}/g, current.extension);
+    
+    // If no extension is specified in the template, use the current file's extension
+    if (!matches.some(m => m.includes('.extension'))) {
+        result = `${result}.${current.extension}`;
+    }
+    
+    return result;
 } 
