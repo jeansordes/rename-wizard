@@ -52,7 +52,6 @@ export default class RenameWizardPlugin extends Plugin {
 	}
 
 	async saveSettings(): Promise<void> {
-		console.log('Saving settings:', this.settings);
 		await this.saveData(this.settings);
 		console.log('Settings saved successfully');
 	}

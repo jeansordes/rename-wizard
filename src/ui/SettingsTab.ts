@@ -45,44 +45,45 @@ export class RenameWizardSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        new Setting(containerEl)
-            .setName('Select last part of filename')
-            .setDesc('When renaming, select only the part after the last dot (e.g., "subtopic" in "topic.subtopic"). If disabled, the cursor is placed at the end of the filename.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.selectLastPart)
-                .onChange(async (value) => {
-                    this.plugin.settings.selectLastPart = value;
-                    await this.plugin.saveSettings();
-                }));
+        const setting = new Setting(containerEl)
+            .setName('Select last part of filename');
+            
+        const descEl = setting.descEl;
+        descEl.createSpan({ text: 'When renaming, select only the part after the last dot (e.g., "subtopic" in "topic.subtopic.md")' });
+        descEl.createEl('br');
+        descEl.createSpan({ text: 'If no dot is found, the cursor is placed at the end of the filename.' });
+        descEl.createEl('br');
+        descEl.createSpan({ text: 'If disabled, the cursor is placed at the end of the filename.' });
+        
+        setting.addToggle(toggle => toggle
+            .setValue(this.plugin.settings.selectLastPart)
+            .onChange(async (value) => {
+                this.plugin.settings.selectLastPart = value;
+                await this.plugin.saveSettings();
+            }));
 
         // Template section
         const templateSection = containerEl.createDiv('template-section');
         
         // Template heading and description
-        templateSection.createEl('h3', { text: 'Merge template', cls: 'setting-item-name' });
-        templateSection.createEl('div', { 
-            text: 'Template for merging suggestions. Click on variables below to insert them into your template.',
-            cls: 'setting-item-description'
+        new Setting(templateSection)
+            .setName('Merge template')
+            .setDesc('Template for merging suggestions. Click on variables below to insert them into your template.')
+            .setClass('setting-item-template');
+
+        // Create a container for the textarea and error message
+        const templateInputContainer = templateSection.createDiv('template-input-container');
+
+        // Create textarea directly instead of using Setting
+        this.templateTextarea = templateInputContainer.createEl('textarea', {
+            attr: {
+                spellcheck: 'false',
+                placeholder: '${suggestion.folderPath}/${suggestion.basename}.${current.basename}.${current.extension}'
+            }
         });
-
-        // Add error message div
-        this.errorDiv = templateSection.createDiv('template-error');
-        this.errorDiv.style.color = 'var(--text-error)';
-        this.errorDiv.style.marginBottom = '8px';
-        this.errorDiv.hide();
-
-        // Template textarea
-        const textareaContainer = templateSection.createDiv('template-textarea-container');
-        this.templateTextarea = textareaContainer.createEl('textarea');
         
-        // Set value after creation
+        // Set initial value
         this.templateTextarea.value = this.plugin.settings.mergeTemplate || '';
-        this.templateTextarea.placeholder = '${suggestion.folderPath}/${suggestion.basename}.${current.basename}.${current.extension}';
-
-        // Set initial styles
-        this.templateTextarea.style.width = '100%';
-        this.templateTextarea.style.minHeight = '100px';
-        this.templateTextarea.style.resize = 'vertical';
 
         // Add input event listener to handle changes while typing
         this.templateTextarea.addEventListener('input', async () => {
@@ -115,9 +116,17 @@ export class RenameWizardSettingTab extends PluginSettingTab {
             }
         });
 
-        // Variables reference
+        // Add error message div right after the textarea
+        this.errorDiv = templateInputContainer.createDiv('template-error');
+        this.errorDiv.hide();
+
+        // Variables reference in a Setting
+        new Setting(templateSection)
+            .setName('Available Variables')
+            .setDesc('Click on a variable to insert it into the template')
+            .setClass('setting-item-variables');
+
         const variableList = templateSection.createDiv('template-variables-list');
-        variableList.createEl('h4', { text: 'Available Variables (click to insert)' });
         const list = variableList.createEl('ul');
         
         // Add reset to default option
