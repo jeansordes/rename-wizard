@@ -10,10 +10,8 @@ export const TEMPLATE_VARIABLES = [
 ] as const;
 
 export const DEFAULT_SETTINGS: RenameWizardSettings = {
-    maxSuggestions: 20,
-    recentRenamesLimit: 50,
+    maxSuggestions: 50,
     fuzzyMatchThreshold: 0.4,
     selectLastPart: true,
-    mergeSuggestions: false,
-    mergeTemplate: '${suggestion.folderPath}/${suggestion.basename}.${current.basename}.${current.extension}'
+    mergeTemplate: '${suggestion.folderPath}/${suggestion.basename}.${current.basename}'
 }; 

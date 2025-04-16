@@ -1,5 +1,5 @@
 import { App, TFile } from 'obsidian';
-import { RenameWizardSettings, RenameSuggestion, RenameHistory } from '../types';
+import { RenameWizardSettings, RenameSuggestion } from '../types';
 
 /**
  * Calculate similarity score between two strings
@@ -55,27 +55,14 @@ function getPairs(str: string): string[] {
 }
 
 /**
- * Get suggestions for file rename based on existing files and history
+ * Get suggestions for file rename based on existing files
  */
 export async function getSuggestions(
     app: App,
     input: string,
-    settings: RenameWizardSettings,
-    recentRenames: RenameHistory[]
+    settings: RenameWizardSettings
 ): Promise<RenameSuggestion[]> {
     const suggestions: RenameSuggestion[] = [];
-    
-    // Add suggestions from recent renames
-    recentRenames.forEach(rename => {
-        const score = calculateSimilarity(input, rename.newName);
-        if (score >= settings.fuzzyMatchThreshold) {
-            suggestions.push({
-                name: rename.newName,
-                score,
-                source: 'recent'
-            });
-        }
-    });
     
     // Add suggestions from existing files
     const files = app.vault.getFiles();

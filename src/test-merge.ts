@@ -65,7 +65,7 @@ const testCases = [
 ];
 
 // Function to run tests and format output
-function runTests() {
+function runTests(): void {
     console.log("Running merge filename tests...\n");
     
     testCases.forEach((test, index) => {

@@ -1,8 +1,14 @@
 export interface RenameWizardSettings {
-    mergeTemplate: string;
     maxSuggestions: number;
-    recentRenamesLimit: number;
     fuzzyMatchThreshold: number;
     selectLastPart: boolean;
-    mergeSuggestions: boolean;
+    mergeTemplate: string;
+}
+
+export interface RenameSuggestion {
+    name: string;
+    score: number;
+    source: 'existing' | 'deadLink';
+    path?: string;
+    displayPath?: string;
 } 

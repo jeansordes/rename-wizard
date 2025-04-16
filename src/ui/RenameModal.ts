@@ -158,17 +158,22 @@ export class RenameModal extends Modal {
             
             item.onClickEvent(() => {
                 const suggestionPath = suggestion.path || suggestion.name;
-                let newValue: string;
-                
-                if (this.plugin.settings.mergeSuggestions) {
-                    // Use the merge template
-                    newValue = mergeFilenames(this.file.path, suggestionPath, this.plugin.settings.mergeTemplate);
-                } else {
-                    // Use the original behavior
-                    newValue = suggestion.name;
-                }
+                const newValue = mergeFilenames(this.file.path, suggestionPath, this.plugin.settings.mergeTemplate);
                 
                 this.inputEl.value = newValue;
+                
+                // Set cursor position based on settings
+                if (this.plugin.settings.selectLastPart) {
+                    const lastDotIndex = newValue.lastIndexOf('.');
+                    if (lastDotIndex !== -1) {
+                        this.inputEl.setSelectionRange(lastDotIndex + 1, newValue.length);
+                    } else {
+                        this.inputEl.setSelectionRange(newValue.length, newValue.length);
+                    }
+                } else {
+                    this.inputEl.setSelectionRange(newValue.length, newValue.length);
+                }
+                
                 this.inputEl.dispatchEvent(new Event('input'));
                 this.validateFileName(newValue);
             });

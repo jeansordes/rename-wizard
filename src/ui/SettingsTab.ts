@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, DropdownComponent } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 import RenameWizardPlugin from '../main';
 import { TEMPLATE_VARIABLES, DEFAULT_SETTINGS } from '../utils/constants';
 
@@ -32,18 +32,6 @@ export class RenameWizardSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Recent renames limit')
-            .setDesc('Number of recent renames to keep in history')
-            .addText(text => text
-                .setPlaceholder('50')
-                .setValue(this.plugin.settings.recentRenamesLimit.toString())
-                .onChange(async (value) => {
-                    const numValue = parseInt(value) || 50;
-                    this.plugin.settings.recentRenamesLimit = numValue;
-                    await this.plugin.saveSettings();
-                }));
-
-        new Setting(containerEl)
             .setName('Fuzzy match threshold')
             .setDesc('Minimum similarity score for suggestions (0.0 to 1.0)')
             .addText(text => text
@@ -62,16 +50,6 @@ export class RenameWizardSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.selectLastPart)
                 .onChange(async (value) => {
                     this.plugin.settings.selectLastPart = value;
-                    await this.plugin.saveSettings();
-                }));
-
-        new Setting(containerEl)
-            .setName('Merge suggestions')
-            .setDesc('When enabled, clicking a suggestion will merge it with the current filename instead of replacing it')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.mergeSuggestions)
-                .onChange(async (value) => {
-                    this.plugin.settings.mergeSuggestions = value;
                     await this.plugin.saveSettings();
                 }));
 
