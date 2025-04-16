@@ -1,5 +1,5 @@
 import { RenameWizardSettings } from '../src/types';
-import { DEFAULT_SETTINGS } from '../src/constants';
+import { DEFAULT_SETTINGS } from '../src/utils/constants';
 
 describe('RenameWizardSettings', () => {
     let settings: RenameWizardSettings;

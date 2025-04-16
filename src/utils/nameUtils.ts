@@ -12,6 +12,7 @@ export function parseFilePath(path: string): FileComponents {
     const folderPath = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
     const filename = lastSlashIndex !== -1 ? path.substring(lastSlashIndex + 1) : path;
     
+    // Only consider the last dot as extension separator
     const lastDotIndex = filename.lastIndexOf('.');
     const basename = lastDotIndex !== -1 ? filename.substring(0, lastDotIndex) : filename;
     const extension = lastDotIndex !== -1 ? filename.substring(lastDotIndex + 1) : '';

@@ -1,7 +1,8 @@
-import { App, Modal, TFile, ButtonComponent, setIcon, TFolder } from 'obsidian';
+import { App, ButtonComponent, Modal, setIcon, TFile, TFolder } from 'obsidian';
+import { getSuggestions } from '../core/suggestions';
 import RenameWizardPlugin from '../main';
 import { RenameSuggestion } from '../types';
-import { getSuggestions } from '../core/suggestions';
+import { calculateSmartDiff } from '../utils/diffUtils';
 import { mergeFilenames } from '../utils/nameUtils';
 
 export class ComplexRenameModal extends Modal {
@@ -42,22 +43,38 @@ export class ComplexRenameModal extends Modal {
                 cls: 'rename-input',
                 attr: { rows: '1' }
             });
-            this.inputEl.textContent = this.file.basename;
+            // Use full path with extension
+            this.inputEl.textContent = this.file.path;
 
             // Focus and set selection immediately after creating the input
             this.inputEl.focus();
             if (this.plugin.settings.selectLastPart) {
-                // Select only the last part of the filename (after the last dot)
-                const lastDotIndex = this.file.basename.lastIndexOf('.');
-                if (lastDotIndex !== -1) {
-                    this.inputEl.setSelectionRange(lastDotIndex + 1, this.file.basename.length);
+                // Select only the last part of the filename before the extension
+                const pathParts = this.file.path.split('/');
+                const filename = pathParts[pathParts.length - 1];
+                
+                // Find the position of the last dot before the extension
+                const extensionDotIndex = filename.lastIndexOf('.');
+                
+                const filenameParts = extensionDotIndex !== -1 
+                    ? filename.slice(0, extensionDotIndex).split('.')
+                    : filename.split('.');
+                
+                if (filenameParts.length > 1) {
+                    // Calculate positions in the full path
+                    const fullPathWithoutExt = this.file.path.slice(0, this.file.path.lastIndexOf('.'));
+                    const startPos = fullPathWithoutExt.lastIndexOf('.') + 1;
+                    const endPos = this.file.path.lastIndexOf('.');
+                    this.inputEl.setSelectionRange(startPos, endPos);
                 } else {
-                    // Place cursor at the end without selecting
-                    this.inputEl.setSelectionRange(this.file.basename.length, this.file.basename.length);
+                    // If no dots in filename, select the whole filename without extension
+                    const startPos = this.file.path.lastIndexOf('/') + 1;
+                    const endPos = this.file.path.lastIndexOf('.');
+                    this.inputEl.setSelectionRange(startPos, endPos);
                 }
             } else {
                 // Default behavior: place cursor at the end without selecting
-                this.inputEl.setSelectionRange(this.file.basename.length, this.file.basename.length);
+                this.inputEl.setSelectionRange(this.file.path.length, this.file.path.length);
             }
 
             // Add reset button inside input container (after input)
@@ -65,10 +82,10 @@ export class ComplexRenameModal extends Modal {
                 .setIcon('rotate-ccw')
                 .setTooltip('Reset to original filename')
                 .onClick(() => {
-                    this.inputEl.value = this.file.basename;
+                    this.inputEl.value = this.file.path;
                     this.inputEl.dispatchEvent(new Event('input'));
-                    this.validateFileName(this.file.basename);
-                    this.updatePreview(this.file.basename);
+                    this.validateFileName(this.file.path);
+                    this.updatePreview(this.file.path);
                     this.inputEl.focus();
                 });
             resetButton.buttonEl.addClass('reset-button');
@@ -116,7 +133,7 @@ export class ComplexRenameModal extends Modal {
             this.suggestionsEl = contentEl.createDiv('suggestions');
 
             // Now that all elements are created, initialize the preview
-            this.updatePreview(this.file.basename);
+            this.updatePreview(this.file.path);
         });
         
         // Input handlers
@@ -177,7 +194,7 @@ export class ComplexRenameModal extends Modal {
         });
 
         // Initialize suggestions with current filename
-        this.currentRenameValue = this.file.basename;
+        this.currentRenameValue = this.file.path;
         this.updateSuggestions();
 
         // Adjust height based on content
@@ -193,10 +210,10 @@ export class ComplexRenameModal extends Modal {
             const currentFolder = this.file.parent ? this.file.parent.path : '';
             // Special handling for root folder to avoid double slashes
             const newPath = currentFolder === '/' 
-                ? `${currentFolder}${trimmedName}.${this.file.extension}`
+                ? `${currentFolder}${trimmedName}`
                 : currentFolder
-                    ? `${currentFolder}/${trimmedName}.${this.file.extension}`
-                    : `${trimmedName}.${this.file.extension}`;
+                    ? `${currentFolder}/${trimmedName}`
+                    : trimmedName;
             
             return { newPath, folderPath: null };
         }
@@ -208,8 +225,8 @@ export class ComplexRenameModal extends Modal {
 
         // Construct the new path, avoiding double slashes
         const newPath = newFolderPath
-            ? `${newFolderPath}/${newBasename}.${this.file.extension}`
-            : `${newBasename}.${this.file.extension}`;
+            ? `${newFolderPath}/${newBasename}`
+            : newBasename;
 
         return { 
             newPath, 
@@ -219,11 +236,12 @@ export class ComplexRenameModal extends Modal {
 
     private async performRename(): Promise<void> {
         const newName = this.inputEl.value.trim();
+                
         if (!newName) return;
 
         try {
             const { newPath, folderPath } = this.normalizePath(newName);
-
+            
             // Create folder if needed
             if (folderPath) {
                 const folder = this.app.vault.getAbstractFileByPath(folderPath);
@@ -232,7 +250,7 @@ export class ComplexRenameModal extends Modal {
                 }
             }
 
-            await this.app.fileManager.renameFile(this.file, newPath);
+                        await this.app.fileManager.renameFile(this.file, newPath);
             this.close();
         } catch (error) {
             console.error('Error renaming file:', error);
@@ -325,13 +343,14 @@ export class ComplexRenameModal extends Modal {
     }
 
     private updatePreview(newName: string): void {
+                
         if (!newName.trim()) {
             this.previewEl.setText('Please enter a new name');
             return;
         }
 
         const { newPath, folderPath } = this.normalizePath(newName);
-        
+                
         this.previewEl.empty();
         
         // Create the diff view container
@@ -342,18 +361,24 @@ export class ComplexRenameModal extends Modal {
         const displayNewPath = newPath.startsWith('/') && !newPath.includes('/', 1) 
             ? newPath.substring(1) 
             : newPath;
-            
+        
+                    
         // Only show diff if paths are different
         if (oldPath !== displayNewPath) {
-            // Compute the character-level diff
-            const diff = this.computeCharacterDiff(oldPath, displayNewPath);
-            
+            // Use our new smart diff
+            const diff = calculateSmartDiff(oldPath, displayNewPath);
+                        
             // Create elements for each part of the diff
             diff.forEach(part => {
-                diffContainer.createSpan({
+                const span = diffContainer.createSpan({
                     text: part.text,
                     cls: `diff-${part.type}`
                 });
+                
+                // Add tooltip for moved parts
+                if (part.type === 'moved') {
+                    span.setAttr('title', 'Moved from another position');
+                }
             });
         } else {
             // If no changes, just show the current path
@@ -387,27 +412,30 @@ export class ComplexRenameModal extends Modal {
         }
     }
 
-    private showError(message: string): void {
+    private showError(message: string, isWarning: boolean = false): void {
         if (this.errorEl) {
             // Clear previous content
             this.errorEl.empty();
             
-            // Add error icon
+            // Add icon
             const iconDiv = this.errorEl.createDiv('suggestion-icon');
-            setIcon(iconDiv, 'alert-circle');
+            setIcon(iconDiv, isWarning ? 'alert-triangle' : 'alert-circle');
             
-            // Add error message
+            // Add message
             this.errorEl.createSpan().setText(message);
             
-            // Show error
-            this.errorEl.addClass('show');
-            this.submitBtn.setDisabled(true);
+            // Show message with appropriate style
+            this.errorEl.removeClass('show-error', 'show-warning');
+            this.errorEl.addClass(isWarning ? 'show-warning' : 'show-error');
+            
+            // Only disable submit button for errors, not warnings
+            this.submitBtn.setDisabled(!isWarning);
         }
     }
 
     private hideError(): void {
         if (this.errorEl) {
-            this.errorEl.removeClass('show');
+            this.errorEl.removeClass('show-error', 'show-warning');
             this.errorEl.empty();
             this.submitBtn.setDisabled(false);
         }
@@ -464,6 +492,17 @@ export class ComplexRenameModal extends Modal {
         if (hasInvalidChars) {
             this.showError('File name contains invalid characters');
             return false;
+        }
+
+        // Show warning if file extension is missing or different
+        const hasExtension = basename.includes('.');
+        const extension = hasExtension ? basename.split('.').pop()?.toLowerCase() : '';
+        if (!hasExtension) {
+            this.showError('Warning: No file extension specified. This might cause issues with file handling. You can still proceed with the rename.', true);
+            return true;
+        } else if (extension !== this.file.extension.toLowerCase()) {
+            this.showError('Warning: File extension has been changed. This might cause issues with file handling. You can still proceed with the rename.', true);
+            return true;
         }
 
         this.hideError();
@@ -585,40 +624,24 @@ export class ComplexRenameModal extends Modal {
             this.suggestionItems.push(item);
             
             // Add highlighted full path, removing .md extension if present
-            const displayPath = (suggestion.path || suggestion.name).endsWith('.md')
-                ? (suggestion.path || suggestion.name).slice(0, -3)
-                : (suggestion.path || suggestion.name);
+            const displayPath = suggestion.path || suggestion.name;
                 
             // Use the smart highlighting from the filter
             item.appendChild(this.highlightMatches(displayPath, this.currentRenameValue));
             
             item.onClickEvent(() => {
-                // Get the suggestion's folder path and name, removing .md extension if present
-                let suggestionFolder = '';
-                let suggestionName = suggestion.name;
-                if (suggestion.path) {
-                    const lastSlashIndex = suggestion.path.lastIndexOf('/');
-                    if (lastSlashIndex !== -1) {
-                        suggestionFolder = suggestion.path.substring(0, lastSlashIndex);
-                        suggestionName = suggestion.path.substring(lastSlashIndex + 1);
-                    }
-                }
+                // Get the suggestion's folder path and name
+                const suggestionPath = suggestion.path || suggestion.name;
                 
-                // Remove .md extension if present
-                if (suggestionName.endsWith('.md')) {
-                    suggestionName = suggestionName.slice(0, -3);
-                }
-
-                // Use the merge template
-                const currentPath = this.file.path;
-                const suggestionPath = suggestionFolder 
-                    ? `${suggestionFolder}/${suggestionName}` 
-                    : suggestionName;
-                const newValue = mergeFilenames(currentPath, suggestionPath, this.plugin.settings.mergeTemplate);
+                // Use the merge template to combine paths
+                const newValue = mergeFilenames(this.file.path, suggestionPath, this.plugin.settings.mergeTemplate);
 
                 // Update the input value and trigger necessary updates
                 this.inputEl.value = newValue;
                 this.currentRenameValue = newValue;
+
+                // Validate the new filename and show/hide error messages
+                this.validateFileName(newValue);
 
                 // Clear selection and update UI
                 this.selectedSuggestionIndex = -1;
@@ -626,11 +649,25 @@ export class ComplexRenameModal extends Modal {
                 
                 // Set cursor position based on settings
                 if (this.plugin.settings.selectLastPart) {
-                    const lastDotIndex = newValue.lastIndexOf('.');
-                    if (lastDotIndex !== -1) {
-                        this.inputEl.setSelectionRange(lastDotIndex + 1, newValue.length);
+                    const pathParts = newValue.split('/');
+                    const filename = pathParts[pathParts.length - 1];
+                    // Find the position of the last dot before the extension
+                    const extensionDotIndex = filename.lastIndexOf('.');
+                    const filenameParts = extensionDotIndex !== -1 
+                        ? filename.slice(0, extensionDotIndex).split('.')
+                        : filename.split('.');
+                    
+                    if (filenameParts.length > 1) {
+                        // Calculate positions in the full path
+                        const fullPathWithoutExt = newValue.slice(0, extensionDotIndex);
+                        const startPos = fullPathWithoutExt.lastIndexOf('.') + 1;
+                        const endPos = extensionDotIndex !== -1 ? extensionDotIndex : newValue.length;
+                        this.inputEl.setSelectionRange(startPos, endPos);
                     } else {
-                        this.inputEl.setSelectionRange(newValue.length, newValue.length);
+                        // If no dots in filename, select the whole filename without extension
+                        const startPos = newValue.lastIndexOf('/') + 1;
+                        const endPos = extensionDotIndex !== -1 ? extensionDotIndex : newValue.length;
+                        this.inputEl.setSelectionRange(startPos, endPos);
                     }
                 } else {
                     this.inputEl.setSelectionRange(newValue.length, newValue.length);
@@ -639,6 +676,9 @@ export class ComplexRenameModal extends Modal {
                 // Update suggestions and preview
                 this.updateSuggestions();
                 this.updatePreview(newValue);
+                
+                // Set focus back to the textarea
+                this.inputEl.focus();
             });
         });
     }

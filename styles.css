@@ -102,7 +102,7 @@
 }
 
 .complex-rename-modal .error.show {
-    display: flex;
+    display: none;
 }
 
 .complex-rename-modal .preview-folder-creation {
@@ -270,6 +270,13 @@
 .preview-diff .diff-added {
     color: var(--color-green);
     background-color: rgba(var(--color-green-rgb), 0.1);
+}
+
+.preview-diff .diff-moved {
+    color: var(--text-accent);
+    background-color: rgba(var(--color-yellow-rgb), 0.1);
+    text-decoration: none;
+    cursor: help;
 }
 
 .complex-rename-modal .reset-button {
@@ -510,4 +517,24 @@
     padding: var(--size-4-1);
     border-radius: var(--radius-s);
     background-color: rgba(var(--text-error-rgb), 0.1);
+}
+
+.complex-rename-modal .error.show-error,
+.complex-rename-modal .error.show-warning {
+    display: flex;
+}
+
+.complex-rename-modal .error.show-error {
+    background-color: rgba(var(--color-red-rgb), 0.1);
+    color: var(--text-error);
+}
+
+.complex-rename-modal .error.show-warning {
+    background-color: rgba(var(--color-yellow-rgb), 0.1);
+    color: var(--color-yellow);
+}
+
+/* Remove old error show class */
+.complex-rename-modal .error.show {
+    display: none;
 }

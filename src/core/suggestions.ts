@@ -71,10 +71,8 @@ export async function getSuggestions(
         const score = calculatePathSimilarity(file, input);
         
         if (score >= settings.fuzzyMatchThreshold) {
-            // Include extension in name if not .md
-            const displayName = file.extension !== 'md' 
-                ? `${file.basename}.${file.extension}`
-                : file.basename;
+            // Always include extension in name
+            const displayName = `${file.basename}.${file.extension}`;
             
             // Get relative path for display
             const relativePath = file.parent ? file.parent.path : '';
