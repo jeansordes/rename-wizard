@@ -66,4 +66,36 @@ export function mergeFilenames(currentPath: string, suggestionPath: string, temp
     }
     
     return result;
+}
+
+/**
+ * Validates a template string for merge operations
+ * @param template Template string to validate
+ * @returns Object containing validation result and any error message
+ */
+export function validateTemplate(template: string): { isValid: boolean; error?: string } {
+    // Check for empty template
+    if (!template || !template.trim()) {
+        return { isValid: false, error: 'Template cannot be empty' };
+    }
+
+    // Check for forbidden characters (newlines, control characters)
+    const forbiddenCharsRegex = /[\n\r\x00-\x1F\x7F]/;
+    if (forbiddenCharsRegex.test(template)) {
+        return { isValid: false, error: 'Template contains forbidden characters (newlines or control characters)' };
+    }
+
+    // Check for valid variables
+    const matches = template.match(/\${([^}]+)}/g) || [];
+    for (const match of matches) {
+        const variable = match.slice(2, -1); // Remove ${ and }
+        const [object, property] = variable.split('.');
+        
+        if (!['current', 'suggestion'].includes(object) || 
+            !['folderPath', 'basename', 'extension'].includes(property)) {
+            return { isValid: false, error: `Invalid template variable: ${variable}` };
+        }
+    }
+
+    return { isValid: true };
 } 

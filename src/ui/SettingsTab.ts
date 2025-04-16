@@ -1,10 +1,12 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import RenameWizardPlugin from '../main';
 import { TEMPLATE_VARIABLES, DEFAULT_SETTINGS } from '../utils/constants';
+import { validateTemplate } from '../utils/nameUtils';
 
 export class RenameWizardSettingTab extends PluginSettingTab {
     plugin: RenameWizardPlugin;
     private templateTextarea: HTMLTextAreaElement;
+    private errorDiv: HTMLDivElement;
 
     constructor(app: App, plugin: RenameWizardPlugin) {
         super(app, plugin);
@@ -45,7 +47,7 @@ export class RenameWizardSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Select last part of filename')
-            .setDesc('When renaming, select only the part after the last dot (e.g., "subtopic" in "topic.subtopic"). By default, the cursor is placed at the end of the filename.')
+            .setDesc('When renaming, select only the part after the last dot (e.g., "subtopic" in "topic.subtopic"). If disabled, the cursor is placed at the end of the filename.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.selectLastPart)
                 .onChange(async (value) => {
@@ -63,6 +65,12 @@ export class RenameWizardSettingTab extends PluginSettingTab {
             cls: 'setting-item-description'
         });
 
+        // Add error message div
+        this.errorDiv = templateSection.createDiv('template-error');
+        this.errorDiv.style.color = 'var(--text-error)';
+        this.errorDiv.style.marginBottom = '8px';
+        this.errorDiv.hide();
+
         // Template textarea
         const textareaContainer = templateSection.createDiv('template-textarea-container');
         this.templateTextarea = textareaContainer.createEl('textarea');
@@ -78,14 +86,33 @@ export class RenameWizardSettingTab extends PluginSettingTab {
 
         // Add input event listener to handle changes while typing
         this.templateTextarea.addEventListener('input', async () => {
-            this.plugin.settings.mergeTemplate = this.templateTextarea.value;
-            await this.plugin.saveSettings();
+            const value = this.templateTextarea.value;
+            const validation = validateTemplate(value);
+            
+            if (!validation.isValid) {
+                this.errorDiv.setText(validation.error || 'Invalid template');
+                this.errorDiv.show();
+                this.templateTextarea.addClass('is-invalid');
+            } else {
+                this.errorDiv.hide();
+                this.templateTextarea.removeClass('is-invalid');
+                this.plugin.settings.mergeTemplate = value;
+                await this.plugin.saveSettings();
+            }
         });
 
         // Also keep the change event for when textarea loses focus
         this.templateTextarea.addEventListener('change', async () => {
-            this.plugin.settings.mergeTemplate = this.templateTextarea.value;
-            await this.plugin.saveSettings();
+            const value = this.templateTextarea.value;
+            const validation = validateTemplate(value);
+            
+            if (!validation.isValid) {
+                // If invalid on blur, reset to last valid value
+                this.templateTextarea.value = this.plugin.settings.mergeTemplate;
+                this.errorDiv.hide();
+                this.templateTextarea.removeClass('is-invalid');
+                new Notice(validation.error || 'Invalid template');
+            }
         });
 
         // Variables reference
