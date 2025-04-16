@@ -3,6 +3,8 @@ export interface RenameWizardSettings {
     recentRenamesLimit: number;
     fuzzyMatchThreshold: number;
     selectLastPart: boolean;
+    mergeSuggestions: boolean;
+    mergeTemplate: string;
 }
 
 export interface RenameSuggestion {

@@ -2,6 +2,7 @@ import { App, Modal, TFile, ButtonComponent, setIcon, TFolder } from 'obsidian';
 import RenameWizardPlugin from '../main';
 import { RenameSuggestion } from '../types';
 import { getSuggestions } from '../core/suggestions';
+import { mergeFilenames } from '../utils/nameUtils';
 
 export class ComplexRenameModal extends Modal {
     private file: TFile;
@@ -700,12 +701,24 @@ export class ComplexRenameModal extends Modal {
                     suggestionName = suggestionName.slice(0, -3);
                 }
 
-                // If the folders are different, include the suggestion's folder in the new name
-                if (suggestionFolder && suggestionFolder !== currentFolder) {
-                    this.inputEl.value = suggestionFolder + '/' + suggestionName;
+                let newValue: string;
+                if (this.plugin.settings.mergeSuggestions) {
+                    // Use the merge template
+                    const currentPath = this.file.path;
+                    const suggestionPath = suggestionFolder 
+                        ? `${suggestionFolder}/${suggestionName}` 
+                        : suggestionName;
+                    newValue = mergeFilenames(currentPath, suggestionPath, this.plugin.settings.mergeTemplate);
                 } else {
-                    this.inputEl.value = suggestionName;
+                    // Use the original behavior
+                    if (suggestionFolder && suggestionFolder !== currentFolder) {
+                        newValue = suggestionFolder + '/' + suggestionName;
+                    } else {
+                        newValue = suggestionName;
+                    }
                 }
+
+                this.inputEl.value = newValue;
 
                 // Clear selection and update UI
                 this.selectedSuggestionIndex = -1;

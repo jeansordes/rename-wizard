@@ -290,3 +290,199 @@
     color: var(--text-accent);
     background-color: var(--background-modifier-hover);
 }
+
+/* Settings textarea styles */
+.rename-wizard-settings textarea {
+    font-family: var(--font-monospace);
+    padding: var(--size-4-2);
+    border-radius: var(--radius-s);
+    border: var(--input-border-width) solid var(--background-modifier-border);
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    font-size: var(--font-ui-small);
+    line-height: 1.4;
+}
+
+.rename-wizard-settings textarea:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+/* Template settings styles */
+.rename-wizard-settings .setting-category-heading {
+    margin-top: 2em;
+    margin-bottom: 1em;
+    color: var(--text-accent);
+    font-size: var(--font-ui-medium);
+    font-weight: 600;
+}
+
+.rename-wizard-settings .template-container {
+    background: var(--background-secondary);
+    border-radius: var(--radius-m);
+    padding: var(--size-4-2);
+    margin: var(--size-4-2) 0;
+}
+
+.rename-wizard-settings .template-variables-list {
+    margin-top: var(--size-4-3);
+    padding: var(--size-4-2);
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+.rename-wizard-settings .template-variables-list h4 {
+    margin: 0 0 var(--size-4-2) 0;
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+}
+
+.rename-wizard-settings .template-variables-list ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rename-wizard-settings .template-variables-list li {
+    margin-bottom: var(--size-4-1);
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.rename-wizard-settings .template-variables-list code {
+    color: var(--text-accent);
+    background: var(--background-primary);
+    padding: 2px 4px;
+    border-radius: var(--radius-s);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
+}
+
+.rename-wizard-settings .template-variables-list code.clickable-variable {
+    color: var(--text-accent);
+    background: var(--background-primary);
+    padding: 2px 4px;
+    border-radius: var(--radius-s);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    border: 1px solid transparent;
+}
+
+.rename-wizard-settings .template-variables-list code.clickable-variable.reset-template {
+    color: var(--text-error);
+}
+
+.rename-wizard-settings .template-variables-list code.clickable-variable:hover {
+    background: var(--background-modifier-hover);
+    border-color: var(--interactive-accent);
+    transform: translateY(-1px);
+}
+
+.rename-wizard-settings .template-variables-list code.clickable-variable.reset-template:hover {
+    border-color: var(--text-error);
+}
+
+.rename-wizard-settings .template-variables-list code.clickable-variable:active {
+    transform: translateY(0);
+}
+
+.rename-wizard-settings .template-variables-list .variable-separator {
+    height: 1px;
+    background-color: var(--background-modifier-border);
+    margin: 8px 0;
+    opacity: 0.5;
+    list-style: none;
+}
+
+/* Template section styles */
+.rename-wizard-settings .template-section {
+    margin-top: 2em;
+    padding: var(--size-4-2);
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+.rename-wizard-settings .template-section .setting-item-name {
+    margin: 0;
+    padding: 0;
+    font-size: var(--font-ui-medium);
+    font-weight: var(--font-medium);
+    color: var(--text-normal);
+}
+
+.rename-wizard-settings .template-section .setting-item-description {
+    margin: var(--size-4-1) 0;
+    color: var(--text-muted);
+    font-size: var(--font-ui-small);
+}
+
+.rename-wizard-settings .variable-selector {
+    margin: var(--size-4-2) 0;
+}
+
+.rename-wizard-settings .template-textarea-container {
+    margin: var(--size-4-2) 0;
+}
+
+.rename-wizard-settings .template-textarea-container textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: var(--size-4-2);
+    background: var(--background-primary);
+    border: var(--input-border-width) solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-small);
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.rename-wizard-settings .template-textarea-container textarea:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+.rename-wizard-settings .template-variables-list {
+    margin-top: var(--size-4-3);
+    padding-top: var(--size-4-2);
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+.rename-wizard-settings .template-variables-list h4 {
+    margin: 0 0 var(--size-4-2) 0;
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+}
+
+.rename-wizard-settings .template-variables-list ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rename-wizard-settings .template-variables-list li {
+    margin-bottom: var(--size-4-1);
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.rename-wizard-settings .template-variables-list code {
+    color: var(--text-accent);
+    background: var(--background-primary);
+    padding: 2px 4px;
+    border-radius: var(--radius-s);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
+}
+
+.rename-wizard-settings .template-variables-list .default-template-preview {
+    color: var(--text-muted);
+    background: var(--background-secondary);
+    padding: 2px 4px;
+    border-radius: var(--radius-s);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
+    margin-left: 4px;
+}

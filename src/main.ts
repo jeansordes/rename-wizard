@@ -58,11 +58,18 @@ export default class RenameWizardPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		console.log('Loading settings...');
+		const loadedData = await this.loadData();
+		console.log('Loaded data:', loadedData);
+		
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
+		console.log('Final settings after merge:', this.settings);
 	}
 
 	async saveSettings(): Promise<void> {
+		console.log('Saving settings:', this.settings);
 		await this.saveData(this.settings);
+		console.log('Settings saved successfully');
 	}
 
 	addToHistory(oldName: string, newName: string): void {

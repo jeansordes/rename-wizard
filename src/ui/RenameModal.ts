@@ -2,6 +2,7 @@ import { App, Modal, Setting, TFile, ButtonComponent } from 'obsidian';
 import RenameWizardPlugin from '../main';
 import { RenameSuggestion } from '../types';
 import { getSuggestions } from '../core/suggestions';
+import { mergeFilenames } from '../utils/nameUtils';
 
 export class RenameModal extends Modal {
     private file: TFile;
@@ -156,9 +157,20 @@ export class RenameModal extends Modal {
             }
             
             item.onClickEvent(() => {
-                this.inputEl.value = suggestion.name;
+                const suggestionPath = suggestion.path || suggestion.name;
+                let newValue: string;
+                
+                if (this.plugin.settings.mergeSuggestions) {
+                    // Use the merge template
+                    newValue = mergeFilenames(this.file.path, suggestionPath, this.plugin.settings.mergeTemplate);
+                } else {
+                    // Use the original behavior
+                    newValue = suggestion.name;
+                }
+                
+                this.inputEl.value = newValue;
                 this.inputEl.dispatchEvent(new Event('input'));
-                this.validateFileName(suggestion.name);
+                this.validateFileName(newValue);
             });
         });
     }
