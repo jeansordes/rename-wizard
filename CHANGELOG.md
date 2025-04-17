@@ -1,3 +1,27 @@
+# [0.4.0](https://github.com/jeansordes/rename-wizard/compare/0.3.1-beta.0...0.4.0) (2025-04-17)
+
+
+### Bug Fixes
+
+* **core, ui, css:** enhance file suggestion and renaming functionality ([164df1e](https://github.com/jeansordes/rename-wizard/commit/164df1e756a8a174c87bc3da3888b323508bcf13))
+* **ui:** repair layout of modal ([a279229](https://github.com/jeansordes/rename-wizard/commit/a2792294578b99f752571f427ac23f1dd39658d9))
+
+
+* refactor(rename-wizard)!: remove recent renames feature and simplify code ([bf93f7d](https://github.com/jeansordes/rename-wizard/commit/bf93f7d90af57d703d1b64348e5e87d1d3ab34dc))
+
+
+### Features
+
+* **settings:** add merge suggestions feature and customizable merge template for renaming suggestions ([ab394ad](https://github.com/jeansordes/rename-wizard/commit/ab394ad825e782b96fcf44010572a1af05299fbe)), closes [#40](https://github.com/jeansordes/rename-wizard/issues/40)
+* **settings:** add template validation with error feedback ([f2e0711](https://github.com/jeansordes/rename-wizard/commit/f2e07115a900d5806441fa1abd7a9bb7c08329bc)), closes [#41](https://github.com/jeansordes/rename-wizard/issues/41)
+
+
+### BREAKING CHANGES
+
+* Removed recent renames feature and mergeSuggestions setting
+
+
+
 ## [0.3.1-beta.0](https://github.com/jeansordes/rename-wizard/compare/0.3.0...0.3.1-beta.0) (2025-04-12)
 
 
