@@ -7,18 +7,22 @@ export class SuggestionList {
     private selectedIndex: number = -1;
     private suggestions: RenameSuggestion[] = [];
     private onSuggestionClickCallback: (suggestion: RenameSuggestion) => void;
+    private onSelectionChangeCallback?: (isSelected: boolean) => void;
 
     /**
      * Create a new suggestion list component
      * @param container The HTML element to render the suggestions in
      * @param onSuggestionClick Callback when a suggestion is clicked
+     * @param onSelectionChange Optional callback when selection state changes
      */
     constructor(
         container: HTMLElement,
-        onSuggestionClick: (suggestion: RenameSuggestion) => void
+        onSuggestionClick: (suggestion: RenameSuggestion) => void,
+        onSelectionChange?: (isSelected: boolean) => void
     ) {
         this.suggestionsEl = container;
         this.onSuggestionClickCallback = onSuggestionClick;
+        this.onSelectionChangeCallback = onSelectionChange;
     }
 
     /**
@@ -27,9 +31,16 @@ export class SuggestionList {
      * @param filterValue Optional filter value to highlight matches
      */
     updateSuggestions(suggestions: RenameSuggestion[], filterValue = ''): void {
+        const hadSelection = this.selectedIndex !== -1;
+        
         this.suggestions = suggestions;
         this.selectedIndex = -1;
         this.updateSuggestionsList(filterValue);
+        
+        // Notify about selection reset if there was a selection before
+        if (hadSelection && this.onSelectionChangeCallback) {
+            this.onSelectionChangeCallback(false);
+        }
     }
 
     /**
@@ -37,6 +48,11 @@ export class SuggestionList {
      * @param index Index of the suggestion to select
      */
     selectSuggestion(index: number): void {
+        // Check if this is actually a change in selection state (selected/not selected)
+        const wasSelected = this.selectedIndex !== -1;
+        const willBeSelected = index !== -1;
+        const selectionStateChanged = wasSelected !== willBeSelected;
+        
         // Clear previous selection
         if (this.selectedIndex !== -1 && this.suggestionItems[this.selectedIndex]) {
             this.suggestionItems[this.selectedIndex].removeClass('is-selected');
@@ -52,6 +68,11 @@ export class SuggestionList {
             // Scroll into view if needed
             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+        
+        // Notify about selection state change if callback is provided and state changed
+        if (this.onSelectionChangeCallback && selectionStateChanged) {
+            this.onSelectionChangeCallback(willBeSelected);
+        }
     }
 
     /**
@@ -66,6 +87,15 @@ export class SuggestionList {
      */
     get items(): HTMLElement[] {
         return this.suggestionItems;
+    }
+    
+    /**
+     * Get a suggestion by index
+     * @param index Index of the suggestion to retrieve
+     * @returns The suggestion at the given index, or undefined if not found
+     */
+    getSuggestionAt(index: number): RenameSuggestion | undefined {
+        return this.suggestions[index];
     }
     
     /**

@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { App, Plugin, Notice, TFile } from 'obsidian';
+import { Notice, Plugin, TFile } from 'obsidian';
 import { RenameWizardSettings } from './types';
 import { ComplexRenameModal } from './ui/ComplexRenameModal';
 import { RenameWizardSettingTab } from './ui/SettingsTab';
