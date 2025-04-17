@@ -1,4 +1,7 @@
-interface FileComponents {
+/**
+ * Interface representing the components of a file path
+ */
+export interface FileComponents {
     folderPath: string;
     basename: string;
     extension: string;
@@ -6,101 +9,124 @@ interface FileComponents {
 
 /**
  * Parse a file path into its components
+ * @param path File path to parse
+ * @returns Object with folderPath, basename, and extension
  */
 export function parseFilePath(path: string): FileComponents {
+    // Handle empty path
+    if (!path) {
+        return {
+            folderPath: '',
+            basename: '',
+            extension: ''
+        };
+    }
+
+    // Split into folder and filename
     const lastSlashIndex = path.lastIndexOf('/');
     const folderPath = lastSlashIndex !== -1 ? path.substring(0, lastSlashIndex) : '';
     const filename = lastSlashIndex !== -1 ? path.substring(lastSlashIndex + 1) : path;
-    
-    // Only consider the last dot as extension separator
+
+    // Split filename into basename and extension
     const lastDotIndex = filename.lastIndexOf('.');
     const basename = lastDotIndex !== -1 ? filename.substring(0, lastDotIndex) : filename;
     const extension = lastDotIndex !== -1 ? filename.substring(lastDotIndex + 1) : '';
-    
-    return {
-        folderPath,
-        basename,
-        extension
-    };
+
+    return { folderPath, basename, extension };
 }
 
 /**
- * Merge two filenames using a template
- * @param currentPath Current file path
- * @param suggestionPath Suggestion file path
- * @param template Template string for merging
- * @returns Merged filename
- * @throws Error if template is invalid or contains unknown variables
+ * Merge two filenames based on a template
+ * @param currentFileName Current file name
+ * @param suggestionFileName Suggestion file name
+ * @param template Template to use for merging
+ * @returns The merged file name
+ * @throws Error if template is invalid
  */
-export function mergeFilenames(currentPath: string, suggestionPath: string, template: string): string {
-    if (!template) {
-        throw new Error('Template is required');
+export function mergeFilenames(currentFileName: string, suggestionFileName: string, template: string): string {
+    // Validate template
+    const validation = validateTemplate(template);
+    if (!validation.isValid) {
+        throw new Error(validation.error || 'Invalid template');
     }
 
-    const current = parseFilePath(currentPath);
-    const suggestion = parseFilePath(suggestionPath);
+    // Parse file components
+    const current = parseFilePath(currentFileName);
+    const suggestion = parseFilePath(suggestionFileName);
+
+    // Replace template variables
+    let result = template;
     
-    // Check for invalid variables in the template
-    const matches = template.match(/\${([^}]+)}/g) || [];
-    for (const match of matches) {
-        const variable = match.slice(2, -1); // Remove ${ and }
-        const [object, property] = variable.split('.');
-        
-        if (!['current', 'suggestion'].includes(object) || 
-            !['folderPath', 'basename', 'extension'].includes(property)) {
-            throw new Error(`Invalid template variable: ${variable}`);
+    // Replace all occurrences of current and suggestion variables
+    result = result.replace(/\${current\.([^}]+)}/g, (match, prop) => {
+        if (prop in current) {
+            return current[prop as keyof FileComponents];
         }
-    }
-    
-    // Replace template variables with actual values
-    let result = template
-        .replace(/\${suggestion\.folderPath}/g, suggestion.folderPath)
-        .replace(/\${suggestion\.basename}/g, suggestion.basename)
-        .replace(/\${suggestion\.extension}/g, suggestion.extension)
-        .replace(/\${current\.folderPath}/g, current.folderPath)
-        .replace(/\${current\.basename}/g, current.basename)
-        .replace(/\${current\.extension}/g, current.extension);
-    
-    // If no extension is specified in the template, use the current file's extension
-    if (!matches.some(m => m.includes('.extension'))) {
-        result = `${result}.${current.extension}`;
-    }
-    
+        throw new Error(`Invalid template variable: current.${prop}`);
+    });
+
+    result = result.replace(/\${suggestion\.([^}]+)}/g, (match, prop) => {
+        if (prop in suggestion) {
+            return suggestion[prop as keyof FileComponents];
+        }
+        throw new Error(`Invalid template variable: suggestion.${prop}`);
+    });
+
     return result;
 }
 
 /**
- * Validates a template string for merge operations
+ * Validate a template string
  * @param template Template string to validate
- * @returns Object containing validation result and any error message
+ * @returns Object with isValid and error message
  */
-export function validateTemplate(template: string): { isValid: boolean; error?: string } {
-    // Check for empty template
-    if (!template || !template.trim()) {
-        return { isValid: false, error: 'Template cannot be empty' };
+export function validateTemplate(template: string): { isValid: boolean; error: string } {
+    // Check if template is empty
+    if (!template) {
+        return {
+            isValid: false,
+            error: 'Template cannot be empty'
+        };
     }
 
-    // Check for forbidden characters (newlines and control characters)
-    if (/[\n\r]/.test(template)) {
-        return { isValid: false, error: 'Template cannot contain newlines' };
+    // Check for forbidden characters
+    const forbiddenCharsRegex = /[\\:*?"<>|]/g;
+    const forbiddenMatches = template.match(forbiddenCharsRegex);
+    if (forbiddenMatches) {
+        return {
+            isValid: false,
+            error: `Template contains forbidden characters: ${[...new Set(forbiddenMatches)].join(' ')}`
+        };
     }
 
-    // Check for control characters
-    if (template.split('').some(char => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) {
-        return { isValid: false, error: 'Template cannot contain control characters' };
+    // Check for malformed variables
+    const variableRegex = /\${([^}]*)}/g;
+    let match;
+    
+    // Check if there are any unclosed variable patterns
+    if ((template.match(/\${/g) || []).length !== (template.match(/}/g) || []).length) {
+        return {
+            isValid: false,
+            error: 'Invalid template format: unclosed variable'
+        };
     }
 
-    // Check for valid variables
-    const matches = template.match(/\${([^}]+)}/g) || [];
-    for (const match of matches) {
-        const variable = match.slice(2, -1); // Remove ${ and }
-        const [object, property] = variable.split('.');
+    // Validate each variable
+    while ((match = variableRegex.exec(template)) !== null) {
+        const variable = match[1];
         
-        if (!['current', 'suggestion'].includes(object) || 
-            !['folderPath', 'basename', 'extension'].includes(property)) {
-            return { isValid: false, error: `Invalid template variable: ${variable}` };
+        // Check if variable is properly formed (should be current.xxx or suggestion.xxx)
+        if (!variable.match(/^(current|suggestion)\.(folderPath|basename|extension)$/)) {
+            return {
+                isValid: false,
+                error: `Invalid template variable: ${variable}`
+            };
         }
     }
 
-    return { isValid: true };
+    // All checks passed
+    return {
+        isValid: true,
+        error: ''
+    };
 } 
