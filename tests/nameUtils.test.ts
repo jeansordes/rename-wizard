@@ -1,4 +1,4 @@
-import { mergeFilenames } from '../src/utils/nameUtils';
+import { mergeFilenames, parseFilePath } from '../src/utils/nameUtils';
 
 describe('nameUtils', () => {
     describe('mergeFilenames', () => {
@@ -43,6 +43,32 @@ describe('nameUtils', () => {
         test('should handle template with no variables', () => {
             const result = mergeFilenames('file1.txt', 'file2.txt', 'merged.${current.extension}');
             expect(result).toBe('merged.txt');
+        });
+
+        // Dendron style filenames
+        test('should handle Dendron style filenames with dendronBasename variable', () => {
+            const result = mergeFilenames('prj.A.task.md', 'prj.B.md', '${suggestion.dendronBasename || suggestion.basename}.${current.dendronLastSegment}.${current.extension}');
+            expect(result).toBe('prj.task.md');
+        });
+
+        test('should support the user request case (replacing prj.A.task.md with prj.B)', () => {
+            const result = mergeFilenames('prj.A.task.md', 'prj.B.md', '${suggestion.basename}.${current.dendronLastSegment}.${current.extension}');
+            expect(result).toBe('prj.B.task.md');
+        });
+
+        test('should handle complex Dendron style filenames', () => {
+            const result = mergeFilenames('notes/project.area.topic.subtopic.md', 'project.area.newtopic.md', '${current.folderPath}/${suggestion.dendronBasename}.${current.dendronLastSegment}.${current.extension}');
+            expect(result).toBe('notes/project.area.subtopic.md');
+        });
+
+        test('should handle Dendron style with both current and suggestion dendronBasenames', () => {
+            const result = mergeFilenames('prj.A.task.md', 'prj.B.todo.md', '${suggestion.dendronBasename}.${current.dendronLastSegment}.${current.extension}');
+            expect(result).toBe('prj.B.task.md');
+        });
+
+        test('should handle Dendron style with dendronLastSegment for both files', () => {
+            const result = mergeFilenames('prj.A.task.md', 'prj.B.todo.md', '${suggestion.dendronBasename}.${suggestion.dendronLastSegment}-${current.dendronLastSegment}.${current.extension}');
+            expect(result).toBe('prj.B.todo-task.md');
         });
 
         // Error cases
