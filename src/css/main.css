@@ -78,11 +78,6 @@
     background-color: var(--background-modifier-hover);
 }
 
-/* Hide button text for icon-only appearance */
-.complex-rename-modal button .buttonText {
-    display: none;
-}
-
 /* Input styles */
 .complex-rename-modal .rename-input {
     flex: 1;
@@ -349,9 +344,4 @@
     color: var(--text-normal);
     font-family: var(--font-monospace);
     font-size: var(--font-ui-smaller);
-}
-
-/* Hide the notices container since it's not in the example */
-.complex-rename-modal .notices-container {
-    display: none;
 }

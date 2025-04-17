@@ -3,7 +3,7 @@ import { getSuggestions } from '../core/suggestions';
 import RenameWizardPlugin from '../main';
 import { RenameSuggestion } from '../types';
 import { mergeFilenames } from '../utils/nameUtils';
-import { normalizePath, validateFileName } from '../validators/fileNameValidator';
+import { normalizePath, validateFileName, validateFileNamePure } from '../validators/fileNameValidator';
 import { ErrorDisplay } from './components/ErrorDisplay';
 import { SuggestionList } from './components/SuggestionList';
 import { PreviewRenderer } from './preview/PreviewRenderer';
@@ -79,7 +79,7 @@ export class ComplexRenameModal extends Modal {
                 .onClick(() => {
                     this.inputEl.value = this.file.path;
                     this.inputEl.dispatchEvent(new Event('input'));
-                    this.validateInput(this.file.path);
+                    this.validateAndUpdateUI(this.file.path);
                     PreviewRenderer.updatePreview(this.previewEl, this.folderNoticeEl, this.file.path, this.file);
                     this.inputEl.focus();
                 });
@@ -92,7 +92,7 @@ export class ComplexRenameModal extends Modal {
                 .setIcon('checkmark')
                 .setTooltip('Rename file')
                 .onClick(async () => {
-                    if (this.validateInput(this.inputEl.value)) {
+                    if (this.validateAndUpdateUI(this.inputEl.value)) {
                         await this.performRename();
                     }
                 });
@@ -129,6 +129,9 @@ export class ComplexRenameModal extends Modal {
                 this.updateKeyboardInstructions(false);
             });
 
+            // Preview section
+            this.previewEl = contentEl.createDiv('preview');
+
             // Error message and folder creation notice between inputs
             const noticesContainer = contentEl.createDiv('notices-container');
             this.errorEl = noticesContainer.createDiv({ cls: 'error' });
@@ -137,9 +140,6 @@ export class ComplexRenameModal extends Modal {
 
             // Initialize error display
             this.errorDisplay = new ErrorDisplay(this.errorEl);
-
-            // Preview section
-            this.previewEl = contentEl.createDiv('preview');
 
             // Suggestions section
             this.suggestionsEl = contentEl.createDiv('suggestions');
@@ -191,7 +191,7 @@ export class ComplexRenameModal extends Modal {
         }
 
         // Always validate and show error immediately
-        this.validateInput(value);
+        this.validateAndUpdateUI(value);
 
         // Update suggestions and preview
         await this.updateSuggestions();
@@ -223,7 +223,7 @@ export class ComplexRenameModal extends Modal {
                 } else {
                     // Perform rename if input is valid
                     const value = this.inputEl.value;
-                    if (this.validateInput(value)) {
+                    if (this.validateAndUpdateUI(value)) {
                         this.performRename();
                     }
                 }
@@ -344,11 +344,24 @@ export class ComplexRenameModal extends Modal {
     }
 
     /**
-     * Validate the input and show appropriate error messages
+     * Updates UI based on validation result and returns validity
+     * @param name The filename to validate
      * @returns True if input is valid
      */
-    private validateInput(name: string): boolean {
-        const result = validateFileName(name, this.app, this.file);
+    private validateAndUpdateUI(name: string): boolean {
+        const existingFiles: Record<string, boolean> = {};
+
+        // Build a map of existing files and folders
+        this.app.vault.getAllLoadedFiles().forEach(file => {
+            existingFiles[file.path] = true;
+
+            // Add folder paths
+            if (file.parent) {
+                existingFiles[file.parent.path] = true;
+            }
+        });
+
+        const result = validateFileNamePure(name, existingFiles, this.file.path);
 
         if (!result.isValid) {
             this.errorDisplay.showError(result.errorMessage, result.isWarning);
