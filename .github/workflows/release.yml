@@ -58,8 +58,8 @@ jobs:
           # Read the changelog and extract the section for this version
           awk -v version="$VERSION" '
             BEGIN { found=0; buffer="" }
-            /^## \[?'$VERSION'\]?/ { found=1; buffer=$0; next }
-            found==1 && /^## / { exit }
+            /^# \[?'$VERSION'\]?/ { found=1; buffer=$0; next }
+            found==1 && /^# / { exit }
             found==1 { buffer=buffer"\n"$0 }
             END { print buffer }
           ' CHANGELOG.md > $TEMP_FILE
