@@ -60,7 +60,8 @@ function getPairs(str: string): string[] {
 export async function getSuggestions(
     app: App,
     input: string,
-    settings: RenameWizardSettings
+    maxSuggestions: number,
+    fuzzyMatchThreshold: number
 ): Promise<RenameSuggestion[]> {
     const suggestions: RenameSuggestion[] = [];
     
@@ -70,7 +71,7 @@ export async function getSuggestions(
         // Calculate similarity based on both path and filename
         const score = calculatePathSimilarity(file, input);
         
-        if (score >= settings.fuzzyMatchThreshold) {
+        if (score >= fuzzyMatchThreshold) {
             // Always include extension in name
             const displayName = `${file.basename}.${file.extension}`;
             
@@ -87,6 +88,8 @@ export async function getSuggestions(
         }
     });
     
-    // Return all suggestions that meet the threshold
-    return suggestions;
+    // Return top suggestions that meet the threshold
+    return suggestions
+        .sort((a, b) => b.score - a.score)
+        .slice(0, maxSuggestions);
 } 

@@ -74,7 +74,7 @@
     resize: none;
     overflow: hidden;
     min-height: var(--input-height);
-    line-height: 1.5;
+    line-height: 1;
     white-space: pre-wrap;
     word-wrap: break-word;
     height: auto;
@@ -92,6 +92,22 @@
     background: var(--background-secondary-alt);
     border-radius: 0 0 var(--radius-l) var(--radius-l);
     margin-top: -1px;
+}
+
+/* Preview title discrete styling */
+.preview-title-discrete {
+    font-size: var(--font-ui-smaller);
+    opacity: 0.7;
+    margin-bottom: var(--size-4-1);
+}
+
+/* Preview placeholder for unchanged files */
+.preview-placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: var(--size-4-2);
+    font-size: var(--font-ui-small);
 }
 
 /* Preview components */
@@ -151,7 +167,7 @@
     flex: 1;
     overflow-y: auto;
     max-height: calc(84vh - 170px);
-    padding: var(--size-4-1) 0;
+    padding: 0 0 var(--size-4-1) 0;
 }
 
 .suggestion-list {
@@ -162,7 +178,7 @@
 
 .complex-rename-modal .suggestion-item {
     display: flex;
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: var(--size-2-3) var(--size-4-3);
     cursor: pointer;
     align-items: center;
     gap: var(--size-4-2);
