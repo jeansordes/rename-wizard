@@ -1,3 +1,17 @@
+## [0.5.1](https://github.com/jeansordes/rename-wizard/compare/0.4.0...0.5.1) (2025-04-17)
+
+
+### Bug Fixes
+
+* **release:** correct changelog version header format in release workflow ([a046c46](https://github.com/jeansordes/rename-wizard/commit/a046c46142a374eff0c31685f3ca4c364c7c0143))
+
+
+### Features
+
+* **core:** improve suggestion sorting logic for enhanced relevance ([e4d7542](https://github.com/jeansordes/rename-wizard/commit/e4d75428c4e21bb1ad97ed39c1d58079988c7eea))
+
+
+
 # [0.5.0](https://github.com/jeansordes/rename-wizard/compare/0.4.0...0.5.0) (2025-04-17)
 
 
