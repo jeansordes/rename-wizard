@@ -283,7 +283,8 @@ describe('KeyboardHandlers', () => {
                 inputEl: { focus: jest.fn() },
                 isNavigatingSuggestions: false,
                 updateIsNavigatingSuggestions: jest.fn(),
-                updateKeyboardInstructions: jest.fn()
+                updateKeyboardInstructions: jest.fn(),
+                close: jest.fn()
             };
             
             handler = createEscapeKeyHandler(context);
@@ -295,34 +296,37 @@ describe('KeyboardHandlers', () => {
             const result = handler();
             
             expect(result).toBe(true);
+            expect(context.close).toHaveBeenCalled();
         });
 
-        it('resets navigation state and returns true when in navigation mode', () => {
+        it('resets navigation state and returns false when in navigation mode', () => {
             // Set isNavigatingSuggestions to true
             context.isNavigatingSuggestions = true;
             
             const result = handler();
             
-            expect(result).toBe(true);
+            expect(result).toBe(false);
             expect(context.suggestionList.selectSuggestion).toHaveBeenCalledWith(-1);
             expect(context.updateIsNavigatingSuggestions).toHaveBeenCalledWith(false);
             expect(context.updateKeyboardInstructions).toHaveBeenCalledWith(false);
             expect(context.inputEl.focus).toHaveBeenCalled();
+            expect(context.close).not.toHaveBeenCalled();
         });
 
-        it('resets navigation state and returns true when a suggestion is selected', () => {
+        it('resets navigation state and returns false when a suggestion is selected', () => {
             context.suggestionList.selectedSuggestionIndex = 0;
             
             const result = handler();
             
-            expect(result).toBe(true);
+            expect(result).toBe(false);
             expect(context.suggestionList.selectSuggestion).toHaveBeenCalledWith(-1);
             expect(context.updateIsNavigatingSuggestions).toHaveBeenCalledWith(false);
             expect(context.updateKeyboardInstructions).toHaveBeenCalledWith(false);
             expect(context.inputEl.focus).toHaveBeenCalled();
+            expect(context.close).not.toHaveBeenCalled();
         });
 
-        it('returns true when not in navigation mode and no suggestion selected', () => {
+        it('calls close and returns true when not in navigation mode and no suggestion selected', () => {
             const result = handler();
             
             expect(result).toBe(true);
@@ -330,6 +334,20 @@ describe('KeyboardHandlers', () => {
             expect(context.updateIsNavigatingSuggestions).not.toHaveBeenCalled();
             expect(context.updateKeyboardInstructions).not.toHaveBeenCalled();
             expect(context.inputEl.focus).not.toHaveBeenCalled();
+            expect(context.close).toHaveBeenCalled();
+        });
+        
+        it('should never close the modal if in navigation mode regardless of other state', () => {
+            // Arrange - navigation mode + suggestion selected
+            context.isNavigatingSuggestions = true;
+            context.suggestionList.selectedSuggestionIndex = 1;
+            
+            // Act
+            const result = handler();
+            
+            // Assert
+            expect(result).toBe(false);
+            expect(context.close).not.toHaveBeenCalled();
         });
     });
 }); 

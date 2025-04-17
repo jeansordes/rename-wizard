@@ -168,11 +168,8 @@ export function updateKeyboardInstructions(
     // Clear existing instructions
     instructionsEl.empty();
 
-    // Only show navigation instructions if we have suggestions
-    const hasSuggestions = suggestionList.items.length > 0;
-    if (hasSuggestions) {
-        createInstructionElement(instructionsEl, '↑↓', 'to navigate');
-    }
+    // Always show navigation instructions
+    createInstructionElement(instructionsEl, '↑↓', 'to navigate');
 
     if (hasSuggestionSelected) {
         // When a suggestion is highlighted

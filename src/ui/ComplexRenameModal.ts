@@ -118,7 +118,8 @@ export class ComplexRenameModal extends Modal {
             updateKeyboardInstructions: updateKeyboardInstructionsHandler,
             validateAndUpdateUI: this.validateAndUpdateUI.bind(this),
             performRename: this.performRename.bind(this),
-            handleSuggestionClick: this.handleSuggestionClick.bind(this)
+            handleSuggestionClick: this.handleSuggestionClick.bind(this),
+            close: this.close.bind(this)
         };
 
         // Create and bind event handlers
@@ -140,9 +141,6 @@ export class ComplexRenameModal extends Modal {
             updateKeyboardInstructionsHandler(false);
         });
 
-        // Initialize instructions (default state: no suggestion selected)
-        updateKeyboardInstructionsHandler(false);
-
         // Initialize the preview
         PreviewRenderer.updatePreview(this.previewEl, this.folderNoticeEl, this.file.path, this.file);
 
@@ -151,7 +149,12 @@ export class ComplexRenameModal extends Modal {
 
         // Initialize suggestions with current filename
         this.currentRenameValue = this.file.path;
-        this.updateSuggestions();
+        
+        // Initialize suggestions and then update keyboard instructions after
+        this.updateSuggestions().then(() => {
+            // Initialize instructions after suggestions are loaded
+            updateKeyboardInstructionsHandler(false);
+        });
     }
 
     /**
@@ -203,6 +206,9 @@ export class ComplexRenameModal extends Modal {
             this.plugin.settings.fuzzyMatchThreshold,
             this.suggestionList
         );
+        
+        // Update keyboard instructions after suggestions are loaded
+        this.updateKeyboardInstructions(this.isNavigatingSuggestions);
     }
 
     /**
@@ -265,23 +271,14 @@ export class ComplexRenameModal extends Modal {
             updateKeyboardInstructions: this.updateKeyboardInstructions.bind(this),
             validateAndUpdateUI: this.validateAndUpdateUI.bind(this),
             performRename: this.performRename.bind(this),
-            handleSuggestionClick: this.handleSuggestionClick.bind(this)
+            handleSuggestionClick: this.handleSuggestionClick.bind(this),
+            close: this.close.bind(this)
         });
         
-        // Call the handler to handle ESC
-        const result = escapeHandler();
-        
-        // If still in navigation mode, keep modal open
-        if (!result) {
-            return false; // Keep modal open
-        }
-        
-        // Not in navigation mode, close the modal
-        if (!this.isNavigatingSuggestions && this.suggestionList.selectedSuggestionIndex === -1) {
-            this.close();
-        }
-        
-        return true;
+        // Call the handler to handle ESC and return its result
+        // If false, it means we're in navigation mode and should keep the modal open
+        // If true, it means we should let Obsidian handle the ESC key (which will close the modal)
+        return escapeHandler();
     }
 
     onClose(): void {

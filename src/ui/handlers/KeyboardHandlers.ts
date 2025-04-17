@@ -11,6 +11,7 @@ export interface KeyHandlerContext {
     validateAndUpdateUI: (value: string) => boolean;
     performRename: () => Promise<void>;
     handleSuggestionClick: (suggestion: RenameSuggestion) => void;
+    close: () => void;
 }
 
 /**
@@ -91,7 +92,8 @@ export function createEscapeKeyHandler(context: KeyHandlerContext): () => boolea
     return (): boolean => {
         // Safety check
         if (!context.suggestionList) {
-            return true; // Tell Obsidian we handled it (close the modal)
+            context.close();
+            return true;
         }
 
         // If in suggestion navigation, prevent modal from closing
@@ -101,9 +103,12 @@ export function createEscapeKeyHandler(context: KeyHandlerContext): () => boolea
             context.updateIsNavigatingSuggestions(false);
             context.updateKeyboardInstructions(false);
             context.inputEl.focus();
+            
+            // Return false to prevent modal from closing
+            return false;
         }
 
-        // Always return true to let Obsidian know we've handled the event
+        context.close();
         return true;
     };
 } 
