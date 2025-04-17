@@ -1,3 +1,7 @@
+## [0.5.2](https://github.com/jeansordes/rename-wizard/compare/0.5.1...0.5.2) (2025-04-17)
+
+
+
 ## [0.5.1](https://github.com/jeansordes/rename-wizard/compare/0.4.0...0.5.1) (2025-04-17)
 
 

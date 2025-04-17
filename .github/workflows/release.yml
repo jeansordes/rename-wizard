@@ -1,4 +1,4 @@
-name: Release Tree Mapper
+name: Release Workflow
 
 on:
   push:
@@ -55,11 +55,11 @@ jobs:
           # Create a temporary file for the extracted section
           TEMP_FILE="release_notes.md"
           
-          # Read the changelog and extract the section for this version
+          # Read the changelog and extract the section for this version (handle both # and ## formats)
           awk -v version="$VERSION" '
             BEGIN { found=0; buffer="" }
-            /^# \[?'$VERSION'\]?/ { found=1; buffer=$0; next }
-            found==1 && /^# / { exit }
+            /^[#]{1,2} \[?'$VERSION'\]?/ { found=1; buffer=$0; next }
+            found==1 && /^[#]{1,2} / { exit }
             found==1 { buffer=buffer"\n"$0 }
             END { print buffer }
           ' CHANGELOG.md > $TEMP_FILE
@@ -71,6 +71,10 @@ jobs:
             echo "## What's Changed" >> $TEMP_FILE
             echo "- Version bump to $VERSION" >> $TEMP_FILE
           fi
+          
+          # Display the content of the release notes for debugging
+          echo "Generated release notes:"
+          cat $TEMP_FILE
         
       - name: Create release
         env:

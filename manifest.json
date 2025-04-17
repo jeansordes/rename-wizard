@@ -1,7 +1,7 @@
 {
 	"id": "rename-wizard",
 	"name": "Rename Wizard",
-	"version": "0.5.1",
+	"version": "0.5.2",
 	"minAppVersion": "0.15.0",
 	"description": "Add suggestions when renaming a file in your Obsidian vault",
 	"author": "jeansordes",
