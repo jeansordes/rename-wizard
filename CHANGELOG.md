@@ -1,3 +1,12 @@
+## [0.5.3](https://github.com/jeansordes/rename-wizard/compare/0.5.2...0.5.3) (2025-04-17)
+
+
+### Bug Fixes
+
+* **release:** do nothing, but serves as a test for release ([6cd89b0](https://github.com/jeansordes/rename-wizard/commit/6cd89b0ede720f8f8092def0cd1bab79b89af7c2))
+
+
+
 ## [0.5.2](https://github.com/jeansordes/rename-wizard/compare/0.5.1...0.5.2) (2025-04-17)
 
 
