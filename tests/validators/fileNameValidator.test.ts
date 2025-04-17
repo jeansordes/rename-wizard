@@ -1,4 +1,13 @@
-import { normalizePath } from '../../src/validators/fileNameValidator';
+import { 
+    normalizePath, 
+    validateEmptyName,
+    validateReservedCharacters,
+    validateEmptyPathSegments,
+    checkExtensionChange,
+    checkFileExistsPure,
+    checkFolderExistsPure,
+    FILE_VALIDATION
+} from '../../src/validators/fileNameValidator';
 import { TFile } from 'obsidian';
 
 describe('fileNameValidator', () => {
@@ -101,6 +110,160 @@ describe('fileNameValidator', () => {
             
             expect(result.newPath).toBe('new folder/file with spaces.md');
             expect(result.folderPath).toBe('new folder');
+        });
+    });
+
+    describe('validateEmptyName', () => {
+        test('should detect empty filenames', () => {
+            expect(validateEmptyName('')).toEqual({
+                isValid: false,
+                errorMessage: 'Filename cannot be empty',
+                isWarning: false
+            });
+
+            expect(validateEmptyName('   ')).toEqual({
+                isValid: false,
+                errorMessage: 'Filename cannot be empty',
+                isWarning: false
+            });
+        });
+
+        test('should return null for non-empty filenames', () => {
+            expect(validateEmptyName('file.txt')).toBeNull();
+            expect(validateEmptyName('  file.txt  ')).toBeNull();
+        });
+    });
+
+    describe('validateReservedCharacters', () => {
+        test('should detect invalid characters', () => {
+            expect(validateReservedCharacters('file?.txt')).toEqual({
+                isValid: false,
+                errorMessage: 'Filename contains invalid characters: ?',
+                isWarning: false
+            });
+        });
+
+        test('should detect multiple invalid characters', () => {
+            const input = 'file*:?<>.txt';
+            const result = validateReservedCharacters(input);
+            expect(result?.isValid).toBe(false);
+            expect(result?.errorMessage).toContain('invalid characters');
+            
+            // Verify that all characters in the regex are being matched correctly
+            const matches = input.match(FILE_VALIDATION.RESERVED_CHARS_REGEX);
+            const uniqueChars = [...new Set(matches)].join(' ');
+            expect(result?.errorMessage).toBe(`Filename contains invalid characters: ${uniqueChars}`);
+        });
+
+        test('should return null for valid filenames', () => {
+            expect(validateReservedCharacters('valid-file.txt')).toBeNull();
+            expect(validateReservedCharacters('valid file with spaces.txt')).toBeNull();
+        });
+    });
+
+    describe('validateEmptyPathSegments', () => {
+        test('should detect empty segments with double slashes', () => {
+            expect(validateEmptyPathSegments('folder//file.txt')).toEqual({
+                isValid: false,
+                errorMessage: 'Path cannot contain empty segments',
+                isWarning: false
+            });
+        });
+
+        test('should detect empty segments with spaces', () => {
+            expect(validateEmptyPathSegments('folder/ /file.txt')).toEqual({
+                isValid: false,
+                errorMessage: 'Path cannot contain empty segments',
+                isWarning: false
+            });
+        });
+
+        test('should return null for valid paths', () => {
+            expect(validateEmptyPathSegments('folder/file.txt')).toBeNull();
+            expect(validateEmptyPathSegments('multiple/folders/file.txt')).toBeNull();
+        });
+    });
+
+    describe('checkExtensionChange', () => {
+        test('should detect extension change', () => {
+            expect(checkExtensionChange('file.txt', 'file.md'))
+                .toBe('File extension will change from .txt to .md');
+        });
+
+        test('should detect adding extension', () => {
+            expect(checkExtensionChange('file', 'file.md'))
+                .toBe('File extension will change from no extension to .md');
+        });
+
+        test('should detect removing extension', () => {
+            expect(checkExtensionChange('file.txt', 'file'))
+                .toBe('File extension will change from .txt to no extension');
+        });
+
+        test('should return null when extension doesn\'t change', () => {
+            expect(checkExtensionChange('file.txt', 'renamed.txt')).toBeNull();
+            expect(checkExtensionChange('file', 'renamed')).toBeNull();
+        });
+    });
+
+    describe('checkFileExistsPure', () => {
+        test('should detect existing files', () => {
+            const existingFiles = {
+                'existing.txt': true
+            };
+            
+            expect(checkFileExistsPure('existing.txt', existingFiles, 'original.txt')).toEqual({
+                isValid: false,
+                errorMessage: 'A file with this name already exists at: existing.txt',
+                isWarning: true
+            });
+        });
+
+        test('should allow renaming to current path', () => {
+            const existingFiles = {
+                'current.txt': true
+            };
+            
+            expect(checkFileExistsPure('current.txt', existingFiles, 'current.txt')).toBeNull();
+        });
+
+        test('should return null for non-existing files', () => {
+            const existingFiles = {
+                'existing.txt': true
+            };
+            
+            expect(checkFileExistsPure('new.txt', existingFiles, 'original.txt')).toBeNull();
+        });
+    });
+
+    describe('checkFolderExistsPure', () => {
+        test('should detect non-existent folders', () => {
+            const existingFiles = {
+                'existing-folder': true
+            };
+            
+            expect(checkFolderExistsPure('new-folder', existingFiles, 'parent-folder'))
+                .toBe("Folder doesn't exist: new-folder");
+        });
+
+        test('should return null for existing folders', () => {
+            const existingFiles = {
+                'existing-folder': true
+            };
+            
+            expect(checkFolderExistsPure('existing-folder', existingFiles, 'parent-folder')).toBeNull();
+        });
+
+        test('should return null when using current parent folder', () => {
+            const existingFiles = {
+                'parent-folder': true
+            };
+            
+            expect(checkFolderExistsPure('parent-folder', existingFiles, 'parent-folder')).toBeNull();
+        });
+
+        test('should return null for null folder path', () => {
+            expect(checkFolderExistsPure(null, {}, 'parent-folder')).toBeNull();
         });
     });
 }); 
