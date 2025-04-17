@@ -20,7 +20,7 @@
     box-shadow: var(--shadow-l);
     border-radius: var(--radius-l);
     z-index: 1;
-    padding-top: var(--size-4-2);
+    padding: 0;
 }
 
 /* Modal Positioning */
@@ -50,50 +50,69 @@
    ================= */
 .modal-content.complex-rename-modal .input-container {
     display: flex;
-    padding: var(--size-4-1) var(--size-4-3);
-    gap: var(--size-4-2);
+    padding: var(--size-4-2) var(--size-4-3);
     background: none;
     align-items: flex-start;
+    border-bottom: 1px solid var(--background-modifier-border);
 }
 
-/* Common input styles */
+/* All buttons styles */
+.complex-rename-modal button {
+    width: 24px;
+    height: 24px;
+    padding: 4px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin: var(--size-4-2) var(--size-4-1)
+}
+
+.complex-rename-modal button:hover {
+    opacity: 1;
+    color: var(--text-accent);
+    background-color: var(--background-modifier-hover);
+}
+
+/* Hide button text for icon-only appearance */
+.complex-rename-modal button .buttonText {
+    display: none;
+}
+
+/* Input styles */
 .complex-rename-modal .rename-input {
-    background-color: var(--background-modifier-form-field);
-    border: var(--input-border-width) solid var(--background-modifier-border);
+    flex: 1;
+    background-color: transparent;
+    border: none;
     color: var(--text-normal);
     font-family: var(--font-interface);
     font-size: var(--font-ui-medium);
-    border-radius: var(--radius-s);
-    padding: var(--size-4-2) var(--size-4-3);
-}
-
-/* Specific rename input styles */
-.complex-rename-modal .rename-input {
-    flex: 1;
-    width: 100%;
+    padding: var(--size-4-2) var(--size-4-2);
     resize: none;
     overflow: hidden;
-    min-height: var(--input-height);
-    line-height: 1;
     white-space: pre-wrap;
     word-wrap: break-word;
-    height: auto;
-    max-height: 200px;
-    order: 1;
+}
+
+/* Input placeholder styling */
+.complex-rename-modal .rename-input::placeholder {
+    color: var(--text-faint);
+    opacity: 0.8;
+}
+
+/* Remove outline from input when focused */
+.complex-rename-modal .rename-input:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 /* =================
    Preview Styles
    ================= */
-.preview {
-    padding: var(--size-4-1) var(--size-4-3);
-    color: var(--text-muted);
-    font-size: var(--font-ui-medium);
-    background: var(--background-secondary-alt);
-    border-radius: 0 0 var(--radius-l) var(--radius-l);
-    margin-top: -1px;
-}
-
 /* Preview title discrete styling */
 .preview-title-discrete {
     font-size: var(--font-ui-smaller);
@@ -166,8 +185,7 @@
 .suggestions {
     flex: 1;
     overflow-y: auto;
-    max-height: calc(84vh - 170px);
-    padding: 0 0 var(--size-4-1) 0;
+    padding: 0;
 }
 
 .suggestion-list {
@@ -178,13 +196,13 @@
 
 .complex-rename-modal .suggestion-item {
     display: flex;
-    padding: var(--size-2-3) var(--size-4-3);
+    padding: var(--size-4-2) var(--size-4-3);
     cursor: pointer;
     align-items: center;
-    gap: var(--size-4-2);
     color: var(--text-normal);
-    margin: 1px var(--size-4-1);
-    border-radius: var(--radius-s);
+    border-radius: 0;
+    margin: 0;
+    border-bottom: 1px solid var(--background-modifier-border-subtle, rgba(128, 128, 128, 0.1));
 }
 
 .suggestion-item:hover,
@@ -192,37 +210,41 @@
     background-color: var(--background-modifier-hover);
 }
 
-/* Suggestion item components */
-.complex-rename-modal .suggestion-name {
-    flex: 1;
-    min-width: 0;
-    white-space: pre-wrap;
-    word-break: break-all;
-    font-family: var(--font-interface);
-    font-size: var(--font-ui-small);
-    padding: 2px 0;
-    line-height: 1.4;
+/* Suggestion item with complex layout */
+.complex-rename-modal .suggestion-item.mod-complex {
+    display: flex;
+    justify-content: space-between;
 }
 
-.complex-rename-modal .suggestion-icon {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
+.complex-rename-modal .suggestion-item .suggestion-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.complex-rename-modal .suggestion-item .suggestion-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--font-ui-small);
+}
+
+.complex-rename-modal .suggestion-item .suggestion-aux {
     display: flex;
     align-items: center;
-    justify-content: center;
-    opacity: 0.7;
-    color: var(--text-muted);
+    margin-left: var(--size-4-2);
+}
+
+.complex-rename-modal .suggestion-item .suggestion-flair {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-faint);
 }
 
 /* Highlight styles */
-.complex-rename-modal .suggestion-name .highlight-rename {
+.complex-rename-modal .highlight-rename {
     border-radius: var(--radius-s);
     padding: 0 2px;
     margin: 0 -2px;
-}
-
-.complex-rename-modal .suggestion-name .highlight-rename {
     background-color: var(--text-highlight-bg);
 }
 
@@ -240,7 +262,7 @@
    ================= */
 .preview-diff {
     font-family: var(--font-monospace);
-    padding: var(--size-4-1);
+    padding: var(--size-4-2) var(--size-4-3);
     background: var(--background-secondary);
     border-radius: var(--radius-s);
     white-space: pre-wrap;
@@ -271,30 +293,35 @@
 }
 
 /* =================
-   Buttons
+   Keyboard Instructions
    ================= */
-.complex-rename-modal .reset-button {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    padding: 6px !important;
+.prompt-instructions {
+    padding: var(--size-4-2);
+    border-top: 1px solid var(--background-modifier-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-4-2);
+    justify-content: center;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+}
+
+.prompt-instruction {
     display: flex;
     align-items: center;
-    justify-content: center;
-    opacity: 0.7;
-    border: none;
-    background: none;
+    gap: var(--size-2-2);
+}
+
+.prompt-instruction-command {
+    padding: 2px 4px;
     border-radius: var(--radius-s);
-    order: 0;
+    background-color: var(--background-modifier-border);
+    color: var(--text-normal);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
 }
 
-.complex-rename-modal .reset-button:hover {
-    opacity: 1;
-    color: var(--text-accent);
-    background-color: var(--background-modifier-hover);
-}
-
-.complex-rename-modal button:not(.reset-button) {
-    flex-shrink: 0;
-    order: 2;
+/* Hide the notices container since it's not in the example */
+.complex-rename-modal .notices-container {
+    display: none;
 }

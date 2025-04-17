@@ -1,4 +1,4 @@
-import { App, ButtonComponent, Modal, TFile } from 'obsidian';
+import { App, ButtonComponent, Modal, TFile, setIcon } from 'obsidian';
 import { getSuggestions } from '../core/suggestions';
 import RenameWizardPlugin from '../main';
 import { RenameSuggestion } from '../types';
@@ -6,12 +6,15 @@ import { SuggestionList } from './components/SuggestionList';
 import { ErrorDisplay } from './components/ErrorDisplay';
 import { PreviewRenderer } from './preview/PreviewRenderer';
 import { normalizePath, validateFileName } from '../validators/fileNameValidator';
+import { mergeFilenames } from '../utils/nameUtils';
 
 export class ComplexRenameModal extends Modal {
     private file: TFile;
     private plugin: RenameWizardPlugin;
     private inputEl: HTMLTextAreaElement;
     private submitBtn: ButtonComponent;
+    private resetBtn: ButtonComponent;
+    private closeBtn: ButtonComponent;
     private errorEl: HTMLElement;
     private folderNoticeEl: HTMLElement;
     private previewEl: HTMLElement;
@@ -40,19 +43,21 @@ export class ComplexRenameModal extends Modal {
             
             // Main input (create this first)
             this.inputEl = inputContainer.createEl('textarea', {
-                type: 'text',
                 cls: 'rename-input',
-                attr: { rows: '1' }
+                attr: {
+                    placeholder: 'Enter the new filename, including path',
+                    rows: '1',
+                }
             });
             // Use full path with extension
-            this.inputEl.textContent = this.file.path;
+            this.inputEl.value = this.file.path;
 
             // Focus and set selection immediately after creating the input
             this.inputEl.focus();
             this.setInitialSelection();
 
             // Add reset button inside input container (after input)
-            const resetButton = new ButtonComponent(inputContainer)
+            this.resetBtn = new ButtonComponent(inputContainer)
                 .setIcon('rotate-ccw')
                 .setTooltip('Reset to original filename')
                 .onClick(() => {
@@ -62,15 +67,26 @@ export class ComplexRenameModal extends Modal {
                     PreviewRenderer.updatePreview(this.previewEl, this.folderNoticeEl, this.file.path, this.file);
                     this.inputEl.focus();
                 });
-            resetButton.buttonEl.addClass('reset-button');
+            this.resetBtn.buttonEl.addClass('reset-button');
+            // Initially hide the reset button
+            this.resetBtn.buttonEl.style.display = 'none';
 
             // Add rename button after input
             this.submitBtn = new ButtonComponent(inputContainer)
-                .setButtonText('Rename')
+                .setIcon('checkmark')
+                .setTooltip('Rename file')
                 .onClick(async () => {
                     if (this.validateInput(this.inputEl.value)) {
                         await this.performRename();
                     }
+                });
+
+            // Add close button after rename button
+            this.closeBtn = new ButtonComponent(inputContainer)
+                .setIcon('x')
+                .setTooltip('Close')
+                .onClick(() => {
+                    this.close();
                 });
             
             // Set up auto-expansion functionality
@@ -122,6 +138,13 @@ export class ComplexRenameModal extends Modal {
     private async handleInput(): Promise<void> {
         const value = this.inputEl.value;
         this.currentRenameValue = value;
+        
+        // Toggle reset button visibility based on whether input differs from original
+        if (value !== this.file.path) {
+            this.resetBtn.buttonEl.style.display = 'flex';
+        } else {
+            this.resetBtn.buttonEl.style.display = 'none';
+        }
         
         // Always validate and show error immediately
         this.validateInput(value);
@@ -182,7 +205,9 @@ export class ComplexRenameModal extends Modal {
      * Handle suggestion click
      */
     private handleSuggestionClick(suggestion: RenameSuggestion): void {
-        this.inputEl.value = suggestion.name;
+        // Use mergeFilenames with the template from settings
+        const mergedName = mergeFilenames(this.file.path, suggestion.name, this.plugin.settings.mergeTemplate);
+        this.inputEl.value = mergedName;
         this.inputEl.dispatchEvent(new Event('input'));
         this.inputEl.focus();
     }
@@ -228,6 +253,10 @@ export class ComplexRenameModal extends Modal {
         const adjustHeight = (): void => {
             const maxHeight = this.contentEl.offsetHeight - 300;
             this.inputEl.style.maxHeight = `${maxHeight}px`;
+            
+            // Reset height to auto and then set to scrollHeight to adjust to content
+            this.inputEl.style.height = 'auto';
+            this.inputEl.style.height = `${this.inputEl.scrollHeight}px`;
         };
         
         this.inputEl.addEventListener('input', adjustHeight);
@@ -246,7 +275,7 @@ export class ComplexRenameModal extends Modal {
             this.plugin.settings.fuzzyMatchThreshold
         );
         
-        this.suggestionList.updateSuggestions(suggestions);
+        this.suggestionList.updateSuggestions(suggestions, this.currentRenameValue);
     }
 
     /**

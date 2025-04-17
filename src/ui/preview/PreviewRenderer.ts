@@ -23,11 +23,11 @@ export class PreviewRenderer {
         
         // Handle empty preview
         if (!newName.trim()) {
-            previewEl.createDiv({
-                text: 'Rename preview will appear here...',
-                cls: 'preview-placeholder'
-            });
+            // hide the preview
+            previewEl.style.display = 'none';
             return;
+        } else {
+            previewEl.style.display = 'block';
         }
         
         // Get the normalized path
@@ -52,7 +52,11 @@ export class PreviewRenderer {
         
         // Hide preview if filename is unchanged
         if (file.path === newPath) {
+            // hide the preview
+            previewEl.style.display = 'none';
             return;
+        } else {
+            previewEl.style.display = 'block';
         }
         
         // Create diff view
@@ -62,6 +66,15 @@ export class PreviewRenderer {
         
         // Generate smart diff between original and new filename
         const diff = calculateSmartDiff(file.path, newPath);
+        
+        // Check if diff is empty
+        if (diff.length === 0) {
+            diffContainer.createSpan({
+                text: 'Unable to calculate changes',
+                cls: 'diff-error'
+            });
+            return;
+        }
         
         // Create diff elements
         diff.forEach(segment => {

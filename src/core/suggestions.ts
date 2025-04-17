@@ -55,6 +55,85 @@ function getPairs(str: string): string[] {
 }
 
 /**
+ * Calculate weighted relevance score for a file based on the input
+ * Prioritizes matches in filenames and distinct parts over common elements
+ */
+function calculateWeightedScore(file: TFile, input: string): number {
+    const path = file.path.toLowerCase();
+    const fileName = file.basename.toLowerCase();
+    const extension = file.extension.toLowerCase();
+    const inputLower = input.toLowerCase();
+    
+    // Start with a base score
+    let score = 0;
+    
+    // Extract search terms from input
+    const searchTerms: string[] = [];
+    
+    // Add the whole input
+    searchTerms.push(inputLower);
+    
+    // Add filename part if input contains a path
+    if (input.includes('/')) {
+        const lastPart = input.split('/').pop() || '';
+        if (lastPart) searchTerms.push(lastPart.toLowerCase());
+    }
+    
+    // Add file components (split by common separators)
+    const fileComponents = input.split(/[\/\.\-_\s]/).filter(Boolean);
+    for (const component of fileComponents) {
+        if (component.length >= 2) searchTerms.push(component.toLowerCase());
+    }
+    
+    // Remove duplicates
+    const uniqueTerms = [...new Set(searchTerms)];
+    
+    // Score each search term
+    for (const term of uniqueTerms) {
+        // Skip very short terms unless they're the complete input
+        if (term.length < 2 && term !== inputLower) continue;
+        
+        // Check if file path contains the term
+        if (path.includes(term)) {
+            // Base points for any match
+            let termScore = term.length * 2;
+            
+            // Significant boost if the filename contains the term
+            if (fileName.includes(term)) {
+                termScore += 20;
+                
+                // Extra boost if it's an exact match for the filename
+                if (fileName === term) {
+                    termScore += 30;
+                }
+                
+                // Boost for matches at the beginning of filename
+                if (fileName.startsWith(term)) {
+                    termScore += 15;
+                }
+            }
+            
+            // Penalize common elements
+            if (term === 'md' || term === '.md') {
+                termScore -= 15;
+            }
+            
+            // Penalize matches that are just common folder names
+            if (term === 'notes' && !inputLower.includes('notes')) {
+                termScore -= 10;
+            }
+            
+            // Add to total score
+            score += termScore;
+        }
+    }
+    
+    // Normalize score to a value between 0 and 1 for compatibility
+    // with the existing threshold mechanism
+    return Math.min(score / 100, 1);
+}
+
+/**
  * Get suggestions for file rename based on existing files
  */
 export async function getSuggestions(
@@ -65,15 +144,21 @@ export async function getSuggestions(
 ): Promise<RenameSuggestion[]> {
     const suggestions: RenameSuggestion[] = [];
     
+    // Skip if input is too short
+    if (input.trim().length < 2) {
+        return suggestions;
+    }
+    
     // Add suggestions from existing files
     const files = app.vault.getFiles();
     files.forEach(file => {
-        // Calculate similarity based on both path and filename
-        const score = calculatePathSimilarity(file, input);
+        // Calculate weighted score based on our new algorithm
+        const score = calculateWeightedScore(file, input);
         
+        // Higher threshold to reduce irrelevant matches
         if (score >= fuzzyMatchThreshold) {
-            // Always include extension in name
-            const displayName = `${file.basename}.${file.extension}`;
+            // Use full path for name
+            const displayName = file.path;
             
             // Get relative path for display
             const relativePath = file.parent ? file.parent.path : '';

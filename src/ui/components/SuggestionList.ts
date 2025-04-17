@@ -123,37 +123,94 @@ export class SuggestionList {
             return container;
         }
         
-        // Simple word-level matching for demonstration
-        // Could be enhanced with fuzzy matching or other algorithms
-        const words = input.toLowerCase().split(/\s+/).filter(Boolean);
+        // Extract filename and extension from text
         const textLower = text.toLowerCase();
+        const fileName = text.split('/').pop() || '';
+        const isFilePart = (start: number) => {
+            const fileNameStart = text.lastIndexOf('/') + 1;
+            return start >= fileNameStart;
+        };
         
-        // Find all matches
-        let matches: { start: number; end: number }[] = [];
+        // Find all potential matches
+        const allMatches: Array<{start: number; end: number; score: number}> = [];
         
-        for (const word of words) {
+        // Extract search terms from input
+        const searchTerms: string[] = [];
+        
+        // Add the whole input
+        searchTerms.push(input.toLowerCase());
+        
+        // Add filename part if input contains a path
+        if (input.includes('/')) {
+            const lastPart = input.split('/').pop() || '';
+            if (lastPart) searchTerms.push(lastPart.toLowerCase());
+        }
+        
+        // Add file components (split by common separators)
+        const fileComponents = input.split(/[\/\.\-_\s]/).filter(Boolean);
+        for (const component of fileComponents) {
+            if (component.length >= 2) searchTerms.push(component.toLowerCase());
+        }
+        
+        // Remove duplicates
+        const uniqueTerms = [...new Set(searchTerms)];
+        
+        // Find all matches for each term
+        for (const term of uniqueTerms) {
             let pos = 0;
-            while ((pos = textLower.indexOf(word, pos)) !== -1) {
-                matches.push({ start: pos, end: pos + word.length });
-                pos += word.length;
+            while ((pos = textLower.indexOf(term, pos)) !== -1) {
+                const end = pos + term.length;
+                
+                // Calculate base score
+                let score = term.length; // Longer matches get higher scores
+                
+                // Boost score for filename matches vs path matches
+                if (isFilePart(pos)) score += 10;
+                
+                // Boost score for matches at word boundaries
+                const isWordStart = pos === 0 || !(/[a-zA-Z0-9]/).test(text.charAt(pos - 1));
+                if (isWordStart) score += 5;
+                
+                // Boost score for matches right after a path separator
+                const isAfterPathSeparator = pos > 0 && text.charAt(pos - 1) === '/';
+                if (isAfterPathSeparator) score += 8;
+                
+                // Penalize common elements like '.md'
+                const isExtension = term === '.md' || term === 'md';
+                if (isExtension) score -= 8;
+                
+                // Penalize very short matches unless they're exact matches for the input
+                if (term.length < 3 && term !== input.toLowerCase()) score -= 5;
+                
+                // Penalize matches that are just common folder names if they're not explicitly in the input
+                const isCommonFolder = term === 'notes' && !input.toLowerCase().includes('notes');
+                if (isCommonFolder) score -= 10;
+                
+                allMatches.push({ start: pos, end, score });
+                
+                pos = end;
             }
         }
         
         // Sort matches by position
-        matches.sort((a, b) => a.start - b.start);
+        allMatches.sort((a, b) => a.start - b.start);
         
-        // Merge overlapping matches
-        for (let i = 0; i < matches.length - 1; i++) {
-            if (matches[i].end >= matches[i + 1].start) {
-                matches[i].end = Math.max(matches[i].end, matches[i + 1].end);
-                matches.splice(i + 1, 1);
+        // Merge overlapping matches, keeping the higher score
+        for (let i = 0; i < allMatches.length - 1; i++) {
+            if (allMatches[i].end >= allMatches[i + 1].start) {
+                allMatches[i].end = Math.max(allMatches[i].end, allMatches[i + 1].end);
+                allMatches[i].score = Math.max(allMatches[i].score, allMatches[i + 1].score);
+                allMatches.splice(i + 1, 1);
                 i--;
             }
         }
         
+        // Filter to only keep significant matches
+        const significantMatches = allMatches.filter(m => m.score > 5);
+        
         // Add text with highlights
         let lastPos = 0;
-        for (const match of matches) {
+        for (const match of significantMatches) {
             // Add text before match
             if (match.start > lastPos) {
                 container.appendChild(
