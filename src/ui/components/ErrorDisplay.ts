@@ -18,8 +18,9 @@ export class ErrorDisplay {
      * Show an error message
      * @param message Error message to display
      * @param isWarning Whether this is a warning (yellow) or error (red)
+     * @param warningMessages Optional array of additional warning messages
      */
-    showError(message: string, isWarning = false): void {
+    showError(message: string, isWarning = false, warningMessages?: string[]): void {
         this.errorEl.empty();
         
         // Set the appropriate class based on type
@@ -35,10 +36,37 @@ export class ErrorDisplay {
         const iconSpan = this.errorEl.createSpan({ cls: 'suggestion-icon' });
         setIcon(iconSpan, isWarning ? 'alert-triangle' : 'alert-circle');
         
-        // Add the message
-        this.errorEl.createSpan({
-            text: message
-        });
+        // Check if there are multiple warnings
+        if (isWarning && warningMessages && warningMessages.length > 0) {
+            // Create a container for all warnings
+            const warningsContainer = this.errorEl.createDiv({ cls: 'warnings-container' });
+            
+            // Create the numbered list for all warnings
+            const warningsList = warningsContainer.createDiv({ cls: 'warnings-list' });
+            
+            // Add each warning as a numbered item
+            warningMessages.forEach((warning, index) => {
+                const warningItem = warningsList.createDiv({ cls: 'warning-item' });
+                
+                // Add number prefix for each warning
+                if (warningMessages.length > 1) {
+                    warningItem.createSpan({
+                        cls: 'warning-number',
+                        text: `${index + 1}. `
+                    });
+                }
+                
+                warningItem.createSpan({
+                    cls: 'warning-text',
+                    text: warning
+                });
+            });
+        } else {
+            // Single message - display normally
+            this.errorEl.createSpan({
+                text: message
+            });
+        }
     }
 
     /**

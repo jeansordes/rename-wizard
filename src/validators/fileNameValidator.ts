@@ -131,7 +131,8 @@ export function validateFileNamePure(
     currentFilePath: string
 ): { 
     isValid: boolean; 
-    errorMessage: string; 
+    errorMessage: string;
+    warningMessages?: string[];
     isWarning: boolean; 
     newPath?: string;
 } {
@@ -195,14 +196,12 @@ export function validateFileNamePure(
         };
     }
 
+    // Track multiple warning messages
+    const warnings: string[] = [];
+
     // Check if the folder exists and should be created
     if (folderPath && !existingFiles[folderPath] && folderPath !== mockFile.parent?.path) {
-        return {
-            isValid: true,
-            errorMessage: `Folder doesn't exist: ${folderPath}`,
-            isWarning: true,
-            newPath: processedPath
-        };
+        warnings.push(`Folder doesn't exist: ${folderPath}`);
     }
 
     // Check for file extension change
@@ -213,9 +212,15 @@ export function validateFileNamePure(
         const currentDisplay = currentExt ? `.${currentExt}` : 'no extension';
         const newDisplay = newExt ? `.${newExt}` : 'no extension';
         
+        warnings.push(`File extension will change from ${currentDisplay} to ${newDisplay}`);
+    }
+
+    // Return with appropriate warnings
+    if (warnings.length > 0) {
         return {
             isValid: true,
-            errorMessage: `File extension will change from ${currentDisplay} to ${newDisplay}`,
+            errorMessage: warnings[0], // Keep the first warning as the main error message for backward compatibility
+            warningMessages: warnings,
             isWarning: true,
             newPath: processedPath
         };

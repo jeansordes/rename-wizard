@@ -368,7 +368,11 @@ export class ComplexRenameModal extends Modal {
             return false;
         } else if (result.errorMessage) {
             // Valid with warning
-            this.errorDisplay.showError(result.errorMessage, true);
+            this.errorDisplay.showError(
+                result.errorMessage, 
+                true, 
+                result.warningMessages
+            );
             return true;
         } else {
             this.errorDisplay.hideError();
