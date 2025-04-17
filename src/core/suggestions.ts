@@ -174,7 +174,20 @@ export async function getSuggestions(
     });
     
     // Return top suggestions that meet the threshold
+    // First sort by score (descending), then by path length (ascending) for equal scores
     return suggestions
-        .sort((a, b) => b.score - a.score)
+        .sort((a, b) => {
+            // First sort by score (higher score first)
+            const scoreDiff = b.score - a.score;
+            
+            // If scores are equal, sort by path length (shortest first)
+            if (scoreDiff === 0) {
+                const aPathLength = a.path?.length ?? Number.MAX_SAFE_INTEGER;
+                const bPathLength = b.path?.length ?? Number.MAX_SAFE_INTEGER;
+                return aPathLength - bPathLength;
+            }
+            
+            return scoreDiff;
+        })
         .slice(0, maxSuggestions);
 } 
