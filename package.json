@@ -25,7 +25,8 @@
 		"release:beta": "npm run build && npm run bump:beta && npm run changelog && git add CHANGELOG.md beta-manifest.json && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
 		"test": "jest",
 		"lint": "eslint . --ext .ts",
-		"lint:fix": "eslint . --ext .ts --fix"
+		"lint:fix": "eslint . --ext .ts --fix",
+		"files:linecount": "ts-node --skipProject scripts/sortFilesByLineCount.ts"
 	},
 	"config": {
 		"commitizen": {
@@ -52,6 +53,7 @@
 		"jest": "^29.7.0",
 		"obsidian": "^1.4.11",
 		"ts-jest": "^29.3.2",
+		"ts-node": "^10.9.2",
 		"tslib": "2.4.0",
 		"typescript": "~5.3.3"
 	}
