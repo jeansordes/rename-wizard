@@ -1,3 +1,16 @@
+# [0.6.0](https://github.com/jeansordes/rename-wizard/compare/0.5.3...0.6.0) (2025-04-17)
+
+### Bug Fixes
+
+* **release:** make sure the changelog is correctly formed ([fd92cb2](https://github.com/jeansordes/rename-wizard/commit/fd92cb28db7097434ebe8604070b1f3010e8c708))
+* **ui, test:** fix ESC key behavior to prevent modal closing during suggestion navigation ([27bde28](https://github.com/jeansordes/rename-wizard/commit/27bde28cd516e56fadd234351a56e3f7631a0a0e))
+
+### Features
+
+* **tests, ui:** enhance testing framework and modal functionality ([cfd5805](https://github.com/jeansordes/rename-wizard/commit/cfd5805c9e3c41d703dc608c02e65a0125ad9758))
+* **ui, validators:** enhance error handling ([c0b2042](https://github.com/jeansordes/rename-wizard/commit/c0b20425044992f16aecc4d870dff11f14c07314))
+* **ui, validators:** enhance file name validation and update ComplexRenameModal ([9a8bd26](https://github.com/jeansordes/rename-wizard/commit/9a8bd2662b3c370d22734de857ca7f77321a29a0))
+
 ## [0.5.3](https://github.com/jeansordes/rename-wizard/compare/0.5.2...0.5.3) (2025-04-17)
 
 ### Bug Fixes
