@@ -56,26 +56,151 @@
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
+/* Mobile-specific input container */
+.is-mobile .modal-content.complex-rename-modal .input-container {
+    padding: var(--size-4-3);
+    flex-wrap: wrap;
+}
+
+/* =================
+   Button Container Styles
+   ================= */
+/* Desktop button container */
+.modal-content.complex-rename-modal .input-container .button-container {
+    display: flex;
+    align-items: center;
+    margin: auto;
+    margin-left: var(--size-4-2);
+    flex-shrink: 0;
+}
+
+/* Mobile-specific button container */
+.is-mobile .modal-content.complex-rename-modal .input-container .button-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    margin-top: var(--size-4-2);
+    margin-left: 0;
+    text-align: center;
+}
+
+/* Desktop button order - for the three-button layout we want reset, submit, close */
+.modal-content.complex-rename-modal .button-container .reset-button {
+    order: 1;
+}
+
+.modal-content.complex-rename-modal .button-container button[aria-label="Rename file"] {
+    order: 2;
+}
+
+.modal-content.complex-rename-modal .button-container .close-button {
+    order: 3;
+}
+
+/* Mobile button order - for mobile we want close, reset, submit */
+.is-mobile .modal-content.complex-rename-modal .button-container .close-button {
+    order: 1;
+}
+
+.is-mobile .modal-content.complex-rename-modal .button-container .reset-button {
+    order: 2;
+}
+
+.is-mobile .modal-content.complex-rename-modal .button-container button[aria-label="Rename file"] {
+    order: 3;
+}
+
+/* Position each button in its grid column in mobile */
+.is-mobile .modal-content.complex-rename-modal .button-container .clickable-icon {
+    justify-self: center;
+}
+
+/* Special handling for hidden reset button to maintain layout */
+.is-mobile .modal-content.complex-rename-modal .button-container .reset-button[style*="display: none"] {
+    visibility: hidden;
+    display: flex !important;
+}
+
+/* Desktop specific hidden button handling */
+.modal-content.complex-rename-modal .button-container .reset-button[style*="display: none"] {
+    display: none !important;
+}
+
 /* All buttons styles */
 .complex-rename-modal button {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     padding: 4px !important;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0.7;
     border: none;
-    background: none;
-    border-radius: 50%;
+    background-color: var(--background-secondary-alt);
+    border-radius: 4px;
     flex-shrink: 0;
-    margin: var(--size-4-2) var(--size-4-1)
+    margin: 0 var(--size-4-1);
+}
+
+/* Mobile-specific button styles */
+.is-mobile .complex-rename-modal button {
+    width: 40px;
+    height: 40px;
+    padding: 10px !important;
+    background-color: var(--background-secondary);
+    border-radius: 6px;
+    margin: var(--size-4-1) auto;
+    opacity: 0.9;
+    justify-self: center;
+}
+
+/* Make reset button more subtle until needed */
+.complex-rename-modal .reset-button {
+    background-color: var(--background-modifier-border);
+    color: var(--text-normal);
+}
+
+/* Submit button styling for desktop */
+.complex-rename-modal button[aria-label="Rename file"] {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+    opacity: 0.9;
 }
 
 .complex-rename-modal button:hover {
     opacity: 1;
+    background-color: var(--background-modifier-hover);
+}
+
+/* Submit button hover state */
+.complex-rename-modal button[aria-label="Rename file"]:hover {
+    background-color: var(--interactive-accent-hover);
+    color: var(--text-on-accent);
+}
+
+/* Mobile touch states for buttons */
+.is-mobile .complex-rename-modal button:active {
+    opacity: 1;
     color: var(--text-accent);
     background-color: var(--background-modifier-hover);
+    transform: scale(0.95);
+}
+
+/* Remove mobile-specific submit button styles that overlap with desktop */
+.is-mobile .complex-rename-modal button[aria-label="Rename file"] {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+}
+
+.is-mobile .complex-rename-modal button[aria-label="Rename file"]:active {
+    background-color: var(--interactive-accent-hover);
+    color: var(--text-on-accent);
+}
+
+/* Desktop specific button adjustments */
+.complex-rename-modal .input-container:not(.is-mobile) button {
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 /* Input styles */
@@ -87,10 +212,17 @@
     font-family: var(--font-interface);
     font-size: var(--font-ui-medium);
     padding: var(--size-4-2) var(--size-4-2);
+    min-height: 28px;
     resize: none;
     overflow: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* Mobile-specific input adjustments */
+.is-mobile .complex-rename-modal .rename-input {
+    font-size: var(--font-ui-large);
+    padding: var(--size-4-3) var(--size-4-2);
 }
 
 /* Input placeholder styling */
@@ -230,8 +362,20 @@
     border-bottom: 1px solid var(--background-modifier-border-subtle, rgba(128, 128, 128, 0.1));
 }
 
+/* Mobile-specific suggestion item */
+.is-mobile .complex-rename-modal .suggestion-item {
+    padding: var(--size-4-3);
+    margin: 2px 0;
+    border-radius: var(--radius-s);
+}
+
 .suggestion-item:hover,
 .complex-rename-modal .suggestion-item.is-selected {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Mobile touch feedback */
+.is-mobile .complex-rename-modal .suggestion-item:active {
     background-color: var(--background-modifier-hover);
 }
 
@@ -292,6 +436,7 @@
     border-radius: var(--radius-s);
     white-space: pre-wrap;
     word-break: break-all;
+    user-select: text;
 }
 
 .preview-diff .diff-same {
@@ -314,7 +459,34 @@
     color: var(--text-accent);
     background-color: rgba(var(--color-yellow-rgb), 0.1);
     text-decoration: none;
+    position: relative;
     cursor: help;
+}
+
+/* Add tooltip for moved content */
+.preview-diff .diff-moved::after {
+    content: "Moved from elsewhere";
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: var(--background-modifier-border);
+    color: var(--text-normal);
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-smaller);
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+    box-shadow: var(--shadow-s);
+}
+
+.preview-diff .diff-moved:hover::after {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* =================
@@ -331,10 +503,22 @@
     color: var(--text-muted);
 }
 
+/* Mobile-specific instruction container */
+.is-mobile .prompt-instructions {
+    padding: var(--size-4-3);
+    gap: var(--size-4-3);
+}
+
 .prompt-instruction {
     display: flex;
     align-items: center;
     gap: var(--size-2-2);
+}
+
+/* Mobile-specific instruction item */
+.is-mobile .prompt-instruction {
+    gap: var(--size-4-2);
+    font-size: var(--font-ui-small);
 }
 
 .prompt-instruction-command {
@@ -344,4 +528,11 @@
     color: var(--text-normal);
     font-family: var(--font-monospace);
     font-size: var(--font-ui-smaller);
+}
+
+/* Mobile-specific command key */
+.is-mobile .prompt-instruction-command {
+    padding: 4px 8px;
+    font-size: var(--font-ui-small);
+    background-color: var(--background-secondary);
 }
