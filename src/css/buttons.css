@@ -13,12 +13,8 @@
 
 /* Mobile-specific button container */
 .is-mobile .modal-content.complex-rename-modal .input-container .button-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    width: 100%;
     margin-top: var(--size-4-2);
     margin-left: 0;
-    text-align: center;
 }
 
 /* Desktop button order - for the three-button layout we want reset, submit, close */
@@ -32,30 +28,6 @@
 
 .modal-content.complex-rename-modal .button-container .close-button {
     order: 3;
-}
-
-/* Mobile button order - for mobile we want close, reset, submit */
-.is-mobile .modal-content.complex-rename-modal .button-container .close-button {
-    order: 1;
-}
-
-.is-mobile .modal-content.complex-rename-modal .button-container .reset-button {
-    order: 2;
-}
-
-.is-mobile .modal-content.complex-rename-modal .button-container button[aria-label="Rename file"] {
-    order: 3;
-}
-
-/* Position each button in its grid column in mobile */
-.is-mobile .modal-content.complex-rename-modal .button-container .clickable-icon {
-    justify-self: center;
-}
-
-/* Special handling for hidden reset button to maintain layout */
-.is-mobile .modal-content.complex-rename-modal .button-container .reset-button[style*="display: none"] {
-    visibility: hidden;
-    display: flex !important;
 }
 
 /* Desktop specific hidden button handling */
@@ -81,9 +53,7 @@
 
 /* Mobile-specific button styles */
 .is-mobile .complex-rename-modal button {
-    width: 40px;
-    height: 40px;
-    padding: 10px !important;
+    padding: 5px !important;
     background-color: var(--background-secondary);
     border-radius: 6px;
     margin: var(--size-4-1) auto;
