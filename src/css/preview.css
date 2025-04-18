@@ -1,0 +1,90 @@
+/* =================
+   Preview Styles
+   ================= */
+
+/* Preview title discrete styling */
+.preview-title-discrete {
+    font-size: var(--font-ui-smaller);
+    opacity: 0.7;
+    margin-bottom: var(--size-4-1);
+}
+
+/* Preview placeholder for unchanged files */
+.preview-placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: var(--size-4-2);
+    font-size: var(--font-ui-small);
+}
+
+/* Preview components */
+.complex-rename-modal .preview-path {
+    font-family: var(--font-ui-small);
+    word-break: break-all;
+    font-size: var(--font-ui-medium);
+    padding: var(--size-4-1);
+    background: var(--background-secondary);
+    border-radius: var(--radius-s);
+}
+
+/* Preview Diff Styles */
+.preview-diff {
+    font-family: var(--font-monospace);
+    padding: var(--size-4-2) var(--size-4-3);
+    background: var(--background-secondary);
+    border-radius: var(--radius-s);
+    white-space: pre-wrap;
+    word-break: break-all;
+    user-select: text;
+}
+
+.preview-diff .diff-same {
+    color: var(--text-normal);
+}
+
+.preview-diff .diff-removed {
+    color: var(--text-error);
+    background-color: rgba(var(--color-red-rgb), 0.1);
+    text-decoration: line-through;
+    margin-right: 0.2em;
+}
+
+.preview-diff .diff-added {
+    color: var(--color-green);
+    background-color: rgba(var(--color-green-rgb), 0.1);
+}
+
+.preview-diff .diff-moved {
+    color: var(--text-accent);
+    background-color: rgba(var(--color-yellow-rgb), 0.1);
+    text-decoration: none;
+    position: relative;
+    cursor: help;
+}
+
+/* Add tooltip for moved content */
+.preview-diff .diff-moved::after {
+    content: "Moved from elsewhere";
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: var(--background-modifier-border);
+    color: var(--text-normal);
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-smaller);
+    white-space: nowrap;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+    box-shadow: var(--shadow-s);
+}
+
+.preview-diff .diff-moved:hover::after {
+    opacity: 1;
+    visibility: visible;
+} 

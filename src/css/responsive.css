@@ -1,0 +1,33 @@
+/* =================
+   Responsive Styles
+   ================= */
+   
+/* This file contains mobile-specific responsive styles that weren't 
+   included in their component files for better organization */
+
+/* Mobile-specific styles for the entire modal */
+.is-mobile .modal-content.complex-rename-modal {
+    /* Mobile adjustments for the modal are in the modal.css file */
+}
+
+/* Mobile-specific styles for the input container */
+.is-mobile .complex-rename-modal .input-container {
+    /* Mobile input container styles are in the input.css file */
+}
+
+/* Mobile-specific styles for buttons */
+.is-mobile .complex-rename-modal button {
+    /* Mobile button styles are in the buttons.css file */
+}
+
+/* Mobile-specific styles for suggestions */
+.is-mobile .complex-rename-modal .suggestion-item {
+    /* Mobile suggestion styles are in the suggestions.css file */
+}
+
+/* Mobile-specific instruction styling */
+.is-mobile .prompt-instructions,
+.is-mobile .prompt-instruction,
+.is-mobile .prompt-instruction-command {
+    /* Mobile instruction styles are in the settings.css file */
+} 

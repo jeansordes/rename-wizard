@@ -1,0 +1,119 @@
+/* =================
+   Suggestions
+   ================= */
+   
+.suggestions {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* Suggestion help text */
+.suggestion-help-text {
+    padding: var(--size-4-2) var(--size-4-3);
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: var(--size-4-2);
+    background-color: var(--background-secondary);
+    border-bottom: 1px solid var(--background-modifier-border-subtle);
+}
+
+.suggestion-help-text kbd {
+    display: inline-block;
+    padding: 2px 4px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-normal);
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 3px;
+    box-shadow: 0 1px 0 var(--background-modifier-border);
+    margin: 0 2px;
+}
+
+.suggestion-help-text strong {
+    font-weight: 600;
+    color: var(--text-normal);
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.complex-rename-modal .suggestion-item {
+    display: flex;
+    padding: var(--size-4-2) var(--size-4-3);
+    cursor: pointer;
+    align-items: center;
+    color: var(--text-normal);
+    border-radius: 0;
+    margin: 0;
+    border-bottom: 1px solid var(--background-modifier-border-subtle, rgba(128, 128, 128, 0.1));
+}
+
+/* Mobile-specific suggestion item */
+.is-mobile .complex-rename-modal .suggestion-item {
+    padding: var(--size-4-3);
+    margin: 2px 0;
+    border-radius: var(--radius-s);
+}
+
+.suggestion-item:hover,
+.complex-rename-modal .suggestion-item.is-selected {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Mobile touch feedback */
+.is-mobile .complex-rename-modal .suggestion-item:active {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Suggestion item with complex layout */
+.complex-rename-modal .suggestion-item.mod-complex {
+    display: flex;
+    justify-content: space-between;
+}
+
+.complex-rename-modal .suggestion-item .suggestion-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.complex-rename-modal .suggestion-item .suggestion-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--font-ui-small);
+}
+
+.complex-rename-modal .suggestion-item .suggestion-aux {
+    display: flex;
+    align-items: center;
+    margin-left: var(--size-4-2);
+}
+
+.complex-rename-modal .suggestion-item .suggestion-flair {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-faint);
+}
+
+/* Empty state */
+.suggestion-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: var(--size-4-3);
+    margin: 0;
+    font-size: var(--font-ui-small);
+}
+
+/* Common icon styles for suggestions */
+.complex-rename-modal .preview-folder-creation .suggestion-icon,
+.complex-rename-modal .error .suggestion-icon {
+    color: inherit;
+    opacity: 1;
+} 

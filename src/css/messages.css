@@ -1,0 +1,79 @@
+/* =================
+   Error & Warning States
+   ================= */
+   
+.complex-rename-modal .error,
+.complex-rename-modal .preview-folder-creation {
+    padding: var(--size-4-2) var(--size-4-3);
+    margin: var(--size-4-1) var(--size-4-3);
+    font-size: var(--font-ui-small);
+    display: none;
+    align-items: center;
+    gap: var(--size-4-2);
+    box-sizing: border-box;
+    border-radius: var(--radius-m);
+}
+
+.complex-rename-modal .error.show-error {
+    display: flex;
+    background-color: rgba(var(--color-red-rgb), 0.1);
+    color: var(--text-error);
+}
+
+.complex-rename-modal .error.show-warning {
+    display: flex;
+    background-color: rgba(var(--color-yellow-rgb), 0.1);
+    color: var(--color-yellow);
+}
+
+.complex-rename-modal .preview-folder-creation {
+    color: var(--color-green);
+    background-color: rgba(var(--color-green-rgb), 0.1);
+    display: flex;
+}
+
+/* Keyboard Instructions */
+.prompt-instructions {
+    padding: var(--size-4-2);
+    border-top: 1px solid var(--background-modifier-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-4-2);
+    justify-content: center;
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+}
+
+/* Mobile-specific instruction container */
+.is-mobile .prompt-instructions {
+    padding: var(--size-4-3);
+    gap: var(--size-4-3);
+}
+
+.prompt-instruction {
+    display: flex;
+    align-items: center;
+    gap: var(--size-2-2);
+}
+
+/* Mobile-specific instruction item */
+.is-mobile .prompt-instruction {
+    gap: var(--size-4-2);
+    font-size: var(--font-ui-small);
+}
+
+.prompt-instruction-command {
+    padding: 2px 4px;
+    border-radius: var(--radius-s);
+    background-color: var(--background-modifier-border);
+    color: var(--text-normal);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-smaller);
+}
+
+/* Mobile-specific command key */
+.is-mobile .prompt-instruction-command {
+    padding: 4px 8px;
+    font-size: var(--font-ui-small);
+    background-color: var(--background-secondary);
+} 
