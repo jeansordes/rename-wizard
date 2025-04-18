@@ -73,22 +73,26 @@ export function buildModalContent(params: ModalBuilderParams): {
     inputEl.focus();
     setInitialSelection(inputEl);
     
-    // Create reset button
-    const resetBtn = new ButtonComponent(inputContainer)
+    // Create button container for better mobile layout
+    const buttonContainer = inputContainer.createDiv('button-container');
+    
+    // Create reset button (placed first on desktop, middle on mobile)
+    const resetBtn = new ButtonComponent(buttonContainer)
         .setIcon('rotate-ccw')
         .setTooltip('Reset to original filename');
     resetBtn.buttonEl.addClass('reset-button');
     resetBtn.buttonEl.style.display = 'none';
     
-    // Create submit button
-    const submitBtn = new ButtonComponent(inputContainer)
+    // Create submit button (placed second on desktop, last on mobile)
+    const submitBtn = new ButtonComponent(buttonContainer)
         .setIcon('checkmark')
         .setTooltip('Rename file');
     
-    // Create close button
-    const closeBtn = new ButtonComponent(inputContainer)
+    // Create close button (placed last on desktop, first on mobile)
+    const closeBtn = new ButtonComponent(buttonContainer)
         .setIcon('x')
         .setTooltip('Close');
+    closeBtn.buttonEl.addClass('close-button');
     
     // Configure input auto-expansion
     configureInputAutoExpansion(inputEl);

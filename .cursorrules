@@ -2,3 +2,4 @@
 - When coding tests, don't try to instanciate App, but call the functions directly
 - When building the project, use "npm run build", not "npm run dev"
 - Don't try to create commits on your own, let the user handle this
+- Don't edit styles.css, it is a builded file, and it will be overwritten. You should update src/css files instead
