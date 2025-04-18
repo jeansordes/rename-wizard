@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/jeansordes/rename-wizard/compare/0.6.0...0.7.0) (2025-04-18)
+
+### Features
+
+* **ui:** update styles and improve mobile responsiveness ([e93b94f](https://github.com/jeansordes/rename-wizard/commit/e93b94f3f1f223da932f7a182b5ceaf5d7605c88))
+* **utils, tests:** add Dendron basename support and enhance parsing functionality ([98e34b9](https://github.com/jeansordes/rename-wizard/commit/98e34b958554ac4237bd21698446a451d307cebd))
+
 # [0.6.0](https://github.com/jeansordes/rename-wizard/compare/0.5.3...0.6.0) (2025-04-17)
 
 ### Bug Fixes
