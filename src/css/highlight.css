@@ -1,0 +1,11 @@
+/* =================
+   Highlighting Styles
+   ================= */
+   
+/* Highlight for renamed text */
+.complex-rename-modal .highlight-rename {
+    border-radius: var(--radius-s);
+    padding: 0 2px;
+    margin: 0 -2px;
+    background-color: var(--text-highlight-bg);
+} 
