@@ -26,7 +26,8 @@
 		"test": "jest",
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
-		"files:linecount": "ts-node --skipProject scripts/sortFilesByLineCount.ts"
+		"files:linecount": "ts-node --skipProject scripts/sortFilesByLineCount.ts",
+		"prepare": "husky"
 	},
 	"config": {
 		"commitizen": {
