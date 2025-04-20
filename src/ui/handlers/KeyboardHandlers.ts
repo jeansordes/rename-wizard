@@ -24,6 +24,7 @@ export function createKeydownHandler(context: KeyHandlerContext): (event: Keyboa
 
         // Use switch/case for cleaner handling of different keys
         switch (event.key) {
+            case 'Tab':
             case 'Enter':
                 if (event.isComposing) return;
                 event.preventDefault();
@@ -36,7 +37,7 @@ export function createKeydownHandler(context: KeyHandlerContext): (event: Keyboa
                     if (selectedSuggestion) {
                         context.handleSuggestionClick(selectedSuggestion);
                     }
-                } else {
+                } else if (event.key === 'Enter') {
                     // Perform rename if input is valid
                     const value = context.inputEl.value;
                     if (context.validateAndUpdateUI(value)) {

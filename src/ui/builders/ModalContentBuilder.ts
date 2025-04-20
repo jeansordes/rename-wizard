@@ -175,7 +175,7 @@ export function updateKeyboardInstructions(
 
     if (hasSuggestionSelected) {
         // When a suggestion is highlighted
-        createInstructionElement(instructionsEl, '↵', 'to merge suggestion with current filename');
+        createInstructionElement(instructionsEl, '↵/tab', 'to merge suggestion with current filename');
     } else {
         // When no suggestion is highlighted (regular input mode)
         createInstructionElement(instructionsEl, '↵', 'to rename file');

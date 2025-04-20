@@ -10,7 +10,7 @@ import { BatchRenameProgress } from './components/BatchRenameProgress';
  * @param timeout The timeout in milliseconds (0 for no timeout)
  * @returns The Notice instance
  */
-function showBatchNotice(message: string, timeout = 0, completed = 0, total = 0, status = BatchOperationStatus.PENDING): Notice|null {
+function showBatchNotice(message: string, timeout = 0, completed = 0, total = 0, status = BatchOperationStatus.PENDING, latestRenamedFile: BatchRenameResult | null = null): Notice|null {
     let notice: Notice | null = null;
 
     // If there is already a batch notification, update it
@@ -30,6 +30,13 @@ function showBatchNotice(message: string, timeout = 0, completed = 0, total = 0,
                 const progressBarInner = progressBarOuter.createEl('div', { cls: 'batch-rename-progress-bar-inner' });
                 progressBarInner.style.width = `${(completed / total) * 100}%`;
                 progressBarInner.classList.add(status);
+            }
+
+            // Add the latest renamed file to the notice
+            if (latestRenamedFile) {
+                const latestRenamedFileEl = existingNotif.createEl('div', { cls: 'batch-rename-latest-renamed-file' });
+                latestRenamedFileEl.createEl('div', { text: latestRenamedFile.originalPath, cls: 'file-path old-path' });
+                latestRenamedFileEl.createEl('div', { text: latestRenamedFile.newPath, cls: 'file-path new-path' });
             }
         }
     } else {
@@ -396,7 +403,7 @@ export class BatchRenameModal extends Modal {
             case BatchOperationStatus.RUNNING: {
                 // Calculate percentage
                 const percent = Math.round((progress.completed / progress.total) * 100);
-                message = `Renaming files: ${progress.completed}/${progress.total} (${percent}%) ✓${progress.successful} ✗${progress.failed}`;
+                message += `Renaming files: ${progress.completed}/${progress.total} (${percent}%) ✓${progress.successful} ✗${progress.failed}`;
 
                 break;
             }
@@ -415,8 +422,11 @@ export class BatchRenameModal extends Modal {
                 break;
         }
 
+        // Get the last file to be renamed
+        const latestRenamedFile = progress.results[progress.results.length - 1];
+
         // Create or update the notification
-        this.activeNotice = showBatchNotice(message, 0, progress.completed, progress.total, progress.status);
+        this.activeNotice = showBatchNotice(message, 0, progress.completed, progress.total, progress.status, latestRenamedFile);
 
         // Store the results for potential details view
         this.batchResults = progress.results;

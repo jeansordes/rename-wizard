@@ -177,8 +177,8 @@ describe('ModalContentBuilder', () => {
             expect(instructionsEl.children[0].children[1].setText).toHaveBeenCalledWith('to navigate');
         });
         
-        it('shows "merge suggestion" instruction when suggestion is selected', () => {
-            // Set up suggestion list with items and selection
+        it('shows correct instructions when suggestion is selected', () => {
+            // Set up suggestion list with items and selected suggestion
             const mockSuggestions: RenameSuggestion[] = [
                 { name: 'item1', score: 0.9, source: 'existing' },
                 { name: 'item2', score: 0.8, source: 'deadLink' }
@@ -188,14 +188,17 @@ describe('ModalContentBuilder', () => {
             updateKeyboardInstructions(
                 instructionsEl as unknown as HTMLElement, 
                 suggestionList as unknown as import('../../../src/ui/components/SuggestionList').SuggestionList, 
-                true // suggestion selected
+                true
             );
             
-            // Check instructions for suggestion selection
-            expect(instructionsEl.children[1].children[0].setText).toHaveBeenCalledWith('↵');
-            expect(instructionsEl.children[1].children[1].setText).toHaveBeenCalledWith('to merge suggestion with current filename');
+            // Check that appropriate instructions were created
+            expect(instructionsEl.createDiv).toHaveBeenCalledTimes(3); // Navigate + Enter/Tab + Escape
             
-            // Check escape instruction for suggestion mode
+            // Check instructions
+            expect(instructionsEl.children[0].children[0].setText).toHaveBeenCalledWith('↑↓');
+            expect(instructionsEl.children[0].children[1].setText).toHaveBeenCalledWith('to navigate');
+            expect(instructionsEl.children[1].children[0].setText).toHaveBeenCalledWith('↵/tab');
+            expect(instructionsEl.children[1].children[1].setText).toHaveBeenCalledWith('to merge suggestion with current filename');
             expect(instructionsEl.children[2].children[0].setText).toHaveBeenCalledWith('esc');
             expect(instructionsEl.children[2].children[1].setText).toHaveBeenCalledWith('to return to input');
         });

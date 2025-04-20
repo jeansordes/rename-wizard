@@ -131,6 +131,40 @@ describe('KeyboardHandlers', () => {
             expect(context.performRename).not.toHaveBeenCalled();
         });
 
+        it('applies selected suggestion when Tab is pressed with suggestion selected', () => {
+            context.suggestionList.selectedSuggestionIndex = 0;
+            const mockSuggestion = { name: 'suggestion' };
+            context.suggestionList.getSuggestionAt.mockReturnValue(mockSuggestion);
+            
+            const event = { 
+                key: 'Tab', 
+                preventDefault: jest.fn(),
+                isComposing: false
+            };
+            
+            handler(event);
+            
+            expect(event.preventDefault).toHaveBeenCalled();
+            expect(context.suggestionList.getSuggestionAt).toHaveBeenCalledWith(0);
+            expect(context.handleSuggestionClick).toHaveBeenCalledWith(mockSuggestion);
+            expect(context.performRename).not.toHaveBeenCalled();
+        });
+
+        it('does not perform rename when Tab is pressed with no suggestion selected', () => {
+            context.suggestionList.selectedSuggestionIndex = -1;
+            
+            const event = { 
+                key: 'Tab', 
+                preventDefault: jest.fn(),
+                isComposing: false
+            };
+            
+            handler(event);
+            
+            expect(event.preventDefault).toHaveBeenCalled();
+            expect(context.performRename).not.toHaveBeenCalled();
+        });
+
         it('delegates to handleArrowNavigation for arrow keys', () => {
             const event = { 
                 key: 'ArrowDown', 
