@@ -1,3 +1,16 @@
+# [0.9.0](https://github.com/jeansordes/rename-wizard/compare/0.6.0...0.9.0) (2025-04-20)
+
+### Bug Fixes
+
+* improve notification look + remove logs that were polluting the console ([65c9dc8](https://github.com/jeansordes/rename-wizard/commit/65c9dc8ac6afacad512e0f4045a6c2c7653de4f1))
+
+### Features
+
+* add 'tab' support for accepting a suggestion + add current renaming in notif ([e9fadcf](https://github.com/jeansordes/rename-wizard/commit/e9fadcf4e8e14f4eb14e2026e1cf02972070ba01)), closes [#48](https://github.com/jeansordes/rename-wizard/issues/48)
+* implement batch renaming functionality ([200df09](https://github.com/jeansordes/rename-wizard/commit/200df0906f32a9593daecdad6d4abc22fd637898)), closes [#34](https://github.com/jeansordes/rename-wizard/issues/34)
+* **ui:** update styles and improve mobile responsiveness ([f6f34d2](https://github.com/jeansordes/rename-wizard/commit/f6f34d21595b54a5d746a78500112a7e9d1f8b3d)), closes [#45](https://github.com/jeansordes/rename-wizard/issues/45)
+* **utils, tests:** add Dendron basename support and enhance parsing functionality ([04b49b0](https://github.com/jeansordes/rename-wizard/commit/04b49b095556a2d5b2640b28cdf0f580c27c3c0b)), closes [#43](https://github.com/jeansordes/rename-wizard/issues/43)
+
 ## [0.8.1](https://github.com/jeansordes/rename-wizard/compare/0.8.0...0.8.1) (2025-04-20)
 
 ### Bug Fixes
