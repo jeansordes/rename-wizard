@@ -1,4 +1,3 @@
-import { setIcon } from "obsidian";
 import { RenameSuggestion } from "../../types";
 
 export class SuggestionList {
@@ -120,10 +119,8 @@ export class SuggestionList {
         const listEl = this.suggestionsEl.createEl('ul', { cls: 'suggestion-list' });
         
         // Add each suggestion
-        this.suggestions.forEach((suggestion, index) => {
+        this.suggestions.forEach((suggestion) => {
             const item = listEl.createEl('li', { cls: 'suggestion-item' });
-            
-            // Removed file icon
             
             // Suggestion content with highlighting
             const nameEl = item.createSpan({ cls: 'suggestion-name' });
@@ -155,8 +152,9 @@ export class SuggestionList {
         
         // Extract filename and extension from text
         const textLower = text.toLowerCase();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const fileName = text.split('/').pop() || '';
-        const isFilePart = (start: number) => {
+        const isFilePart = (start: number): boolean => {
             const fileNameStart = text.lastIndexOf('/') + 1;
             return start >= fileNameStart;
         };
@@ -177,7 +175,8 @@ export class SuggestionList {
         }
         
         // Add file components (split by common separators)
-        const fileComponents = input.split(/[\/\.\-_\s]/).filter(Boolean);
+        // Fixed regex escaping
+        const fileComponents = input.split(/[/.\-_\s]/).filter(Boolean);
         for (const component of fileComponents) {
             if (component.length >= 2) searchTerms.push(component.toLowerCase());
         }
@@ -250,7 +249,7 @@ export class SuggestionList {
             
             // Add highlighted match
             const highlight = document.createElement('span');
-            highlight.className = 'highlight-rename';
+            highlight.className = 'suggestion-highlight';
             highlight.textContent = text.substring(match.start, match.end);
             container.appendChild(highlight);
             

@@ -1,5 +1,5 @@
 import { buildModalContent, createInstructionElement, updateKeyboardInstructions } from '../../../src/ui/builders/ModalContentBuilder';
-import { MockHTMLElement, MockTFile, MockApp, MockPlugin, MockSuggestionList, MockButtonComponent } from '../../mocks/ElementMocks';
+import { MockHTMLElement, MockTFile, MockApp, MockPlugin, MockSuggestionList } from '../../mocks/ElementMocks';
 import { RenameSuggestion } from '../../../src/types';
 import { ButtonComponent } from 'obsidian';
 
@@ -53,11 +53,11 @@ describe('ModalContentBuilder', () => {
         
         it('creates all required elements and components', () => {
             const { elements, suggestionList, errorDisplay } = buildModalContent({
-                modalEl: modalEl as any,
-                contentEl: contentEl as any,
-                file: file as any,
-                plugin: plugin as any,
-                app: app as any,
+                modalEl: modalEl as unknown as HTMLElement,
+                contentEl: contentEl as unknown as HTMLElement,
+                file: file as unknown as import('obsidian').TFile,
+                plugin: plugin as unknown as import('../../../src/main').default,
+                app: app as unknown as import('obsidian').App,
                 handleInput,
                 handleSuggestionClick,
                 handleSelectionChange,
@@ -115,7 +115,7 @@ describe('ModalContentBuilder', () => {
             const description = 'to rename file';
             
             const instructionEl = createInstructionElement(
-                container as any, 
+                container as unknown as HTMLElement, 
                 command, 
                 description
             );
@@ -141,13 +141,14 @@ describe('ModalContentBuilder', () => {
         
         beforeEach(() => {
             instructionsEl = new MockHTMLElement('div');
-            suggestionList = new MockSuggestionList(null, jest.fn(), jest.fn());
+            const containerEl = new MockHTMLElement('div');
+            suggestionList = new MockSuggestionList(containerEl as unknown as HTMLElement, jest.fn(), jest.fn());
         });
         
         it('clears existing instructions', () => {
             updateKeyboardInstructions(
-                instructionsEl as any, 
-                suggestionList as any, 
+                instructionsEl as unknown as HTMLElement, 
+                suggestionList as unknown as import('../../../src/ui/components/SuggestionList').SuggestionList, 
                 false
             );
             
@@ -163,8 +164,8 @@ describe('ModalContentBuilder', () => {
             suggestionList.items = mockSuggestions;
             
             updateKeyboardInstructions(
-                instructionsEl as any, 
-                suggestionList as any, 
+                instructionsEl as unknown as HTMLElement, 
+                suggestionList as unknown as import('../../../src/ui/components/SuggestionList').SuggestionList, 
                 false
             );
             
@@ -185,8 +186,8 @@ describe('ModalContentBuilder', () => {
             suggestionList.items = mockSuggestions;
             
             updateKeyboardInstructions(
-                instructionsEl as any, 
-                suggestionList as any, 
+                instructionsEl as unknown as HTMLElement, 
+                suggestionList as unknown as import('../../../src/ui/components/SuggestionList').SuggestionList, 
                 true // suggestion selected
             );
             
@@ -208,8 +209,8 @@ describe('ModalContentBuilder', () => {
             suggestionList.items = mockSuggestions;
             
             updateKeyboardInstructions(
-                instructionsEl as any, 
-                suggestionList as any, 
+                instructionsEl as unknown as HTMLElement, 
+                suggestionList as unknown as import('../../../src/ui/components/SuggestionList').SuggestionList, 
                 false // no suggestion selected
             );
             

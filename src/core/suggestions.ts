@@ -1,5 +1,5 @@
 import { App, TFile } from 'obsidian';
-import { RenameWizardSettings, RenameSuggestion } from '../types';
+import { RenameSuggestion } from '../types';
 
 /**
  * Calculate similarity score between two strings
@@ -24,6 +24,8 @@ function calculateSimilarity(str1: string, str2: string): number {
 /**
  * Calculate path similarity considering folder structure
  */
+// Keeping this function for potential future use but marking it as not used
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 function calculatePathSimilarity(file: TFile, input: string): number {
     // Get the parent path components
     const parentPath = file.parent ? file.parent.path : '';
@@ -61,6 +63,8 @@ function getPairs(str: string): string[] {
 function calculateWeightedScore(file: TFile, input: string): number {
     const path = file.path.toLowerCase();
     const fileName = file.basename.toLowerCase();
+    // File extension is captured but not used in the current implementation
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const extension = file.extension.toLowerCase();
     const inputLower = input.toLowerCase();
     
@@ -80,7 +84,7 @@ function calculateWeightedScore(file: TFile, input: string): number {
     }
     
     // Add file components (split by common separators)
-    const fileComponents = input.split(/[\/\.\-_\s]/).filter(Boolean);
+    const fileComponents = input.split(/[/.\-_\s]/).filter(Boolean);
     for (const component of fileComponents) {
         if (component.length >= 2) searchTerms.push(component.toLowerCase());
     }

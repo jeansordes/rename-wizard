@@ -1,4 +1,4 @@
-import { mergeFilenames, parseFilePath } from '../src/utils/nameUtils';
+import { mergeFilenames } from '../src/utils/nameUtils';
 
 describe('nameUtils', () => {
     describe('mergeFilenames', () => {

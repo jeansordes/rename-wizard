@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { performRenameOperation } from '../../../src/ui/handlers/RenameHandler';
 import { MockApp, MockErrorDisplay, MockTFile } from '../../mocks/ElementMocks';
 

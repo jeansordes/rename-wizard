@@ -1,4 +1,4 @@
-import { App, TFile } from 'obsidian';
+import { App } from 'obsidian';
 import { validateFileNamePure } from '../../validators/fileNameValidator';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 

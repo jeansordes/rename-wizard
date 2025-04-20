@@ -1,7 +1,6 @@
-import { App, TFile } from 'obsidian';
+import { TFile } from 'obsidian';
 import { RenameSuggestion } from '../../types';
 import { mergeFilenames } from '../../utils/nameUtils';
-import { PreviewRenderer } from '../preview/PreviewRenderer';
 import { SuggestionList } from '../components/SuggestionList';
 import RenameWizardPlugin from '../../main';
 

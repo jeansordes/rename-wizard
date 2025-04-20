@@ -81,12 +81,12 @@ export class ComplexRenameModal extends Modal {
         this.isNavigatingSuggestions = false;
 
         // Create bound method versions of class methods for handlers
-        const updateIsNavigatingSuggestions = (value: boolean) => {
+        const updateIsNavigatingSuggestions = (value: boolean): void => {
             this.isNavigatingSuggestions = value;
         };
 
-        const updateKeyboardInstructionsHandler = (isSelected: boolean) => {
-            updateKeyboardInstructions(this.instructionsEl, this.suggestionList, isSelected);
+        const updateKeyboardInstructionsHandler = (isSelected: boolean): void => {
+            this.updateKeyboardInstructions(isSelected);
         };
 
         // Set up DOM and initialize components using our builder
@@ -212,8 +212,9 @@ export class ComplexRenameModal extends Modal {
         batchToggleButton.appendChild(batchToggleIcon);
         setIcon(batchToggleIcon, 'files');
         
-        // Function to update tooltip based on current batch mode state
-        const updateTooltip = () => {
+        // Function for updating the tooltip based on current state
+        const updateTooltip = (): void => {
+            // Update tooltip based on current state
             if (this.isBatchMode) {
                 batchToggleButton.setAttribute('aria-label', `Changes will apply to ${this.similarFilesCount} files`);
             } else {
@@ -547,6 +548,7 @@ export class ComplexRenameModal extends Modal {
         console.log('[DEBUG] All files for batch operation:', batchOperationFiles.map(f => f.path));
         
         // Create a custom batch operation with specific rename logic
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { BatchRenameModal } = require('./BatchRenameModal');
         const batchModal = new BatchRenameModal(this.app, this.plugin, batchOperationFiles);
         
@@ -688,6 +690,7 @@ export class ComplexRenameModal extends Modal {
         this.batchModePreviewContainer = this.batchModeContainer.createDiv({ cls: 'batch-rename-preview-container' });
         this.batchModePreviewContainer.style.display = 'none'; // Hide preview container by default
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const previewText = previewHeader.createSpan({ 
             cls: 'batch-preview-text',
             text: `Preview changes for ${this.similarFilesCount} files`

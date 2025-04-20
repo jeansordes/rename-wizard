@@ -1,5 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // Mock implementation of Obsidian API
 // This file contains TypeScript interfaces and mock implementations for testing
+
+// Define a type to replace 'any' where possible
+type ObsidianCallbackReturnType = unknown;
+type EventCallback = (...data: unknown[]) => unknown;
 
 // Basic types
 export interface TFile {
@@ -43,8 +48,8 @@ export interface Vault {
   read(file: TFile): Promise<string>;
   adapter: DataAdapter;
   getName(): string;
-  getConfig(key: string): any;
-  setConfig(key: string, value: any): void;
+  getConfig(key: string): unknown;
+  setConfig(key: string, value: unknown): void;
 }
 
 export interface DataAdapter {
@@ -65,9 +70,9 @@ export interface App {
 
 export interface Workspace {
   getActiveFile(): TFile | null;
-  onLayoutReady(callback: () => any): void;
-  trigger(name: string, ...args: any[]): void;
-  on(name: string, callback: (...data: any) => any): EventRef;
+  onLayoutReady(callback: () => ObsidianCallbackReturnType): void;
+  trigger(name: string, ...args: unknown[]): void;
+  on(name: string, callback: EventCallback): EventRef;
   off(eventRef: EventRef): void;
 }
 
@@ -77,12 +82,12 @@ export interface EventRef {
 
 export interface MetadataCache {
   getFileCache(file: TFile): CachedMetadata | null;
-  on(name: string, callback: (...data: any) => any): EventRef;
+  on(name: string, callback: EventCallback): EventRef;
   off(eventRef: EventRef): void;
 }
 
 export interface CachedMetadata {
-  frontmatter?: Record<string, any>;
+  frontmatter?: Record<string, unknown>;
   tags?: string[];
   links?: {
     link: string;
@@ -103,15 +108,15 @@ export class Modal {
     this.containerEl = document.createElement('div');
   }
 
-  open() {}
-  close() {}
-  onOpen() {}
-  onClose() {}
+  open(): void {}
+  close(): void {}
+  onOpen(): void {}
+  onClose(): void {}
 }
 
 export class Notice {
-  constructor(message: string, timeout?: number) {}
-  setMessage(message: string): this { return this; }
+  constructor(_message: string, _timeout?: number) {}
+  setMessage(_message: string): this { return this; }
   hide(): void {}
 }
 
@@ -126,7 +131,7 @@ export class Plugin {
     author: string;
     authorUrl: string;
   };
-  settings: any;
+  settings: unknown;
   
   constructor() {
     this.app = {} as App;
@@ -142,16 +147,16 @@ export class Plugin {
     this.settings = {};
   }
 
-  loadData(): Promise<any> {
+  loadData(): Promise<unknown> {
     return Promise.resolve(this.settings);
   }
 
-  saveData(data: any): Promise<void> {
+  saveData(data: unknown): Promise<void> {
     this.settings = data;
     return Promise.resolve();
   }
 
-  addRibbonIcon(icon: string, title: string, callback: (evt: MouseEvent) => any): HTMLElement {
+  addRibbonIcon(_icon: string, _title: string, _callback: (evt: MouseEvent) => ObsidianCallbackReturnType): HTMLElement {
     return document.createElement('div');
   }
 
@@ -159,19 +164,19 @@ export class Plugin {
     return document.createElement('div');
   }
 
-  addCommand(command: {
+  addCommand(_command: {
     id: string;
     name: string;
-    callback?: () => any;
+    callback?: () => ObsidianCallbackReturnType;
     checkCallback?: (checking: boolean) => boolean | void;
     hotkeys?: { modifiers: string[]; key: string }[];
   }): void {}
 
-  registerEvent(eventRef: EventRef): void {}
+  registerEvent(_eventRef: EventRef): void {}
   
-  registerDomEvent(el: Window | Document | HTMLElement, type: string, callback: (evt: any) => any): void {}
+  registerDomEvent(_el: Window | Document | HTMLElement, _type: string, _callback: (evt: unknown) => ObsidianCallbackReturnType): void {}
   
-  registerInterval(id: number): void {}
+  registerInterval(_id: number): void {}
 }
 
 export class PluginSettingTab {
@@ -196,21 +201,48 @@ export class Setting {
     this.containerEl = containerEl;
   }
   
-  setName(name: string): this { return this; }
-  setDesc(desc: string): this { return this; }
-  setTooltip(tooltip: string): this { return this; }
+  setName(_name: string): this { return this; }
+  setDesc(_desc: string): this { return this; }
+  setTooltip(_tooltip: string): this { return this; }
   setHeading(): this { return this; }
-  setDisabled(disabled: boolean): this { return this; }
-  setClass(cls: string): this { return this; }
+  setDisabled(_disabled: boolean): this { return this; }
+  setClass(_cls: string): this { return this; }
   
-  addText(cb: (text: TextComponent) => any): this { return this; }
-  addTextArea(cb: (text: TextAreaComponent) => any): this { return this; }
-  addToggle(cb: (toggle: ToggleComponent) => any): this { return this; }
-  addButton(cb: (button: ButtonComponent) => any): this { return this; }
-  addSelect(cb: (select: DropdownComponent) => any): this { return this; }
-  addSlider(cb: (slider: SliderComponent) => any): this { return this; }
+  addText(cb: (text: TextComponent) => ObsidianCallbackReturnType): this { 
+    const component = new TextComponent();
+    cb(component);
+    return this; 
+  }
+  addTextArea(cb: (text: TextAreaComponent) => ObsidianCallbackReturnType): this { 
+    const component = new TextAreaComponent();
+    cb(component);
+    return this; 
+  }
+  addToggle(cb: (toggle: ToggleComponent) => ObsidianCallbackReturnType): this { 
+    const component = new ToggleComponent();
+    cb(component);
+    return this; 
+  }
+  addButton(cb: (button: ButtonComponent) => ObsidianCallbackReturnType): this { 
+    const component = new ButtonComponent();
+    cb(component);
+    return this; 
+  }
+  addSelect(cb: (select: DropdownComponent) => ObsidianCallbackReturnType): this { 
+    const component = new DropdownComponent();
+    cb(component);
+    return this; 
+  }
+  addSlider(cb: (slider: SliderComponent) => ObsidianCallbackReturnType): this { 
+    const component = new SliderComponent();
+    cb(component);
+    return this; 
+  }
   
-  then(cb: (setting: this) => any): this { return this; }
+  then(cb: (setting: this) => ObsidianCallbackReturnType): this { 
+    cb(this);
+    return this; 
+  }
 }
 
 export class Component {
@@ -236,9 +268,9 @@ export class TextComponent extends Component {
   }
   
   getValue(): string { return ''; }
-  setValue(value: string): this { return this; }
-  setPlaceholder(placeholder: string): this { return this; }
-  onChanged(callback: (value: string) => any): this { return this; }
+  setValue(_value: string): this { return this; }
+  setPlaceholder(_placeholder: string): this { return this; }
+  onChanged(_callback: (value: string) => ObsidianCallbackReturnType): this { return this; }
 }
 
 export class TextAreaComponent extends Component {
@@ -250,9 +282,9 @@ export class TextAreaComponent extends Component {
   }
   
   getValue(): string { return ''; }
-  setValue(value: string): this { return this; }
-  setPlaceholder(placeholder: string): this { return this; }
-  onChanged(callback: (value: string) => any): this { return this; }
+  setValue(_value: string): this { return this; }
+  setPlaceholder(_placeholder: string): this { return this; }
+  onChanged(_callback: (value: string) => ObsidianCallbackReturnType): this { return this; }
 }
 
 export class ToggleComponent extends Component {
@@ -265,8 +297,8 @@ export class ToggleComponent extends Component {
   }
   
   getValue(): boolean { return false; }
-  setValue(value: boolean): this { return this; }
-  onChanged(callback: (value: boolean) => any): this { return this; }
+  setValue(_value: boolean): this { return this; }
+  onChanged(_callback: (value: boolean) => ObsidianCallbackReturnType): this { return this; }
 }
 
 export class ButtonComponent extends Component {
@@ -277,9 +309,9 @@ export class ButtonComponent extends Component {
     this.buttonEl = document.createElement('button');
   }
   
-  setButtonText(text: string): this { return this; }
-  setIcon(icon: string): this { return this; }
-  onClick(callback: (evt: MouseEvent) => any): this { return this; }
+  setButtonText(_text: string): this { return this; }
+  setIcon(_icon: string): this { return this; }
+  onClick(_callback: (evt: MouseEvent) => ObsidianCallbackReturnType): this { return this; }
 }
 
 export class DropdownComponent extends Component {
@@ -290,11 +322,11 @@ export class DropdownComponent extends Component {
     this.selectEl = document.createElement('select');
   }
   
-  addOption(value: string, display: string): this { return this; }
-  addOptions(options: Record<string, string>): this { return this; }
+  addOption(_value: string, _display: string): this { return this; }
+  addOptions(_options: Record<string, string>): this { return this; }
   getValue(): string { return ''; }
-  setValue(value: string): this { return this; }
-  onChanged(callback: (value: string) => any): this { return this; }
+  setValue(_value: string): this { return this; }
+  onChanged(_callback: (value: string) => ObsidianCallbackReturnType): this { return this; }
 }
 
 export class SliderComponent extends Component {
@@ -307,9 +339,9 @@ export class SliderComponent extends Component {
   }
   
   getValue(): number { return 0; }
-  setValue(value: number): this { return this; }
-  setLimits(min: number, max: number, step: number): this { return this; }
-  onChanged(callback: (value: number) => any): this { return this; }
+  setValue(_value: number): this { return this; }
+  setLimits(_min: number, _max: number, _step: number): this { return this; }
+  onChanged(_callback: (value: number) => ObsidianCallbackReturnType): this { return this; }
 }
 
 // Create mock functions and objects for export

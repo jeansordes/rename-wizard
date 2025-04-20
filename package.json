@@ -4,7 +4,7 @@
 	"description": "Add suggestions when renaming a file in your Obsidian vault",
 	"main": "main.js",
 	"engines": {
-		"typescript": ">=4.3.5 <5.4.0",
+		"typescript": ">=4.3.5 <5.9.0",
 		"node": ">=16.0.0"
 	},
 	"scripts": {
@@ -58,7 +58,7 @@
 		"ts-jest": "^29.3.2",
 		"ts-node": "^10.9.2",
 		"tslib": "2.4.0",
-		"typescript": "^5.8.2"
+		"typescript": "~5.3.3"
 	},
 	"dependencies": {
 		"husky": "^9.1.7"

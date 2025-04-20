@@ -1,9 +1,15 @@
-import { validateFileName, normalizePath } from '../../src/validators/fileNameValidator';
-import { App, TFile } from 'obsidian';
+import { validateFileName } from '../../src/validators/fileNameValidator';
+import { App, TAbstractFile, TFile, TFolder } from 'obsidian';
+
+// Define a type for mock folder
+interface MockFolder extends Partial<TFolder> {
+    path: string;
+    isFolder?: boolean;
+}
 
 describe('validateFileName', () => {
     // Mock Obsidian App and TFile
-    const createMockApp = (files: Record<string, any> = {}) => {
+    const createMockApp = (files: Record<string, TAbstractFile> = {}): App => {
         // Create a spy for getAbstractFileByPath
         const getAbstractFileByPathSpy = jest.fn((path: string) => files[path] || null);
         
@@ -14,7 +20,7 @@ describe('validateFileName', () => {
         } as unknown as App;
     };
 
-    const createMockFile = (path: string) => {
+    const createMockFile = (path: string): TFile => {
         const folderPath = path.includes('/') 
             ? path.substring(0, path.lastIndexOf('/'))
             : '';
@@ -22,7 +28,12 @@ describe('validateFileName', () => {
         return {
             path: path,
             name: path.split('/').pop() || '',
-            parent: folderPath ? { path: folderPath } as any : null
+            parent: folderPath ? { 
+                path: folderPath,
+                name: folderPath.split('/').pop() || '',
+                children: [],
+                isRoot: false
+            } as unknown as TFolder : null
         } as TFile;
     };
 
@@ -73,11 +84,11 @@ describe('validateFileName', () => {
         const existingPath = 'existing.md';
         
         // Create a mock file that exists at the path we're checking
-        const existingFile = {
+        const existingFile: TFile = {
             path: existingPath,
             name: existingPath,
             parent: null
-        } as unknown as TFile;
+        } as TFile;
         
         // Mock app with the existing file
         const app = createMockApp({
@@ -94,11 +105,11 @@ describe('validateFileName', () => {
     
     test('should allow renaming to the same path', () => {
         const currentPath = 'current.md';
-        const currentFile = {
+        const currentFile: TFile = {
             path: currentPath,
             name: currentPath,
             parent: null
-        } as unknown as TFile;
+        } as TFile;
         
         const app = createMockApp({
             [currentPath]: currentFile
@@ -112,20 +123,21 @@ describe('validateFileName', () => {
     });
 
     test('should detect empty segments in path', () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const app = createMockApp();
         const file = createMockFile('original.md');
         
         // Let's create a mock implementation that properly detects empty segments
         const getAbstractFileByPathSpy = jest.fn().mockReturnValue(null);
-        const mockApp = {
+        const mockApp: Partial<App> = {
             vault: {
                 getAbstractFileByPath: getAbstractFileByPathSpy
-            }
-        } as unknown as App;
+            } as unknown as App['vault']
+        };
         
         // We need a path with empty segments that won't be normalized away
         // Use a string with spaces as segments which will be detected as empty
-        const result = validateFileName('folder/ /file.md', mockApp, file);
+        const result = validateFileName('folder/ /file.md', mockApp as App, file);
         
         expect(result.isValid).toBe(false);
         expect(result.errorMessage).toBe('Path cannot contain empty segments');
@@ -145,13 +157,15 @@ describe('validateFileName', () => {
 
     test('should not warn when folder exists', () => {
         const existingFolder = 'existing-folder';
-        const folder = { 
-            path: existingFolder, 
-            isFolder: true 
+        const folder: MockFolder = { 
+            path: existingFolder,
+            isFolder: true,
+            name: existingFolder,
+            children: []
         };
         
         const app = createMockApp({
-            [existingFolder]: folder
+            [existingFolder]: folder as unknown as TFolder
         });
         const file = createMockFile('other-folder/original.md');
         
@@ -165,19 +179,24 @@ describe('validateFileName', () => {
     test('should handle files in root folder (current behavior)', () => {
         // Create a file in the root folder
         const file = createMockFile('original.md');
-        file.parent = { path: '/' } as any;
+        file.parent = { 
+            path: '/',
+            name: '',
+            children: [],
+            isRoot: true
+        } as unknown as TFolder;
         
         // Create a debug spy we can inspect
         const getAbstractFileByPathSpy = jest.fn();
         
-        const mockApp = {
+        const mockApp: Partial<App> = {
             vault: {
                 getAbstractFileByPath: getAbstractFileByPathSpy
-            }
-        } as unknown as App;
+            } as unknown as App['vault']
+        };
         
         // Call the validator
-        const result = validateFileName('newfile.md', mockApp, file);
+        const result = validateFileName('newfile.md', mockApp as App, file);
         
         // The current implementation has an issue with root folder paths
         // that produces an error about empty segments
@@ -191,14 +210,63 @@ describe('validateFileName', () => {
         const level2 = 'level1/level2';
         const level3 = 'level1/level2/level3';
         
+        const createMockFolder = (path: string): MockFolder => ({
+            path,
+            name: path.split('/').pop() || '',
+            children: [],
+            isFolder: true
+        });
+        
         const app = createMockApp({
-            [level1]: { path: level1, isFolder: true },
-            [level2]: { path: level2, isFolder: true },
-            [level3]: { path: level3, isFolder: true }
+            [level1]: createMockFolder(level1) as unknown as TFolder,
+            [level2]: createMockFolder(level2) as unknown as TFolder,
+            [level3]: createMockFolder(level3) as unknown as TFolder
         });
         const file = createMockFile('other/original.md');
         
         const result = validateFileName('level1/level2/level3/file.md', app, file);
+        
+        expect(result.isValid).toBe(true);
+        expect(result.errorMessage).toBe('');
+        expect(result.isWarning).toBe(false);
+    });
+
+    test('should handle complex folder structures', () => {
+        const level1 = 'level1';
+        const level2 = 'level1/level2';
+        const level3 = 'level1/level2/level3';
+        
+        const createMockFolder = (path: string): MockFolder => ({
+            path,
+            name: path.split('/').pop() || '',
+            children: [],
+            isFolder: true
+        });
+        
+        const app = createMockApp({
+            [level1]: createMockFolder(level1) as unknown as TFolder,
+            [level2]: createMockFolder(level2) as unknown as TFolder,
+            [level3]: createMockFolder(level3) as unknown as TFolder
+        });
+        const file = createMockFile('other/original.md');
+        
+        const result = validateFileName(`${level3}/new-file.md`, app, file);
+        
+        expect(result.isValid).toBe(true);
+        expect(result.errorMessage).toBe('');
+        expect(result.isWarning).toBe(false);
+    });
+
+    // This is a regression test for the original issue with Dendron filenames
+    test('should validate Dendron-style filenames correctly', () => {
+        const originalPath = 'prj.A.task.md';
+        const newPath = 'prj.B.task.md';
+        
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const app = createMockApp();
+        const file = createMockFile(originalPath);
+        
+        const result = validateFileName(newPath, createMockApp(), file);
         
         expect(result.isValid).toBe(true);
         expect(result.errorMessage).toBe('');

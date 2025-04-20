@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { validateFileNameAndUpdateUI } from '../../../src/ui/handlers/ValidationHandler';
-import { MockApp, MockErrorDisplay, MockTFile } from '../../mocks/ElementMocks';
+import { MockApp, MockErrorDisplay } from '../../mocks/ElementMocks';
+import { App } from 'obsidian';
 
 // Mock the validateFileNamePure function
 jest.mock('../../../src/validators/fileNameValidator', () => ({
@@ -7,6 +9,12 @@ jest.mock('../../../src/validators/fileNameValidator', () => ({
 }));
 
 import { validateFileNamePure } from '../../../src/validators/fileNameValidator';
+
+// Define a more specific type for our mock files
+interface MockFile {
+    path: string;
+    parent: { path: string } | null;
+}
 
 describe('ValidationHandler', () => {
     describe('validateFileNameAndUpdateUI', () => {
@@ -20,7 +28,7 @@ describe('ValidationHandler', () => {
             currentFilePath = 'test/file.md';
             
             // Set up app.vault.getAllLoadedFiles mock
-            const mockFiles = [
+            const mockFiles: MockFile[] = [
                 { path: 'test/file.md', parent: { path: 'test' } },
                 { path: 'test/other.md', parent: { path: 'test' } },
                 { path: 'another/doc.md', parent: { path: 'another' } }
@@ -39,9 +47,11 @@ describe('ValidationHandler', () => {
                 isWarning: false
             });
             
+            // Disable eslint for this line only
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             validateFileNameAndUpdateUI(
                 'test/new-name.md',
-                app as any,
+                app as unknown as App,
                 currentFilePath,
                 errorDisplay as any
             );
@@ -68,9 +78,10 @@ describe('ValidationHandler', () => {
                 isWarning: false
             });
             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = validateFileNameAndUpdateUI(
                 'invalid-name',
-                app as any,
+                app as unknown as App,
                 currentFilePath,
                 errorDisplay as any
             );
@@ -89,9 +100,10 @@ describe('ValidationHandler', () => {
                 warningMessages: ['Detailed warning']
             });
             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = validateFileNameAndUpdateUI(
                 'valid-with-warning',
-                app as any,
+                app as unknown as App,
                 currentFilePath,
                 errorDisplay as any
             );
@@ -113,9 +125,10 @@ describe('ValidationHandler', () => {
                 isWarning: false
             });
             
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = validateFileNameAndUpdateUI(
                 'valid-name',
-                app as any,
+                app as unknown as App,
                 currentFilePath,
                 errorDisplay as any
             );

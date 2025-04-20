@@ -6,9 +6,10 @@ import {
     checkExtensionChange,
     checkFileExistsPure,
     checkFolderExistsPure,
-    FILE_VALIDATION
+    FILE_VALIDATION,
+    validateFileNamePure
 } from '../../src/validators/fileNameValidator';
-import { TFile } from 'obsidian';
+import { TFile, TFolder } from 'obsidian';
 
 describe('fileNameValidator', () => {
     describe('normalizePath', () => {
@@ -21,7 +22,7 @@ describe('fileNameValidator', () => {
             return {
                 path: path,
                 name: path.split('/').pop() || '',
-                parent: folderPath ? { path: folderPath } as any : null
+                parent: folderPath ? { path: folderPath } as unknown as TFolder : null
             } as TFile;
         };
         
@@ -35,7 +36,12 @@ describe('fileNameValidator', () => {
         
         test('should handle files in root folder', () => {
             const file = createMockFile('originalFile.md');
-            file.parent = { path: '/' } as any;
+            file.parent = { 
+                path: '/',
+                name: '',
+                children: [],
+                isRoot: true
+            } as unknown as TFolder;
             const result = normalizePath('newFile.md', file);
             
             expect(result.newPath).toBe('/newFile.md');
@@ -53,7 +59,11 @@ describe('fileNameValidator', () => {
         
         test('should handle empty parent path', () => {
             const file = createMockFile('originalFile.md');
-            file.parent = { path: '' } as any;
+            file.parent = { 
+                path: '',
+                name: '',
+                children: []
+            } as unknown as TFolder;
             const result = normalizePath('newFile.md', file);
             
             expect(result.newPath).toBe('newFile.md');
@@ -264,6 +274,42 @@ describe('fileNameValidator', () => {
 
         test('should return null for null folder path', () => {
             expect(checkFolderExistsPure(null, {}, 'parent-folder')).toBeNull();
+        });
+    });
+
+    describe('validateFileNamePure', () => {
+        test('rejects empty filenames', () => {
+            const result = validateFileNamePure('', {}, '');
+            
+            expect(result.isValid).toBe(false);
+            expect(result.errorMessage).toBe('Filename cannot be empty');
+            expect(result.isWarning).toBe(false);
+        });
+        
+        test('rejects filenames with invalid characters', () => {
+            const existingFiles: Record<string, boolean> = {};
+            const currentPath = 'original.md';
+            
+            const result = validateFileNamePure('invalid*file.md', existingFiles, currentPath);
+            
+            expect(result.isValid).toBe(false);
+            expect(result.errorMessage).toBe('Filename contains invalid characters: *');
+            expect(result.isWarning).toBe(false);
+        });
+        
+        test('detects empty segments in path', () => {
+            const existingFiles: Record<string, boolean> = {};
+            const currentPath = 'original.md';
+            
+            // Test with empty folder segment
+            let result = validateFileNamePure('/file.md', existingFiles, currentPath);
+            expect(result.isValid).toBe(false);
+            expect(result.errorMessage).toBe('Path cannot contain empty segments');
+            
+            // Test with space-only segment (will be normalized to empty)
+            result = validateFileNamePure('folder/ /file.md', existingFiles, currentPath);
+            expect(result.isValid).toBe(false);
+            expect(result.errorMessage).toBe('Path cannot contain empty segments');
         });
     });
 }); 

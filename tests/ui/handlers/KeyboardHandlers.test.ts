@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { 
     createKeydownHandler, 
     createCaptureKeydownHandler,
     createEscapeKeyHandler,
 } from '../../../src/ui/handlers/KeyboardHandlers';
-import { MockSuggestionList } from '../../mocks/ElementMocks';
 
 // Mock the handleArrowNavigation function from InputHandlers
 jest.mock('../../../src/ui/handlers/InputHandlers', () => ({

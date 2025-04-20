@@ -1,4 +1,4 @@
-import { setIcon, TFile } from 'obsidian';
+import { TFile } from 'obsidian';
 import { calculateSmartDiff } from '../../utils/diffUtils';
 import { normalizePath } from '../../validators/fileNameValidator';
 

@@ -1,7 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Mocks for DOM elements and Obsidian components
  */
 import { RenameSuggestion } from '../../src/types';
+
+// Define the missing types from Obsidian for our mock elements
+interface DomElementInfo {
+    cls?: string;
+    text?: string;
+    attr?: Record<string, string>;
+    title?: string;
+}
 
 /**
  * Add Obsidian's HTMLElement extension methods to a standard HTML element
@@ -10,62 +19,84 @@ import { RenameSuggestion } from '../../src/types';
  */
 export function mockElement(element: HTMLElement): void {
     // Add Obsidian-specific methods to the element
-    element.empty = function() {
+    element.empty = function(): HTMLElement {
         this.innerHTML = '';
         return this;
     };
     
-    element.createDiv = function(options?: any) {
+    // Use any for this one since we can't type it properly without Obsidian's full type definitions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    element.createDiv = function(options?: string | DomElementInfo): HTMLDivElement {
         const div = document.createElement('div');
         mockElement(div);
-        if (options?.cls) {
-            div.className = options.cls;
+        
+        if (typeof options === 'string') {
+            div.className = options;
+        } else if (options) {
+            if (options.cls) {
+                div.className = options.cls;
+            }
+            if (options.text) {
+                div.textContent = options.text;
+            }
         }
-        if (options?.text) {
-            div.textContent = options.text;
-        }
+        
         this.appendChild(div);
-        return div;
+        return div as HTMLDivElement;
     };
     
-    element.createSpan = function(options?: any) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    element.createSpan = function(options?: string | DomElementInfo): HTMLSpanElement {
         const span = document.createElement('span');
         mockElement(span);
-        if (options?.cls) {
-            span.className = options.cls;
+        
+        if (typeof options === 'string') {
+            span.className = options;
+        } else if (options) {
+            if (options.cls) {
+                span.className = options.cls;
+            }
+            if (options.text) {
+                span.textContent = options.text;
+            }
         }
-        if (options?.text) {
-            span.textContent = options.text;
-        }
+        
         this.appendChild(span);
-        return span;
+        return span as HTMLSpanElement;
     };
     
-    // Use any to work around TypeScript limitations with HTMLElement extensions
-    (element as any).createEl = function(tagName: string, options?: any) {
+    // Use type assertion to bypass TypeScript limitations with HTMLElement extensions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (element as any).createEl = function(tagName: string, options?: string | DomElementInfo): HTMLElement {
         const el = document.createElement(tagName);
         mockElement(el);
-        if (options?.cls) {
-            el.className = options.cls;
+        
+        if (typeof options === 'string') {
+            el.className = options;
+        } else if (options) {
+            if (options.cls) {
+                el.className = options.cls;
+            }
+            if (options.text) {
+                el.textContent = options.text;
+            }
         }
-        if (options?.text) {
-            el.textContent = options.text;
-        }
+        
         this.appendChild(el);
         return el;
     };
     
-    element.addClass = function(className: string) {
+    element.addClass = function(className: string): HTMLElement {
         this.classList.add(className);
         return this;
     };
     
-    element.removeClass = function(className: string) {
+    element.removeClass = function(className: string): HTMLElement {
         this.classList.remove(className);
         return this;
     };
     
-    element.toggleClass = function(className: string, shouldAdd?: boolean) {
+    element.toggleClass = function(className: string, shouldAdd?: boolean): HTMLElement {
         if (shouldAdd === undefined) {
             this.classList.toggle(className);
         } else if (shouldAdd) {
@@ -76,17 +107,17 @@ export function mockElement(element: HTMLElement): void {
         return this;
     };
     
-    element.hasClass = function(className: string) {
+    element.hasClass = function(className: string): boolean {
         return this.classList.contains(className);
     };
     
-    element.setText = function(text: string) {
+    element.setText = function(text: string): HTMLElement {
         this.textContent = text;
         return this;
     };
     
     // Mock the scrollIntoView method
-    element.scrollIntoView = function(options?: ScrollIntoViewOptions) {
+    element.scrollIntoView = function(_options?: ScrollIntoViewOptions): void {
         // Do nothing in tests, just a mock implementation
         return;
     };
@@ -119,11 +150,14 @@ export class MockHTMLElement {
         this.children.push(child);
         return child;
     });
-    createEl = jest.fn().mockImplementation((tag: string, options?: any) => {
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    createEl = jest.fn().mockImplementation((tag: string, _options?: string | DomElementInfo) => {
         const el = new MockHTMLElement(tag);
         this.children.push(el);
         return el;
     });
+    
     createDiv = jest.fn().mockImplementation((className?: string) => {
         const el = new MockHTMLElement('div');
         if (className) {
@@ -132,6 +166,7 @@ export class MockHTMLElement {
         this.children.push(el);
         return el;
     });
+    
     createSpan = jest.fn().mockImplementation((className?: string) => {
         const el = new MockHTMLElement('span');
         if (className) {
@@ -140,14 +175,17 @@ export class MockHTMLElement {
         this.children.push(el);
         return el;
     });
+    
     setText = jest.fn().mockImplementation((text: string) => {
         this.innerText = text;
         return this;
     });
+    
     empty = jest.fn().mockImplementation(() => {
         this.children = [];
         this.innerHTML = '';
     });
+    
     setSelectionRange = jest.fn();
     dispatchEvent = jest.fn();
     scrollIntoView = jest.fn();
@@ -177,9 +215,10 @@ export class MockSuggestionList {
     selectedSuggestionIndex = -1;
     
     constructor(
-        container: any,
-        onSuggestionClick: (suggestion: RenameSuggestion) => void,
-        onSelectionChange: (isSelected: boolean) => void
+        // Use underscores to mark as private and avoid unused parameter warnings
+        private _container: HTMLElement,
+        private _onSuggestionClick: (suggestion: RenameSuggestion) => void,
+        private _onSelectionChange: (isSelected: boolean) => void
     ) {}
     
     updateSuggestions = jest.fn();
