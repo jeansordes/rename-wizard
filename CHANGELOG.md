@@ -1,3 +1,9 @@
+## [0.8.1](https://github.com/jeansordes/rename-wizard/compare/0.8.0...0.8.1) (2025-04-20)
+
+### Bug Fixes
+
+* improve notification look + remove logs that were polluting the console ([168ea97](https://github.com/jeansordes/rename-wizard/commit/168ea97db1f00a4733b99e1594f6bcdde142bc4a))
+
 # [0.8.0](https://github.com/jeansordes/rename-wizard/compare/0.6.0...0.8.0) (2025-04-20)
 
 ### Features
