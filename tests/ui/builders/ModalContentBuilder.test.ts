@@ -65,11 +65,11 @@ describe('ModalContentBuilder', () => {
                 setInitialSelection
             });
             
-            // Test that modalEl was emptied
-            expect(modalEl.empty).toHaveBeenCalled();
+            // Test that contentEl was emptied, not modalEl
+            expect(contentEl.empty).toHaveBeenCalled();
             
-            // Test that a modal content div was created
-            expect(modalEl.createDiv).toHaveBeenCalledWith({ cls: 'modal-content complex-rename-modal' });
+            // Test that a modal content div was created on contentEl, not modalEl
+            expect(contentEl.createDiv).toHaveBeenCalledWith({ cls: 'modal-content complex-rename-modal' });
             
             // Check that all elements are returned
             expect(elements.inputEl).toBeDefined();

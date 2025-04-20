@@ -49,10 +49,10 @@ export function buildModalContent(params: ModalBuilderParams): {
     } = params;
 
     // Reset content
-    modalEl.empty();
+    contentEl.empty();
     
-    // Create modal content container
-    const modalContentEl = modalEl.createDiv({ cls: 'modal-content complex-rename-modal' });
+    // Create modal content container - directly on contentEl
+    const modalContentEl = contentEl.createDiv({ cls: 'modal-content complex-rename-modal' });
     
     // Create input container
     const inputContainer = modalContentEl.createDiv('input-container');
@@ -121,7 +121,7 @@ export function buildModalContent(params: ModalBuilderParams): {
     
     // Create keyboard instruction footer
     const instructionsEl = modalContentEl.createDiv('prompt-instructions');
-    
+
     // Create return object with all elements and components
     const elements: ModalElements = {
         inputEl,
