@@ -58,7 +58,7 @@ describe('validateTemplate', () => {
     });
 
     test('should reject undefined templates', () => {
-        // @ts-ignore - Deliberately testing undefined
+        // @ts-expect-error - Deliberately testing undefined
         const result = validateTemplate(undefined);
         expect(result.isValid).toBe(false);
         expect(result.error).toContain('Template cannot be empty');

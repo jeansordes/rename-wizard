@@ -1,4 +1,4 @@
-import { App, ButtonComponent, Modal, Notice, TextComponent, ToggleComponent, setIcon, TFile } from 'obsidian';
+import { App, ButtonComponent, Modal, Notice, ToggleComponent, setIcon, TFile } from 'obsidian';
 import RenameWizardPlugin from '../main';
 import { BatchOperationProgress, BatchOperationStatus, BatchRenameOperation, BatchRenameResult } from '../types';
 import { checkForBatchConflicts, executeBatchOperation, prepareBatchOperation, processNamePattern } from '../core/batchRename';
@@ -78,6 +78,7 @@ export class BatchRenameModal extends Modal {
     private lastNoticeTimestamp: number = 0;
     
     // Files to be renamed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private files: any[];
 
     // The batch rename pattern (hardcoded)
@@ -86,6 +87,7 @@ export class BatchRenameModal extends Modal {
     // Custom rename function (for hierarchical rename)
     private customRenameFunction: ((file: TFile) => string) | null = null;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(app: App, plugin: RenameWizardPlugin, files: any[]) {
         super(app);
         this.plugin = plugin;
@@ -223,6 +225,8 @@ export class BatchRenameModal extends Modal {
                 } else {
                     // Use pattern-based rename
                     const newName = processNamePattern(this.pattern, file);
+                    // Import properly instead of using require
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
                     const { normalizePath } = require('../validators/fileNameValidator');
                     const result = normalizePath(newName, file);
                     newPath = result.newPath;
@@ -320,9 +324,10 @@ export class BatchRenameModal extends Modal {
         this.activeNotice = showBatchNotice('Starting batch rename...');
         this.lastNoticeTimestamp = Date.now();
         
-        // Initialize progress with pending status
+        // Initialize progress but not used directly - used in the callback
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const initialProgress: BatchOperationProgress = {
-            total: this.files.length,
+            total: this.operation.files.length,
             completed: 0,
             successful: 0,
             failed: 0,
@@ -331,6 +336,12 @@ export class BatchRenameModal extends Modal {
             status: BatchOperationStatus.PENDING
         };
         
+        // These variables were intended for throttling updates but not currently used
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const lastProgressUpdate = Date.now();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const minTimeForUpdates = 100; // Minimum ms between progress updates
+
         // Start the operation
         try {
             // Prepare operation
@@ -405,23 +416,18 @@ export class BatchRenameModal extends Modal {
         let message = '';
         
         switch (progress.status) {
-            case BatchOperationStatus.PENDING:
-                message = `Preparing to rename ${progress.total} files...`;
-                break;
-                
-            case BatchOperationStatus.RUNNING:
-                // Show progress during operation
+            case BatchOperationStatus.RUNNING: {
+                // Calculate percentage
                 const percent = Math.round((progress.completed / progress.total) * 100);
                 message = `Renaming files: ${progress.completed}/${progress.total} (${percent}%)`;
                 
-                // Don't update if we're at 100% but not yet completed status
-                // This prevents showing 100% and then immediately showing completion message
-                if (percent === 100 && progress.completed === progress.total) {
-                    console.log('[DEBUG] At 100%, waiting for completion status');
-                    return;
+                // Add success/error counts if there's interesting data
+                if (progress.successful > 0 || progress.failed > 0) {
+                    message += ` | ✓${progress.successful} ✗${progress.failed}`;
                 }
                 break;
-                
+            }
+            
             case BatchOperationStatus.COMPLETED:
                 // Display a message in the format matching the second image
                 message = `Batch rename completed. ${progress.successful} succeeded, ${progress.failed} failed.`;

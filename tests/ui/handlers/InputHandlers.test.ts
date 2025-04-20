@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { 
     setInitialSelection, 
     configureInputAutoExpansion,
@@ -5,7 +7,12 @@ import {
     createSelectionChangeHandler,
     handleArrowNavigation
 } from '../../../src/ui/handlers/InputHandlers';
-import { MockHTMLElement, MockTFile, MockSuggestionList, MockPlugin } from '../../mocks/ElementMocks';
+import { MockHTMLElement, MockTFile, MockApp, MockPlugin } from '../../mocks/ElementMocks';
+
+// Create a generic type for context info in tests
+interface SuggestionContextInfo {
+    prefix: string;
+}
 
 // Mock the mergeFilenames function
 jest.mock('../../../src/utils/nameUtils', () => ({

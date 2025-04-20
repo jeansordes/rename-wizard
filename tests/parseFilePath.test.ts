@@ -83,7 +83,7 @@ describe('parseFilePath', () => {
     });
 
     test('should handle undefined input', () => {
-        // @ts-ignore - Explicitly testing undefined case
+        // @ts-expect-error - Explicitly testing undefined case
         const result = parseFilePath(undefined);
         expect(result.folderPath).toBe('');
         expect(result.basename).toBe('');

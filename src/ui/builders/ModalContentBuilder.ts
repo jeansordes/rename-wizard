@@ -2,7 +2,6 @@ import { App, ButtonComponent, TFile } from 'obsidian';
 import RenameWizardPlugin from '../../main';
 import { SuggestionList } from '../components/SuggestionList';
 import { ErrorDisplay } from '../components/ErrorDisplay';
-import { PreviewRenderer } from '../preview/PreviewRenderer';
 import { RenameSuggestion } from '../../types';
 
 export interface ModalElements {
@@ -39,7 +38,6 @@ export function buildModalContent(params: ModalBuilderParams): {
     errorDisplay: ErrorDisplay;
 } {
     const {
-        modalEl,
         contentEl,
         file,
         handleSuggestionClick,

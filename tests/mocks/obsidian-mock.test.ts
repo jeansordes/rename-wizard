@@ -85,18 +85,20 @@ describe('Obsidian Mock', () => {
             
             expect(setting.containerEl).toBe(containerEl);
             
-            // Test fluent interface for setting methods
-            const methods = [
-                'setName', 'setDesc', 'setTooltip', 'setHeading', 
-                'setDisabled', 'setClass', 'addText', 'addTextArea', 
-                'addToggle', 'addButton', 'addSelect', 'addSlider', 'then'
-            ];
-            
-            methods.forEach(method => {
-                // @ts-ignore - dynamic method call
-                const returnedSetting = setting[method](() => {});
-                expect(returnedSetting).toBe(setting);
-            });
+            // Test fluent interface for setting methods directly
+            expect(setting.setName('Test Name')).toBe(setting);
+            expect(setting.setDesc('Test description')).toBe(setting);
+            expect(setting.setTooltip('Test tooltip')).toBe(setting);
+            expect(setting.setHeading()).toBe(setting);
+            expect(setting.setDisabled(true)).toBe(setting);
+            expect(setting.setClass('test-class')).toBe(setting);
+            expect(setting.addText(() => {})).toBe(setting);
+            expect(setting.addTextArea(() => {})).toBe(setting);
+            expect(setting.addToggle(() => {})).toBe(setting);
+            expect(setting.addButton(() => {})).toBe(setting);
+            expect(setting.addSelect(() => {})).toBe(setting);
+            expect(setting.addSlider(() => {})).toBe(setting);
+            expect(setting.then(() => {})).toBe(setting);
         });
     });
     

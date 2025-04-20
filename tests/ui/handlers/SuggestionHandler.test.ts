@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { updateSuggestions } from '../../../src/ui/handlers/SuggestionHandler';
 import { MockApp, MockSuggestionList } from '../../mocks/ElementMocks';
 import { RenameSuggestion } from '../../../src/types';

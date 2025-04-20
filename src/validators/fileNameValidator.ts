@@ -290,7 +290,7 @@ export function validateFileNamePure(
     if (charCheck) return { ...charCheck };
 
     // Check for empty segments in path directly in the input
-    if (name.includes('//')) {
+    if (name.includes('//') || name.startsWith('/') || name.split('/').some(segment => segment.trim() === '')) {
         return {
             isValid: false,
             errorMessage: 'Path cannot contain empty segments',
