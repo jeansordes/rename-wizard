@@ -46,14 +46,12 @@ export default class RenameWizardPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		console.log('Loading settings...');
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-		console.log('Settings loaded successfully');
+		const loadedData = await this.loadData();
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
 	}
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
-		console.log('Settings saved successfully');
 	}
 
 	private handleRename(): void {

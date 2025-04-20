@@ -1,6 +1,6 @@
-import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
+import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import RenameWizardPlugin from '../main';
-import { TEMPLATE_VARIABLES, DEFAULT_SETTINGS } from '../utils/constants';
+import { DEFAULT_SETTINGS, TEMPLATE_VARIABLES } from '../utils/constants';
 import { validateTemplate } from '../utils/nameUtils';
 
 export class RenameWizardSettingTab extends PluginSettingTab {
@@ -178,5 +178,48 @@ export class RenameWizardSettingTab extends PluginSettingTab {
                 this.plugin.saveSettings();
             });
         });
+
+        // Add batch renaming settings
+        this.addBatchRenamingSettings(containerEl);
+    }
+
+    /**
+     * Add batch renaming settings
+     * @param containerEl The container element
+     */
+    private addBatchRenamingSettings(containerEl: HTMLElement): void {
+        containerEl.createEl('h2', { text: 'Batch Renaming' });
+
+        new Setting(containerEl)
+            .setName('Enable Batch Renaming')
+            .setDesc('Enable the batch renaming feature')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.batchRenaming.enabled)
+                .onChange(async (value) => {
+                    this.plugin.settings.batchRenaming.enabled = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Large Operation Threshold')
+            .setDesc('Number of files that trigger the confirmation dialog')
+            .addSlider(slider => slider
+                .setLimits(1, 100, 1)
+                .setValue(this.plugin.settings.batchRenaming.largeOperationThreshold)
+                .setDynamicTooltip()
+                .onChange(async (value) => {
+                    this.plugin.settings.batchRenaming.largeOperationThreshold = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show Preview by Default')
+            .setDesc('Show the preview of batch renaming by default')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.batchRenaming.showPreview)
+                .onChange(async (value) => {
+                    this.plugin.settings.batchRenaming.showPreview = value;
+                    await this.plugin.saveSettings();
+                }));
     }
 } 

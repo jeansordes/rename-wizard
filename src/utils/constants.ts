@@ -17,5 +17,10 @@ export const DEFAULT_SETTINGS: RenameWizardSettings = {
     maxSuggestions: 50,
     fuzzyMatchThreshold: 0.4,
     selectLastPart: true,
-    mergeTemplate: '${suggestion.folderPath}/${suggestion.basename}.${current.dendronLastSegment}.${current.extension}'
+    mergeTemplate: '${suggestion.folderPath}/${suggestion.basename}.${current.dendronLastSegment}.${current.extension}',
+    batchRenaming: {
+        enabled: true,
+        largeOperationThreshold: 10,
+        showPreview: true
+    }
 }; 
