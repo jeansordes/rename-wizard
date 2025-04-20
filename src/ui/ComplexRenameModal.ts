@@ -50,24 +50,24 @@ export class ComplexRenameModal extends Modal {
         super(app);
         this.plugin = plugin;
         this.file = file;
-        
+
         // Remove title bar and make modal click-outside-to-close
         this.modalEl.addClass('modal-no-title');
         this.modalEl.addClass('modal-click-outside-to-close');
 
         // Initialize navigation state
         this.isNavigatingSuggestions = false;
-        
+
         // Check if there are similar files in the same folder (for batch operations)
         this.countSimilarFiles();
     }
-    
+
     /**
      * Count files in the same folder for potential batch operations
      */
     private countSimilarFiles(): void {
         const currentFolder = this.file.parent;
-        
+
         if (currentFolder) {
             const filesInFolder = this.app.vault.getFiles().filter(f => f.parent === currentFolder);
             this.similarFilesCount = filesInFolder.length;
@@ -94,7 +94,7 @@ export class ComplexRenameModal extends Modal {
             modalEl: this.modalEl,
             contentEl: this.contentEl,
             file: this.file,
-            plugin: this.plugin, 
+            plugin: this.plugin,
             app: this.app,
             handleInput: this.handleInput.bind(this),
             handleSuggestionClick: this.handleSuggestionClick.bind(this),
@@ -175,7 +175,7 @@ export class ComplexRenameModal extends Modal {
 
         // Initialize suggestions with current filename
         this.currentRenameValue = this.file.path;
-        
+
         // Initialize suggestions and then update keyboard instructions after
         this.updateSuggestions().then(() => {
             // Initialize instructions after suggestions are loaded
@@ -185,7 +185,7 @@ export class ComplexRenameModal extends Modal {
         // Add batch renaming controls if enabled and multiple files are in the folder
         if (this.plugin.settings.batchRenaming?.enabled && this.similarFilesCount > 1) {
             this.addBatchRenameControls();
-            
+
             // Move batch toggle button next to submit button
             this.repositionBatchToggle();
         }
@@ -202,16 +202,16 @@ export class ComplexRenameModal extends Modal {
         // Create a new button for batch toggle to place near submit
         const batchToggleButton = document.createElement('div');
         batchToggleButton.className = 'batch-toggle-button';
-        
+
         // Insert the batch toggle button before the submit button
         buttonContainer.insertBefore(batchToggleButton, this.submitBtn.buttonEl);
-        
+
         // Create icon
         const batchToggleIcon = document.createElement('span');
         batchToggleIcon.className = 'batch-toggle-icon';
         batchToggleButton.appendChild(batchToggleIcon);
         setIcon(batchToggleIcon, 'files');
-        
+
         // Function for updating the tooltip based on current state
         const updateTooltip = (): void => {
             // Update tooltip based on current state
@@ -221,21 +221,21 @@ export class ComplexRenameModal extends Modal {
                 batchToggleButton.setAttribute('aria-label', `Apply changes to ${this.similarFilesCount} files`);
             }
         };
-        
+
         // Set initial tooltip
         updateTooltip();
         batchToggleButton.classList.add('has-tooltip');
-        
+
         // Update toggle style (active/inactive)
         this.updateBatchToggleStyle(batchToggleIcon, this.isBatchMode);
-        
+
         // Add click handler
         batchToggleButton.addEventListener('click', () => {
             this.isBatchMode = !this.isBatchMode;
             this.batchModeToggle.setValue(this.isBatchMode);
             this.updateBatchToggleStyle(batchToggleIcon, this.isBatchMode);
             this.updateBatchModeUI();
-            
+
             // Update tooltip text when toggled
             updateTooltip();
         });
@@ -258,90 +258,75 @@ export class ComplexRenameModal extends Modal {
      * Generate preview content for batch rename
      */
     private generatePreviewContent(container: HTMLElement): void {
-        console.log('[DEBUG] generatePreviewContent called');
         container.empty();
-        
+
         // Get the original and new names for the current file
         const originalPath = this.file.path;
         const newPath = this.inputEl.value;
-        
-        console.log('[DEBUG] Preview paths:', { originalPath, newPath });
-        
+
+
         // Get files from the same folder
         const currentFolder = this.file.parent;
         if (!currentFolder) {
             container.createSpan({ text: 'No folder found.' });
             return;
         }
-        
-        const filesInFolder = this.app.vault.getFiles().filter(f => 
-            f.parent === currentFolder && 
+
+        const filesInFolder = this.app.vault.getFiles().filter(f =>
+            f.parent === currentFolder &&
             f.path !== originalPath // Exclude the current file
         );
-        
-        console.log('[DEBUG] Files in folder:', filesInFolder.map(f => f.path));
-        
+
+
         // Create table for preview
         const table = container.createEl('table', { cls: 'batch-rename-preview-table' });
-        
+
         // Table body
         const tableBody = table.createEl('tbody');
-        
+
         // Add preview for each file
         filesInFolder.forEach(file => {
             const row = tableBody.createEl('tr');
-            
+
             try {
                 // Process hierarchical rename for this file
                 const newName = processHierarchicalRename(originalPath, newPath, file);
-                
-                console.log('[DEBUG] Processing file for preview:', { 
-                    file: file.path, 
-                    newName 
-                });
-                
-                // Skip if no change is needed
-                if (newName === file.path) {
-                    console.log('[DEBUG] No change needed for', file.path);
-                    return;
-                }
-                
+
                 // Create diff-style preview
                 const diffCell = row.createEl('td');
-                
+
                 // Create diff element similar to the single file preview
                 const diffEl = diffCell.createDiv({ cls: 'rename-diff' });
-                
+
                 // Show original path in muted color
                 const originalPathEl = diffEl.createDiv({ cls: 'diff-old' });
-                originalPathEl.createSpan({ 
+                originalPathEl.createSpan({
                     text: file.path,
                     cls: 'diff-text'
                 });
-                
+
                 // Show arrow
                 diffEl.createSpan({ text: '→', cls: 'diff-arrow' });
-                
+
                 // Show new path with highlighting
                 const newPathEl = diffEl.createDiv({ cls: 'diff-new' });
-                newPathEl.createSpan({ 
+                newPathEl.createSpan({
                     text: newName,
                     cls: 'diff-text'
                 });
-                
+
             } catch (error) {
                 console.error('[DEBUG] Error in preview generation:', error);
                 row.createEl('td', { text: `Error: ${error.message}`, cls: 'batch-rename-error' });
             }
         });
-        
+
         // Show message if no files to preview
         if (tableBody.childElementCount === 0) {
-            console.log('[DEBUG] No files to preview');
             const messageRow = tableBody.createEl('tr');
-            messageRow.createEl('td', { 
+            messageRow.createEl('td', {
                 text: 'No files will be affected by this rename operation.',
-                cls: 'batch-rename-message' 
+                cls: 'batch-rename-message'
             });
         }
     }
@@ -350,27 +335,25 @@ export class ComplexRenameModal extends Modal {
      * Update UI based on batch mode state
      */
     private updateBatchModeUI(): void {
-        console.log('[DEBUG] updateBatchModeUI called, isBatchMode:', this.isBatchMode);
-        
+
         // Show/hide the entire batch controls container based on batch mode
         this.batchModeContainer.style.display = this.isBatchMode ? 'block' : 'none';
-        
+
         // If batch mode is enabled, then manage the preview header visibility
         if (this.isBatchMode) {
             // Show/hide preview header based on settings
             const headerDisplayValue = this.plugin.settings.batchRenaming.showPreview ? 'flex' : 'none';
-            
+
             // Get the preview header element
             const previewHeader = this.batchModeContainer.querySelector('.batch-preview-header') as HTMLElement;
             if (previewHeader) {
                 previewHeader.style.display = headerDisplayValue;
-                console.log('[DEBUG] Preview header display:', headerDisplayValue);
             }
-            
+
             // Always keep preview container hidden by default (when collapsed)
             this.batchModePreviewContainer.style.display = 'none';
         }
-        
+
         // Keep the button icon consistent, just update the tooltip
         if (this.isBatchMode) {
             this.submitBtn.setTooltip('Rename file(s)');
@@ -378,15 +361,13 @@ export class ComplexRenameModal extends Modal {
             this.submitBtn.setTooltip('Rename file');
         }
         this.submitBtn.setClass('submit-button');
-        
-        console.log('[DEBUG] Batch mode UI updated');
+
     }
 
     /**
      * Handle input changes
      */
     private async handleInput(): Promise<void> {
-        console.log('[DEBUG] handleInput called');
         const value = this.inputEl.value;
         this.currentRenameValue = value;
 
@@ -403,20 +384,17 @@ export class ComplexRenameModal extends Modal {
         // Update suggestions and preview
         await this.updateSuggestions();
         PreviewRenderer.updatePreview(this.previewEl, this.folderNoticeEl, value, this.file);
-        
+
         // If batch mode is active and preview is expanded, update batch preview
         if (this.isBatchMode) {
-            console.log('[DEBUG] Batch mode is active during input change');
-            
+
             // Find the preview content element
             const previewContent = this.batchModePreviewContainer.querySelector('.batch-preview-content') as HTMLElement;
-            
+
             // Check if preview is currently visible
             const isPreviewVisible = this.batchModePreviewContainer.style.display === 'block';
-            console.log('[DEBUG] Is batch preview visible?', isPreviewVisible);
-            
+
             if (isPreviewVisible && previewContent) {
-                console.log('[DEBUG] Updating batch preview content after input change');
                 this.generatePreviewContent(previewContent);
             }
         }
@@ -434,7 +412,7 @@ export class ComplexRenameModal extends Modal {
             (value) => { this.isNavigatingSuggestions = value; },
             this.updateKeyboardInstructions.bind(this)
         );
-        
+
         handler(suggestion);
     }
 
@@ -449,7 +427,7 @@ export class ComplexRenameModal extends Modal {
             this.plugin.settings.fuzzyMatchThreshold,
             this.suggestionList
         );
-        
+
         // Update keyboard instructions after suggestions are loaded
         this.updateKeyboardInstructions(this.isNavigatingSuggestions);
     }
@@ -478,7 +456,7 @@ export class ComplexRenameModal extends Modal {
             await this.performSingleRename();
         }
     }
-    
+
     /**
      * Perform a single file rename
      */
@@ -491,86 +469,68 @@ export class ComplexRenameModal extends Modal {
             () => this.close()
         );
     }
-    
+
     /**
      * Perform a batch rename operation
      */
     private async performBatchRename(): Promise<void> {
-        console.log('[DEBUG] performBatchRename called');
-        
+
         // Get files from the same folder
         const currentFolder = this.file.parent;
         if (!currentFolder) {
             this.errorDisplay.showError('No folder found for batch operation.', false);
             return;
         }
-        
+
         // Get original and new paths for the current file
         const originalPath = this.file.path;
         const newPath = this.inputEl.value;
-        
-        console.log('[DEBUG] Batch rename paths:', { originalPath, newPath });
-        
+
+
         // Gather files that will be affected (exclude the current file)
-        const filesInFolder = this.app.vault.getFiles().filter(f => 
-            f.parent === currentFolder && 
+        const filesInFolder = this.app.vault.getFiles().filter(f =>
+            f.parent === currentFolder &&
             f.path !== originalPath
         );
-        
-        console.log('[DEBUG] Files in folder for batch rename:', filesInFolder.map(f => f.path));
-        
+
+
         // Filter to only files that will actually be renamed (children in hierarchy)
         const filesToRename = filesInFolder.filter(file => {
             const newFilePath = processHierarchicalRename(originalPath, newPath, file);
-            console.log('[DEBUG] Checking if file needs rename:', { 
-                file: file.path, 
-                newFilePath, 
-                willBeRenamed: newFilePath !== file.path 
-            });
             return newFilePath !== file.path; // Only include files that will be renamed
         });
-        
-        console.log('[DEBUG] Files that will be renamed:', filesToRename.map(f => f.path));
-        
+
+
         // If no files would be renamed, just do a single rename
         if (filesToRename.length === 0) {
-            console.log('[DEBUG] No files to rename in batch, performing single rename');
             await this.performSingleRename();
             return;
         }
-        
+
         // Close this modal
         this.close();
-        
+
         // Custom batch rename operation
         const batchOperationFiles = [...filesToRename, this.file]; // Include the current file
-        
-        console.log('[DEBUG] All files for batch operation:', batchOperationFiles.map(f => f.path));
-        
+
+
         // Create a custom batch operation with specific rename logic
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { BatchRenameModal } = require('./BatchRenameModal');
         const batchModal = new BatchRenameModal(this.app, this.plugin, batchOperationFiles);
-        
+
         // Set custom pattern generator function
         batchModal.setCustomRenameFunction((file: TFile) => {
-            console.log('[DEBUG] Custom rename function called for:', file.path);
             if (file.path === originalPath) {
                 // For the parent file, use the new path directly
-                console.log('[DEBUG] Using new path directly for parent file:', newPath);
                 return newPath;
             } else {
                 // For children, use hierarchical rename
                 const result = processHierarchicalRename(originalPath, newPath, file);
-                console.log('[DEBUG] Using hierarchical rename for child file:', { 
-                    original: file.path, 
-                    result 
-                });
                 return result;
             }
         });
-        
-        console.log('[DEBUG] Opening batch rename modal');
+
         batchModal.open();
     }
 
@@ -591,7 +551,7 @@ export class ComplexRenameModal extends Modal {
             (value) => { this.isNavigatingSuggestions = value; },
             this.updateKeyboardInstructions.bind(this)
         );
-        
+
         handler(isSelected);
     }
 
@@ -610,7 +570,7 @@ export class ComplexRenameModal extends Modal {
             handleSuggestionClick: this.handleSuggestionClick.bind(this),
             close: this.close.bind(this)
         });
-        
+
         // Call the handler to handle ESC and return its result
         // If false, it means we're in navigation mode and should keep the modal open
         // If true, it means we should let Obsidian handle the ESC key (which will close the modal)
@@ -636,7 +596,6 @@ export class ComplexRenameModal extends Modal {
      * Add batch rename controls to the modal
      */
     private addBatchRenameControls(): void {
-        console.log('[DEBUG] addBatchRenameControls called');
         // Find the appropriate container in the modal to add the batch controls
         // Add between the input and the preview sections
         const modalContentEl = this.contentEl.querySelector('.modal-content.complex-rename-modal');
@@ -644,83 +603,78 @@ export class ComplexRenameModal extends Modal {
             console.error('Modal content element not found');
             return;
         }
-        
+
         const inputContainer = modalContentEl.querySelector('.input-container');
         if (!inputContainer) {
             console.error('Input container not found');
             return;
         }
-        
+
         // Create batch controls and insert them after the input container
         this.batchModeContainer = document.createElement('div');
         this.batchModeContainer.className = 'batch-controls-container';
-        
+
         // Insert the container after the input container
         this.suggestionsEl.before(this.batchModeContainer);
-        
-        console.log('[DEBUG] Batch mode container created and inserted');
-        
+
+
         // Create hidden toggle component (functional but not visible)
         const hiddenToggleContainer = this.batchModeContainer.createDiv({ cls: 'hidden-batch-toggle' });
         hiddenToggleContainer.style.display = 'none';
-        
+
         // Add toggle component (hidden but functional)
         this.batchModeToggle = new ToggleComponent(hiddenToggleContainer);
-        
+
         // Set initial state from settings (default to false if not specified)
         this.isBatchMode = this.plugin.settings.batchRenaming?.enabled || false;
         this.batchModeToggle.setValue(this.isBatchMode);
-        
-        console.log('[DEBUG] Initial batch mode state:', this.isBatchMode);
-        
+
+
         // Handle toggle changes
         this.batchModeToggle.onChange((value) => {
-            console.log('[DEBUG] Batch mode toggle changed to:', value);
             this.isBatchMode = value;
             this.updateBatchModeUI();
         });
-        
+
         // Create preview header with triangle
         const previewHeader = this.batchModeContainer.createDiv({ cls: 'batch-preview-header' });
         previewHeader.style.display = 'none'; // Hide preview header by default
-        const previewTriangle = previewHeader.createSpan({ cls: ['batch-preview-triangle','button-icon-container'] });
+        const previewTriangle = previewHeader.createSpan({ cls: ['batch-preview-triangle', 'button-icon-container'] });
         setIcon(previewTriangle, 'right-triangle');
-        
+
         // Create collapsible preview section with dropdown
         this.batchModePreviewContainer = this.batchModeContainer.createDiv({ cls: 'batch-rename-preview-container' });
         this.batchModePreviewContainer.style.display = 'none'; // Hide preview container by default
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const previewText = previewHeader.createSpan({ 
+        const previewText = previewHeader.createSpan({
             cls: 'batch-preview-text',
             text: `Preview changes for ${this.similarFilesCount} files`
         });
-        
+
         // Create collapsible preview content (initially collapsed)
         const previewContent = this.batchModePreviewContainer.createDiv({ cls: 'batch-preview-content' });
-        
+
         // Toggle preview on click
         let previewExpanded = false;
         previewHeader.addEventListener('click', () => {
-            console.log('[DEBUG] Preview header clicked, expanded:', !previewExpanded);
             previewExpanded = !previewExpanded;
             this.batchModePreviewContainer.style.display = previewExpanded ? 'block' : 'none';
-            
+
             // Toggle expanded class for CSS-based rotation
             if (previewExpanded) {
                 previewTriangle.addClass('expanded');
             } else {
                 previewTriangle.removeClass('expanded');
             }
-            
+
             // Regenerate preview content when expanding
             if (previewExpanded) {
                 this.generatePreviewContent(previewContent);
             }
         });
-        
+
         // Show/hide elements based on initial state
         this.updateBatchModeUI();
-        console.log('[DEBUG] Batch rename controls setup complete');
     }
 } 

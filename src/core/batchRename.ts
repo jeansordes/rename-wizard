@@ -25,7 +25,7 @@ export function prepareBatchOperation(files: TFile[], newNamePattern: string): B
         files,
         newNamePattern
     };
-    
+
     operation.estimatedTime = estimateBatchOperationTime(operation);
     return operation;
 }
@@ -39,31 +39,31 @@ export function prepareBatchOperation(files: TFile[], newNamePattern: string): B
 export function checkForBatchConflicts(app: App, operation: BatchRenameOperation): string[] {
     const conflicts: string[] = [];
     const newPaths = new Set<string>();
-    
+
     // Process each file
     for (const file of operation.files) {
         try {
             // Get the new path for this file using the pattern
             const newName = processNamePattern(operation.newNamePattern, file);
             const { newPath } = normalizePath(newName, file);
-            
+
             // Check for duplicates within the batch operation
             if (newPaths.has(newPath)) {
                 conflicts.push(`Duplicate new path: ${newPath}`);
             }
-            
+
             // Check if the target already exists and is not in our batch
             const existingFile = app.vault.getAbstractFileByPath(newPath);
             if (existingFile && !operation.files.some(f => f.path === existingFile.path)) {
                 conflicts.push(`Path already exists: ${newPath}`);
             }
-            
+
             newPaths.add(newPath);
         } catch (error) {
             conflicts.push(`Error processing ${file.path}: ${error.message}`);
         }
     }
-    
+
     return conflicts;
 }
 
@@ -78,16 +78,16 @@ export function processNamePattern(pattern: string, file: TFile): string {
     const basename = file.basename;
     const extension = file.extension;
     const folderPath = file.parent ? file.parent.path : '';
-    
+
     // Simple pattern processing for now
     let newName = pattern;
-    
+
     // Replace basic variables
     newName = newName.replace(/\$\{file\.basename\}/g, basename);
     newName = newName.replace(/\$\{file\.extension\}/g, extension);
     newName = newName.replace(/\$\{file\.folderPath\}/g, folderPath);
     newName = newName.replace(/\$\{file\.name\}/g, file.name);
-    
+
     return newName;
 }
 
@@ -107,12 +107,6 @@ export async function executeBatchOperation(
     cancelToken: { cancelled: boolean },
     customRenameFunction?: (file: TFile) => string
 ): Promise<BatchOperationProgress> {
-    console.log('[DEBUG] Starting batch operation:', { 
-        totalFiles: operation.files.length,
-        pattern: operation.newNamePattern,
-        hasCustomFunction: !!customRenameFunction
-    });
-    
     const progress: BatchOperationProgress = {
         total: operation.files.length,
         completed: 0,
@@ -122,59 +116,50 @@ export async function executeBatchOperation(
         results: [],
         status: BatchOperationStatus.RUNNING
     };
-    
+
     const startTime = Date.now();
-    console.log('[DEBUG] Sending initial progress update');
     progressCallback(progress);
-    
+
     // Process files one at a time
     for (const file of operation.files) {
-        console.log('[DEBUG] Processing file:', file.path);
-        
+
         if (cancelToken.cancelled) {
-            console.log('[DEBUG] Operation cancelled');
             progress.status = BatchOperationStatus.CANCELLED;
             progressCallback(progress);
             return progress;
         }
-        
+
         const result: BatchRenameResult = {
             file,
             originalPath: file.path,
             success: false
         };
-        
+
         try {
             // Get the new name for the file
             let newName: string;
-            
+
             if (customRenameFunction) {
                 // Use custom function if provided
-                console.log('[DEBUG] Using custom rename function');
                 newName = customRenameFunction(file);
             } else {
                 // Use pattern-based naming
-                console.log('[DEBUG] Using pattern-based naming');
                 newName = processNamePattern(operation.newNamePattern, file);
             }
-            
-            console.log('[DEBUG] Generated new name:', newName);
-            
+
+
             // Validate and normalize the path
             const validationResult = normalizePath(newName, file);
             const newPath = validationResult.newPath;
-            console.log('[DEBUG] Normalized path:', newPath);
-            
+
             // Rename the file
-            console.log('[DEBUG] Attempting to rename file from', file.path, 'to', newPath);
             await app.fileManager.renameFile(file, newPath);
-            console.log('[DEBUG] File successfully renamed');
-            
+
             // Update result
             result.success = true;
             result.newPath = newPath;
             progress.successful++;
-            
+
         } catch (error) {
             // Handle rename errors
             console.error('[DEBUG] Error renaming file:', error);
@@ -182,35 +167,20 @@ export async function executeBatchOperation(
             result.error = error.message;
             progress.failed++;
         }
-        
+
         // Add result to progress
         progress.results.push(result);
-        
+
         // Update completed count and time
         progress.completed++;
         progress.timeElapsed = Date.now() - startTime;
-        console.log('[DEBUG] Sending progress update:', { 
-            completed: progress.completed, 
-            total: progress.total,
-            successful: progress.successful,
-            failed: progress.failed,
-            timeElapsed: progress.timeElapsed
-        });
         progressCallback(progress);
     }
-    
+
     progress.status = BatchOperationStatus.COMPLETED;
     progress.timeElapsed = Date.now() - startTime;
-    console.log('[DEBUG] Operation completed, sending final progress:', {
-        status: progress.status,
-        completed: progress.completed,
-        total: progress.total,
-        successful: progress.successful,
-        failed: progress.failed,
-        timeElapsed: progress.timeElapsed
-    });
     progressCallback(progress);
-    
+
     return progress;
 }
 
@@ -222,72 +192,49 @@ export async function executeBatchOperation(
  * @returns The new path for the child file
  */
 export function processHierarchicalRename(originalParentPath: string, newParentPath: string, file: TFile): string {
-    console.log('[DEBUG] processHierarchicalRename called with:', { 
-        originalParentPath, 
-        newParentPath, 
-        filePath: file.path, 
-        fileBasename: file.basename 
-    });
-    
     // Extract filename without path
     const getFilename = (path: string): string => {
         const lastSlashIndex = path.lastIndexOf('/');
         return lastSlashIndex >= 0 ? path.substring(lastSlashIndex + 1) : path;
     };
-    
+
     // Get basename without extension
     const getBasename = (filename: string): string => {
         const lastDotIndex = filename.lastIndexOf('.');
         const result = lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
-        console.log('[DEBUG] getBasename:', { filename, lastDotIndex, result });
         return result;
     };
-    
+
     // Process the original and new parent files
     const originalParentFilename = getFilename(originalParentPath);
     const newParentFilename = getFilename(newParentPath);
     const originalParentBasename = getBasename(originalParentFilename);
     const newParentBasename = getBasename(newParentFilename);
-    
-    console.log('[DEBUG] Parent basenames:', { 
-        originalParentFilename,
-        newParentFilename,
-        originalParentBasename, 
-        newParentBasename 
-    });
-    
+
     // Get file extension of child file
     const childExtension = `.${file.extension}`;
 
     // Get basename of child file without extension
     const childBasename = file.basename;
-    
+
     // Check if child file is actually a descendant of the parent in the hierarchy
     const isDescendant = childBasename.startsWith(originalParentBasename + '.');
-    console.log('[DEBUG] Is descendant check:', { 
-        childBasename, 
-        startsWith: originalParentBasename + '.', 
-        isDescendant
-    });
-    
+
     if (!isDescendant) {
         // Not a child in the hierarchy, don't rename
-        console.log('[DEBUG] Not a descendant, returning original path:', file.path);
         return file.path;
     }
-    
-    console.log('[DEBUG] ✓ Found a descendant file that will be renamed:', file.path);
-    
+
+
     // Replace the parent part of the hierarchy with the new parent name
     const childSuffix = childBasename.substring(originalParentBasename.length);
     const newChildBasename = newParentBasename + childSuffix;
-    
+
     // Get the folder path
     const folderPath = file.parent ? file.parent.path : '';
-    
+
     // Construct the new path
     const newPath = folderPath ? `${folderPath}/${newChildBasename}${childExtension}` : `${newChildBasename}${childExtension}`;
-    
-    console.log('[DEBUG] New path for hierarchical rename:', newPath);
+
     return newPath;
 } 
