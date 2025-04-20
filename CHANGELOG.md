@@ -1,3 +1,11 @@
+# [0.8.0](https://github.com/jeansordes/rename-wizard/compare/0.6.0...0.8.0) (2025-04-20)
+
+### Features
+
+* implement batch renaming functionality ([2e12f2c](https://github.com/jeansordes/rename-wizard/commit/2e12f2c7cd7216cdb249c2fe0db128df6142abab)), closes [#34](https://github.com/jeansordes/rename-wizard/issues/34)
+* **ui:** update styles and improve mobile responsiveness ([f6f34d2](https://github.com/jeansordes/rename-wizard/commit/f6f34d21595b54a5d746a78500112a7e9d1f8b3d)), closes [#45](https://github.com/jeansordes/rename-wizard/issues/45)
+* **utils, tests:** add Dendron basename support and enhance parsing functionality ([04b49b0](https://github.com/jeansordes/rename-wizard/commit/04b49b095556a2d5b2640b28cdf0f580c27c3c0b)), closes [#43](https://github.com/jeansordes/rename-wizard/issues/43)
+
 # [0.7.0](https://github.com/jeansordes/rename-wizard/compare/0.6.0...0.7.0) (2025-04-18)
 
 ### Features
