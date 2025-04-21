@@ -3,7 +3,7 @@
    ================= */
    
 /* Highlight for renamed text */
-.complex-rename-modal .highlight-rename {
+.complex-rename-modal .suggestion-highlight {
     border-radius: var(--radius-s);
     padding: 0 2px;
     margin: 0 -2px;
