@@ -37,12 +37,9 @@ export default class RenameWizardPlugin extends Plugin {
 				}
 			})
 		);
-
-		console.log('Rename Wizard plugin loaded');
 	}
 
 	onunload(): void {
-		console.log('Rename Wizard plugin unloaded');
 	}
 
 	async loadSettings(): Promise<void> {
