@@ -443,4 +443,14 @@
 .notice.batch-rename-notification {
     flex-direction: column;
     align-items: flex-start;
+    width: min(300px, calc(100vw - 20px));
+}
+
+.batch-rename-latest-renamed-file {
+    max-height: 100px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }

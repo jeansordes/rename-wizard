@@ -304,7 +304,7 @@ export class ComplexRenameModal extends Modal {
         // Update the preview text in the header
         const previewText = this.batchModeContainer.querySelector('.batch-preview-text');
         if (previewText) {
-            previewText.textContent = `Preview changes for ${hierarchicalChildren.length} file${hierarchicalChildren.length > 1 ? 's' : ''}`;
+            previewText.textContent = `Preview changes for ${hierarchicalChildren.length} other file${hierarchicalChildren.length > 1 ? 's' : ''}`;
         }
 
         // Add preview for each file
@@ -664,7 +664,7 @@ export class ComplexRenameModal extends Modal {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const previewText = previewHeader.createSpan({
             cls: 'batch-preview-text',
-            text: `Preview changes for ${hierarchicalChildren.length} file${hierarchicalChildren.length > 1 ? 's' : ''}`
+            text: `Preview changes for ${hierarchicalChildren.length} other file${hierarchicalChildren.length > 1 ? 's' : ''}`
         });
 
         // Create collapsible preview section with dropdown

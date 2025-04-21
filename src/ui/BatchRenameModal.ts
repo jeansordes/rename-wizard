@@ -17,25 +17,35 @@ function showBatchNotice(message: string, timeout = 0, completed = 0, total = 0,
     // If there is already a batch notification, update it
     const existingNotif = document.querySelector('.notice.batch-rename-notification');
     if (existingNotif) {
-        existingNotif.textContent = message;
+        // Only update the text content, don't rebuild the structure
+        const messageEl = existingNotif.querySelector('.notice-message');
+        if (messageEl) {
+            messageEl.textContent = message;
+        }
 
         if (completed > 0 && total > 0) {
             // If we have a progress bar, update it. Else, create it
             const progressBar: HTMLElement | null = existingNotif.querySelector('.batch-rename-progress-bar-inner');
             if (progressBar) {
+                // Update the width with a smooth transition
+                progressBar.style.transition = 'width 0.3s ease-in-out';
                 progressBar.style.width = `${(completed / total) * 100}%`;
                 progressBar.classList.add(status);
             } else {
                 // Create a new progress bar
                 const progressBarOuter = existingNotif.createEl('div', { cls: 'batch-rename-progress-bar-outer' });
                 const progressBarInner = progressBarOuter.createEl('div', { cls: 'batch-rename-progress-bar-inner' });
+                progressBarInner.style.transition = 'width 0.3s ease-in-out';
                 progressBarInner.style.width = `${(completed / total) * 100}%`;
                 progressBarInner.classList.add(status);
             }
 
             // Add the latest renamed file to the notice
             if (latestRenamedFile && latestRenamedFile.originalPath && latestRenamedFile.newPath) {
-                const latestRenamedFileEl = existingNotif.createEl('div', { cls: 'batch-rename-latest-renamed-file' });
+                let latestRenamedFileEl = existingNotif.querySelector('.batch-rename-latest-renamed-file');
+                if (!latestRenamedFileEl) {
+                    latestRenamedFileEl = existingNotif.createEl('div', { cls: 'batch-rename-latest-renamed-file' });
+                }
                 
                 // Calculate the diff between original and new paths
                 const diffParts = calculateSmartDiff(latestRenamedFile.originalPath, latestRenamedFile.newPath);
@@ -402,7 +412,7 @@ export class BatchRenameModal extends Modal {
         if (
             !isFinalStatus &&
             progress.status === BatchOperationStatus.RUNNING &&
-            timeSinceLastNotice < 300 &&
+            timeSinceLastNotice < 100 &&
             progress.completed < progress.total
         ) {
             return;
