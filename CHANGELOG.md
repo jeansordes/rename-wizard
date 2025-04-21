@@ -1,3 +1,13 @@
+# [0.11.0](https://github.com/jeansordes/rename-wizard/compare/0.10.0...0.11.0) (2025-04-21)
+
+### Bug Fixes
+
+* remove console log in onload and unload ([87b9e40](https://github.com/jeansordes/rename-wizard/commit/87b9e40dae5ccdb0497cac95e932d53aa389c215))
+
+### Features
+
+* enhance batch rename notification and layout ([ce0bade](https://github.com/jeansordes/rename-wizard/commit/ce0bade784735071fb5ca6db2d95daff9900e3ef))
+
 # [0.10.0](https://github.com/jeansordes/rename-wizard/compare/0.9.0...0.10.0) (2025-04-21)
 
 ### Bug Fixes
