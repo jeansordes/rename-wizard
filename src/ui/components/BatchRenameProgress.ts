@@ -61,8 +61,7 @@ export class BatchRenameProgress {
         });
         
         // Details container (hidden by default)
-        this.detailsEl = this.container.createEl('div', { cls: 'batch-rename-details' });
-        this.detailsEl.style.display = 'none';
+        this.detailsEl = this.container.createEl('div', { cls: ['batch-rename-details', 'hidden'] });
     }
     
     /**
@@ -138,8 +137,11 @@ export class BatchRenameProgress {
         }
         
         // Update cancel button visibility
-        this.cancelButton.style.display = 
-            progress.status === BatchOperationStatus.RUNNING ? 'inline-block' : 'none';
+        if (progress.status === BatchOperationStatus.RUNNING) {
+            this.cancelButton.removeClass('hidden');
+        } else {
+            this.cancelButton.addClass('hidden');
+        }
         
         // Update show details button text
         this.detailsButton.textContent = this.detailsVisible ? 'Hide Details' : 'Show Details';
@@ -205,7 +207,11 @@ export class BatchRenameProgress {
      */
     private toggleDetails(): void {
         this.detailsVisible = !this.detailsVisible;
-        this.detailsEl.style.display = this.detailsVisible ? 'block' : 'none';
+        if (this.detailsVisible) {
+            this.detailsEl.removeClass('hidden');
+        } else {
+            this.detailsEl.addClass('hidden');
+        }
         this.detailsButton.textContent = this.detailsVisible ? 'Hide Details' : 'Show Details';
     }
 } 

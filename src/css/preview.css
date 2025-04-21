@@ -32,7 +32,7 @@
 .preview-diff {
     font-family: var(--font-monospace);
     padding: var(--size-4-2) var(--size-4-3);
-    background: var(--background-secondary);
+    background: var(--code-background);
     border-radius: var(--radius-s);
     white-space: pre-wrap;
     word-break: break-all;

@@ -23,11 +23,10 @@ export class PreviewRenderer {
         
         // Handle empty preview
         if (!newName.trim()) {
-            // hide the preview
-            previewEl.style.display = 'none';
+            previewEl.addClass('hidden');
             return;
         } else {
-            previewEl.style.display = 'block';
+            previewEl.removeClass('hidden');
         }
         
         // Get the normalized path
@@ -38,25 +37,24 @@ export class PreviewRenderer {
             const folder = file.vault.getAbstractFileByPath(folderPath);
             if (!folder) {
                 folderNoticeEl.empty();
-                folderNoticeEl.style.display = 'flex';
+                folderNoticeEl.removeClass('hidden');
                 
                 folderNoticeEl.createSpan({
                     text: `Folder will be created: ${folderPath}`
                 });
             } else {
-                folderNoticeEl.style.display = 'none';
+                folderNoticeEl.addClass('hidden');
             }
         } else {
-            folderNoticeEl.style.display = 'none';
+            folderNoticeEl.addClass('hidden');
         }
         
         // Hide preview if filename is unchanged
         if (file.path === newPath) {
-            // hide the preview
-            previewEl.style.display = 'none';
+            previewEl.addClass('hidden');
             return;
         } else {
-            previewEl.style.display = 'block';
+            previewEl.removeClass('hidden');
         }
         
         // Create diff view

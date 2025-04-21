@@ -1,0 +1,17 @@
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: inherit;
+}
+
+/* For elements that need to be flex when visible */
+.visible-flex {
+    display: flex;
+}
+
+/* For elements that need to be block when visible */
+.visible-block {
+    display: block;
+} 

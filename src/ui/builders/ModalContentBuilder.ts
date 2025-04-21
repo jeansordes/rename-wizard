@@ -78,8 +78,7 @@ export function buildModalContent(params: ModalBuilderParams): {
     const resetBtn = new ButtonComponent(buttonContainer)
         .setIcon('rotate-ccw')
         .setTooltip('Reset to original filename');
-    resetBtn.buttonEl.addClass('reset-button');
-    resetBtn.buttonEl.style.display = 'none';
+    resetBtn.buttonEl.addClass('reset-button', 'hidden');
     
     // Create submit button (placed second on desktop, last on mobile)
     const submitBtn = new ButtonComponent(buttonContainer)
@@ -101,8 +100,7 @@ export function buildModalContent(params: ModalBuilderParams): {
     // Create notices container
     const noticesContainer = modalContentEl.createDiv('notices-container');
     const errorEl = noticesContainer.createDiv({ cls: 'error' });
-    const folderNoticeEl = noticesContainer.createDiv({ cls: 'preview-folder-creation' });
-    folderNoticeEl.style.display = 'none';
+    const folderNoticeEl = noticesContainer.createDiv({ cls: ['preview-folder-creation', 'hidden'] });
     
     // Create error display
     const errorDisplay = new ErrorDisplay(errorEl);

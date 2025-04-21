@@ -2,6 +2,7 @@ import { App, ButtonComponent, Modal, Notice, setIcon, TFile, ToggleComponent } 
 import { checkForBatchConflicts, executeBatchOperation, prepareBatchOperation, processNamePattern } from '../core/batchRename';
 import RenameWizardPlugin from '../main';
 import { BatchOperationProgress, BatchOperationStatus, BatchRenameOperation, BatchRenameResult } from '../types';
+import { calculateSmartDiff } from '../utils/diffUtils';
 import { BatchRenameProgress } from './components/BatchRenameProgress';
 
 /**
@@ -33,10 +34,22 @@ function showBatchNotice(message: string, timeout = 0, completed = 0, total = 0,
             }
 
             // Add the latest renamed file to the notice
-            if (latestRenamedFile) {
+            if (latestRenamedFile && latestRenamedFile.originalPath && latestRenamedFile.newPath) {
                 const latestRenamedFileEl = existingNotif.createEl('div', { cls: 'batch-rename-latest-renamed-file' });
-                latestRenamedFileEl.createEl('div', { text: latestRenamedFile.originalPath, cls: 'file-path old-path' });
-                latestRenamedFileEl.createEl('div', { text: latestRenamedFile.newPath, cls: 'file-path new-path' });
+                
+                // Calculate the diff between original and new paths
+                const diffParts = calculateSmartDiff(latestRenamedFile.originalPath, latestRenamedFile.newPath);
+                
+                // Create a container for the diff visualization
+                const diffContainer = latestRenamedFileEl.createEl('div', { cls: 'preview-diff' });
+                
+                // Add each diff part with appropriate styling
+                diffParts.forEach(part => {
+                    diffContainer.createEl('span', {
+                        text: part.text,
+                        cls: `diff-${part.type}`
+                    });
+                });
             }
         }
     } else {

@@ -11,6 +11,7 @@ import { performRenameOperation } from './handlers/RenameHandler';
 import { updateSuggestions } from './handlers/SuggestionHandler';
 import { validateFileNameAndUpdateUI } from './handlers/ValidationHandler';
 import { PreviewRenderer } from './preview/PreviewRenderer';
+import { calculateSmartDiff } from '../utils/diffUtils';
 
 export class ComplexRenameModal extends Modal {
     private file: TFile;
@@ -264,94 +265,88 @@ export class ComplexRenameModal extends Modal {
         const originalPath = this.file.path;
         const newPath = this.inputEl.value;
 
+        // Get the basename of the current file (without extension)
+        const getBasename = (filename: string): string => {
+            const lastDotIndex = filename.lastIndexOf('.');
+            return lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
+        };
 
-        // Get files from the same folder
-        const currentFolder = this.file.parent;
-        if (!currentFolder) {
-            container.createSpan({ text: 'No folder found.' });
+        // Extract filename without path
+        const getFilename = (path: string): string => {
+            const lastSlashIndex = path.lastIndexOf('/');
+            return lastSlashIndex >= 0 ? path.substring(lastSlashIndex + 1) : path;
+        };
+
+        const originalFilename = getFilename(originalPath);
+        const originalBasename = getBasename(originalFilename);
+
+        // Find all Dendron-like children across the entire vault
+        const allVaultFiles = this.app.vault.getFiles();
+        
+        // Filter files that follow the Dendron-like pattern
+        const hierarchicalChildren = allVaultFiles.filter(file => {
+            // Skip the file being renamed
+            if (file.path === originalPath) return false;
+            
+            // Check if this file is a hierarchical child
+            return file.basename.startsWith(originalBasename + '.');
+        });
+
+        // Handle empty list
+        if (hierarchicalChildren.length === 0) {
+            container.createEl('p', {
+                cls: 'preview-empty',
+                text: 'No hierarchical child files will be affected by this rename operation.'
+            });
             return;
         }
 
-        const filesInFolder = this.app.vault.getFiles().filter(f =>
-            f.parent === currentFolder &&
-            f.path !== originalPath // Exclude the current file
-        );
-
-
-        // Create table for preview
-        const table = container.createEl('table', { cls: 'batch-rename-preview-table' });
-
-        // Table body
-        const tableBody = table.createEl('tbody');
+        // Update the preview text in the header
+        const previewText = this.batchModeContainer.querySelector('.batch-preview-text');
+        if (previewText) {
+            previewText.textContent = `Preview changes for ${hierarchicalChildren.length} file${hierarchicalChildren.length > 1 ? 's' : ''}`;
+        }
 
         // Add preview for each file
-        filesInFolder.forEach(file => {
-            const row = tableBody.createEl('tr');
-
+        hierarchicalChildren.forEach(file => {
             try {
                 // Process hierarchical rename for this file
                 const newName = processHierarchicalRename(originalPath, newPath, file);
 
-                // Create diff-style preview
-                const diffCell = row.createEl('td');
+                // Create list item
+                const item = container.createEl('div', { cls: 'preview-item' });
 
-                // Create diff element similar to the single file preview
-                const diffEl = diffCell.createDiv({ cls: 'rename-diff' });
+                // Create a container for the diff visualization
+                const diffContainer = item.createEl('div', { cls: 'preview-diff' });
 
-                // Show original path in muted color
-                const originalPathEl = diffEl.createDiv({ cls: 'diff-old' });
-                originalPathEl.createSpan({
-                    text: file.path,
-                    cls: 'diff-text'
-                });
-
-                // Show arrow
-                diffEl.createSpan({ text: '→', cls: 'diff-arrow' });
-
-                // Show new path with highlighting
-                const newPathEl = diffEl.createDiv({ cls: 'diff-new' });
-                newPathEl.createSpan({
-                    text: newName,
-                    cls: 'diff-text'
+                // Calculate and display the diff
+                const diffParts = calculateSmartDiff(file.path, newName);
+                diffParts.forEach(part => {
+                    diffContainer.createEl('span', {
+                        text: part.text,
+                        cls: `diff-${part.type}`
+                    });
                 });
 
             } catch (error) {
                 console.error('[DEBUG] Error in preview generation:', error);
-                row.createEl('td', { text: `Error: ${error.message}`, cls: 'batch-rename-error' });
+                container.createEl('li', { 
+                    text: `Error: ${error.message}`, 
+                    cls: 'preview-error' 
+                });
             }
         });
-
-        // Show message if no files to preview
-        if (tableBody.childElementCount === 0) {
-            const messageRow = tableBody.createEl('tr');
-            messageRow.createEl('td', {
-                text: 'No files will be affected by this rename operation.',
-                cls: 'batch-rename-message'
-            });
-        }
     }
 
     /**
      * Update UI based on batch mode state
      */
     private updateBatchModeUI(): void {
-
         // Show/hide the entire batch controls container based on batch mode
-        this.batchModeContainer.style.display = this.isBatchMode ? 'block' : 'none';
-
-        // If batch mode is enabled, then manage the preview header visibility
         if (this.isBatchMode) {
-            // Show/hide preview header based on settings
-            const headerDisplayValue = this.plugin.settings.batchRenaming.showPreview ? 'flex' : 'none';
-
-            // Get the preview header element
-            const previewHeader = this.batchModeContainer.querySelector('.batch-preview-header') as HTMLElement;
-            if (previewHeader) {
-                previewHeader.style.display = headerDisplayValue;
-            }
-
-            // Always keep preview container hidden by default (when collapsed)
-            this.batchModePreviewContainer.style.display = 'none';
+            this.batchModeContainer.classList.remove('hidden');
+        } else {
+            this.batchModeContainer.classList.add('hidden');
         }
 
         // Keep the button icon consistent, just update the tooltip
@@ -361,7 +356,6 @@ export class ComplexRenameModal extends Modal {
             this.submitBtn.setTooltip('Rename file');
         }
         this.submitBtn.setClass('submit-button');
-
     }
 
     /**
@@ -373,9 +367,9 @@ export class ComplexRenameModal extends Modal {
 
         // Toggle reset button visibility based on whether input differs from original
         if (value !== this.file.path) {
-            this.resetBtn.buttonEl.style.display = 'flex';
+            this.resetBtn.buttonEl.removeClass('hidden');
         } else {
-            this.resetBtn.buttonEl.style.display = 'none';
+            this.resetBtn.buttonEl.addClass('hidden');
         }
 
         // Always validate and show error immediately
@@ -387,15 +381,11 @@ export class ComplexRenameModal extends Modal {
 
         // If batch mode is active and preview is expanded, update batch preview
         if (this.isBatchMode) {
-
-            // Find the preview content element
-            const previewContent = this.batchModePreviewContainer.querySelector('.batch-preview-content') as HTMLElement;
-
             // Check if preview is currently visible
-            const isPreviewVisible = this.batchModePreviewContainer.style.display === 'block';
+            const isPreviewVisible = !this.batchModePreviewContainer.classList.contains('hidden');
 
-            if (isPreviewVisible && previewContent) {
-                this.generatePreviewContent(previewContent);
+            if (isPreviewVisible) {
+                this.generatePreviewContent(this.batchModePreviewContainer);
             }
         }
     }
@@ -474,32 +464,42 @@ export class ComplexRenameModal extends Modal {
      * Perform a batch rename operation
      */
     private async performBatchRename(): Promise<void> {
-
-        // Get files from the same folder
-        const currentFolder = this.file.parent;
-        if (!currentFolder) {
-            this.errorDisplay.showError('No folder found for batch operation.', false);
-            return;
-        }
-
         // Get original and new paths for the current file
         const originalPath = this.file.path;
         const newPath = this.inputEl.value;
 
+        // Get the basename of the current file (without extension)
+        const getBasename = (filename: string): string => {
+            const lastDotIndex = filename.lastIndexOf('.');
+            return lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
+        };
 
-        // Gather files that will be affected (exclude the current file)
-        const filesInFolder = this.app.vault.getFiles().filter(f =>
-            f.parent === currentFolder &&
-            f.path !== originalPath
-        );
+        // Extract filename without path
+        const getFilename = (path: string): string => {
+            const lastSlashIndex = path.lastIndexOf('/');
+            return lastSlashIndex >= 0 ? path.substring(lastSlashIndex + 1) : path;
+        };
 
+        const originalFilename = getFilename(originalPath);
+        const originalBasename = getBasename(originalFilename);
 
-        // Filter to only files that will actually be renamed (children in hierarchy)
-        const filesToRename = filesInFolder.filter(file => {
+        // Find all Dendron-like children across the entire vault
+        const allVaultFiles = this.app.vault.getFiles();
+        
+        // Filter files that follow the Dendron-like pattern
+        const hierarchicalChildren = allVaultFiles.filter(file => {
+            // Skip the file being renamed
+            if (file.path === originalPath) return false;
+            
+            // Check if this file is a hierarchical child
+            return file.basename.startsWith(originalBasename + '.');
+        });
+
+        // Filter to only files that will actually be renamed
+        const filesToRename = hierarchicalChildren.filter(file => {
             const newFilePath = processHierarchicalRename(originalPath, newPath, file);
             return newFilePath !== file.path; // Only include files that will be renamed
         });
-
 
         // If no files would be renamed, just do a single rename
         if (filesToRename.length === 0) {
@@ -513,10 +513,8 @@ export class ComplexRenameModal extends Modal {
         // Custom batch rename operation
         const batchOperationFiles = [...filesToRename, this.file]; // Include the current file
 
-
         // Create a custom batch operation with specific rename logic
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { BatchRenameModal } = require('./BatchRenameModal');
+        const { BatchRenameModal } = await import('./BatchRenameModal');
         const batchModal = new BatchRenameModal(this.app, this.plugin, batchOperationFiles);
 
         // Set custom pattern generator function
@@ -619,8 +617,7 @@ export class ComplexRenameModal extends Modal {
 
 
         // Create hidden toggle component (functional but not visible)
-        const hiddenToggleContainer = this.batchModeContainer.createDiv({ cls: 'hidden-batch-toggle' });
-        hiddenToggleContainer.style.display = 'none';
+        const hiddenToggleContainer = this.batchModeContainer.createDiv({ cls: ['hidden-batch-toggle', 'hidden'] });
 
         // Add toggle component (hidden but functional)
         this.batchModeToggle = new ToggleComponent(hiddenToggleContainer);
@@ -637,40 +634,67 @@ export class ComplexRenameModal extends Modal {
         });
 
         // Create preview header with triangle
-        const previewHeader = this.batchModeContainer.createDiv({ cls: 'batch-preview-header' });
-        previewHeader.style.display = 'none'; // Hide preview header by default
+        const previewHeader = this.batchModeContainer.createDiv({ cls: ['batch-preview-header'] });
         const previewTriangle = previewHeader.createSpan({ cls: ['batch-preview-triangle', 'button-icon-container'] });
         setIcon(previewTriangle, 'right-triangle');
 
-        // Create collapsible preview section with dropdown
-        this.batchModePreviewContainer = this.batchModeContainer.createDiv({ cls: 'batch-rename-preview-container' });
-        this.batchModePreviewContainer.style.display = 'none'; // Hide preview container by default
+        // Calculate initial count of hierarchical files
+        const originalPath = this.file.path;
+        const getBasename = (filename: string): string => {
+            const lastDotIndex = filename.lastIndexOf('.');
+            return lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
+        };
 
+        const getFilename = (path: string): string => {
+            const lastSlashIndex = path.lastIndexOf('/');
+            return lastSlashIndex >= 0 ? path.substring(lastSlashIndex + 1) : path;
+        };
+
+        const originalFilename = getFilename(originalPath);
+        const originalBasename = getBasename(originalFilename);
+
+        // Find all Dendron-like children across the entire vault
+        const allVaultFiles = this.app.vault.getFiles();
+        const hierarchicalChildren = allVaultFiles.filter(file => {
+            if (file.path === originalPath) return false;
+            return file.basename.startsWith(originalBasename + '.');
+        });
+
+        // Create preview text with initial count
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const previewText = previewHeader.createSpan({
             cls: 'batch-preview-text',
-            text: `Preview changes for ${this.similarFilesCount} files`
+            text: `Preview changes for ${hierarchicalChildren.length} file${hierarchicalChildren.length > 1 ? 's' : ''}`
         });
 
-        // Create collapsible preview content (initially collapsed)
-        const previewContent = this.batchModePreviewContainer.createDiv({ cls: 'batch-preview-content' });
+        // Create collapsible preview section with dropdown
+        this.batchModePreviewContainer = this.batchModeContainer.createDiv({ cls: ['batch-rename-preview-container', 'hidden'] });
+
+        // Initialize preview state based on settings
+        let previewExpanded = this.plugin.settings.batchRenaming?.showPreview ?? false;
+        
+        // Set initial state
+        if (previewExpanded) {
+            this.batchModePreviewContainer.classList.remove('hidden');
+            previewTriangle.addClass('expanded');
+            this.generatePreviewContent(this.batchModePreviewContainer);
+        }
 
         // Toggle preview on click
-        let previewExpanded = false;
         previewHeader.addEventListener('click', () => {
             previewExpanded = !previewExpanded;
-            this.batchModePreviewContainer.style.display = previewExpanded ? 'block' : 'none';
-
-            // Toggle expanded class for CSS-based rotation
+            
             if (previewExpanded) {
+                this.batchModePreviewContainer.classList.remove('hidden');
                 previewTriangle.addClass('expanded');
             } else {
+                this.batchModePreviewContainer.classList.add('hidden');
                 previewTriangle.removeClass('expanded');
             }
 
             // Regenerate preview content when expanding
             if (previewExpanded) {
-                this.generatePreviewContent(previewContent);
+                this.generatePreviewContent(this.batchModePreviewContainer);
             }
         });
 
