@@ -1,3 +1,13 @@
+# [0.10.0](https://github.com/jeansordes/rename-wizard/compare/0.9.0...0.10.0) (2025-04-21)
+
+### Bug Fixes
+
+* restore yellow highlighting instead of just bold text ([5e5d8c8](https://github.com/jeansordes/rename-wizard/commit/5e5d8c86ddfb48e702f35b799cf1ec84698d83d0))
+
+### Features
+
+* enhance batch renaming preview, diff visualization, and notices on mobile ([03018ec](https://github.com/jeansordes/rename-wizard/commit/03018ec43d3f2172c111f6ee012d6114d8df8866)), closes [#49](https://github.com/jeansordes/rename-wizard/issues/49) [#54](https://github.com/jeansordes/rename-wizard/issues/54) [#51](https://github.com/jeansordes/rename-wizard/issues/51)
+
 # [0.9.0](https://github.com/jeansordes/rename-wizard/compare/0.6.0...0.9.0) (2025-04-20)
 
 ### Bug Fixes
