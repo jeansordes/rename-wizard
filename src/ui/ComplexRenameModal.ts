@@ -294,7 +294,7 @@ export class ComplexRenameModal extends Modal {
 
         // Handle empty list
         if (hierarchicalChildren.length === 0) {
-            container.createEl('p', {
+            container.createEl('span', {
                 cls: 'preview-empty',
                 text: 'No hierarchical child files will be affected by this rename operation.'
             });
@@ -610,7 +610,7 @@ export class ComplexRenameModal extends Modal {
 
         // Create batch controls and insert them after the input container
         this.batchModeContainer = document.createElement('div');
-        this.batchModeContainer.className = 'batch-controls-container';
+        this.batchModeContainer.className='p-3 border-b';
 
         // Insert the container after the input container
         this.suggestionsEl.before(this.batchModeContainer);

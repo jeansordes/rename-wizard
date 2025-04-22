@@ -27,7 +27,9 @@
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
 		"files:linecount": "ts-node --skipProject scripts/sortFilesByLineCount.ts",
-		"prepare": "husky"
+		"prepare": "husky",
+		"cleanup-css": "node scripts/remove-unused-css-blocks.js",
+		"refactor-css-to-utility": "node scripts/refactor-css-to-utility.js"
 	},
 	"config": {
 		"commitizen": {
@@ -58,7 +60,10 @@
 		"ts-jest": "^29.3.2",
 		"ts-node": "^10.9.2",
 		"tslib": "2.4.0",
-		"typescript": "~5.3.3"
+		"typescript": "~5.3.3",
+		"css": "^3.0.0",
+		"glob": "^10.3.10",
+		"@types/css": "^0.0.33"
 	},
 	"dependencies": {
 		"husky": "^9.1.7"
