@@ -1,14 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { validateFileNameAndUpdateUI } from '../../../src/ui/handlers/ValidationHandler';
 import { MockApp, MockErrorDisplay } from '../../mocks/ElementMocks';
 import { App } from 'obsidian';
-
-// Mock the validateFileNamePure function
-jest.mock('../../../src/validators/fileNameValidator', () => ({
-    validateFileNamePure: jest.fn()
-}));
-
-import { validateFileNamePure } from '../../../src/validators/fileNameValidator';
+import * as fileNameValidator from '../../../src/validators/fileNameValidator';
+import { ErrorDisplay } from '../../../src/ui/components/ErrorDisplay';
 
 // Define a more specific type for our mock files
 interface MockFile {
@@ -21,6 +15,7 @@ describe('ValidationHandler', () => {
         let app: MockApp;
         let errorDisplay: MockErrorDisplay;
         let currentFilePath: string;
+        let validateFileNamePureSpy: jest.SpyInstance;
         
         beforeEach(() => {
             app = new MockApp();
@@ -35,29 +30,31 @@ describe('ValidationHandler', () => {
             ];
             app.vault.getAllLoadedFiles.mockReturnValue(mockFiles);
             
-            // Reset the validateFileNamePure mock
-            jest.mocked(validateFileNamePure).mockReset();
+            // Spy on validateFileNamePure
+            validateFileNamePureSpy = jest.spyOn(fileNameValidator, 'validateFileNamePure');
+        });
+        
+        afterEach(() => {
+            validateFileNamePureSpy.mockRestore();
         });
         
         it('builds a map of existing files and folders', () => {
             // Set up validateFileNamePure to return valid result
-            jest.mocked(validateFileNamePure).mockReturnValue({
+            validateFileNamePureSpy.mockReturnValue({
                 isValid: true,
                 errorMessage: '',
                 isWarning: false
             });
             
-            // Disable eslint for this line only
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             validateFileNameAndUpdateUI(
                 'test/new-name.md',
                 app as unknown as App,
                 currentFilePath,
-                errorDisplay as any
+                errorDisplay as unknown as ErrorDisplay
             );
             
             // Check that validateFileNamePure was called with the correct arguments
-            expect(validateFileNamePure).toHaveBeenCalledWith(
+            expect(validateFileNamePureSpy).toHaveBeenCalledWith(
                 'test/new-name.md', 
                 {
                     'test/file.md': true,
@@ -72,18 +69,17 @@ describe('ValidationHandler', () => {
         
         it('returns false and shows error for invalid filenames', () => {
             // Set up validateFileNamePure to return invalid result
-            jest.mocked(validateFileNamePure).mockReturnValue({
+            validateFileNamePureSpy.mockReturnValue({
                 isValid: false,
                 errorMessage: 'Invalid filename',
                 isWarning: false
             });
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = validateFileNameAndUpdateUI(
                 'invalid-name',
                 app as unknown as App,
                 currentFilePath,
-                errorDisplay as any
+                errorDisplay as unknown as ErrorDisplay
             );
             
             expect(result).toBe(false);
@@ -93,19 +89,18 @@ describe('ValidationHandler', () => {
         
         it('returns true but shows warning for valid filenames with warnings', () => {
             // Set up validateFileNamePure to return valid result with warning
-            jest.mocked(validateFileNamePure).mockReturnValue({
+            validateFileNamePureSpy.mockReturnValue({
                 isValid: true,
                 errorMessage: 'Warning message',
                 isWarning: true,
                 warningMessages: ['Detailed warning']
             });
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = validateFileNameAndUpdateUI(
                 'valid-with-warning',
                 app as unknown as App,
                 currentFilePath,
-                errorDisplay as any
+                errorDisplay as unknown as ErrorDisplay
             );
             
             expect(result).toBe(true);
@@ -119,18 +114,17 @@ describe('ValidationHandler', () => {
         
         it('returns true and hides error for valid filenames without warnings', () => {
             // Set up validateFileNamePure to return valid result without warning
-            jest.mocked(validateFileNamePure).mockReturnValue({
+            validateFileNamePureSpy.mockReturnValue({
                 isValid: true,
                 errorMessage: '',
                 isWarning: false
             });
             
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const result = validateFileNameAndUpdateUI(
                 'valid-name',
                 app as unknown as App,
                 currentFilePath,
-                errorDisplay as any
+                errorDisplay as unknown as ErrorDisplay
             );
             
             expect(result).toBe(true);

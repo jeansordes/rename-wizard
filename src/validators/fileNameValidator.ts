@@ -173,9 +173,54 @@ export function normalizePath(newName: string, file: TFile): {
 } {
     const trimmedName = newName.trim();
     
+    // Extract the parent path from the file if available
+    const currentFolder = file.parent ? file.parent.path : '';
+    
     // If no slashes, keep in current folder
     if (!trimmedName.includes('/')) {
-        const currentFolder = file.parent ? file.parent.path : '';
+        // Special handling for root folder to avoid double slashes
+        const newPath = currentFolder === '/' 
+            ? `${currentFolder}${trimmedName}`
+            : currentFolder
+                ? `${currentFolder}/${trimmedName}`
+                : trimmedName;
+        
+        return { newPath, folderPath: null };
+    }
+
+    // Handle absolute path if slashes are present
+    const pathParts = trimmedName.split('/').filter(part => part.length > 0);
+    const newBasename = pathParts.pop() || ''; // Get the last part as filename
+    const newFolderPath = pathParts.join('/'); // Join the rest as folder path
+
+    // Construct the new path, avoiding double slashes
+    const newPath = newFolderPath
+        ? `${newFolderPath}/${newBasename}`
+        : newBasename;
+
+    return { 
+        newPath, 
+        folderPath: newFolderPath || null 
+    };
+}
+
+/**
+ * Normalize path with just the parent path (without requiring a TFile)
+ * This is a specialized version used by validateFileNamePure to avoid TFile dependency
+ * 
+ * @param newName New file name or path
+ * @param currentParentPath Parent path of the current file
+ * @returns Normalized path and folder path
+ */
+function normalizePathWithParent(newName: string, currentParentPath: string | null): { 
+    newPath: string; 
+    folderPath: string | null;
+} {
+    const trimmedName = newName.trim();
+    const currentFolder = currentParentPath || '';
+    
+    // If no slashes, keep in current folder
+    if (!trimmedName.includes('/')) {
         // Special handling for root folder to avoid double slashes
         const newPath = currentFolder === '/' 
             ? `${currentFolder}${trimmedName}`
@@ -298,11 +343,12 @@ export function validateFileNamePure(
         };
     }
 
-    // Create a mock file for normalizePath
-    const mockFile = createMockFile(currentFilePath);
+    // Extract the current parent path
+    const lastSlash = currentFilePath.lastIndexOf('/');
+    const parentPath = lastSlash !== -1 ? currentFilePath.substring(0, lastSlash) : null;
 
     // Normalize path (handle slashes correctly)
-    const { newPath, folderPath } = normalizePath(name, mockFile);
+    const { newPath, folderPath } = normalizePathWithParent(name, parentPath);
 
     // Handle relative paths (../)
     let processedPath = newPath;
@@ -322,8 +368,7 @@ export function validateFileNamePure(
     const warnings: string[] = [];
 
     // Check if the folder exists and should be created
-    const currentParentPath = mockFile.parent?.path || null;
-    const folderWarning = checkFolderExistsPure(folderPath, existingFiles, currentParentPath);
+    const folderWarning = checkFolderExistsPure(folderPath, existingFiles, parentPath);
     if (folderWarning) {
         warnings.push(folderWarning);
     }
@@ -351,19 +396,4 @@ export function validateFileNamePure(
         isWarning: false,
         newPath: processedPath
     };
-}
-
-/**
- * Helper function to create a mock file for testing
- * @param path File path
- * @returns Mock TFile
- */
-function createMockFile(path: string): TFile {
-    return {
-        path: path,
-        name: path.split('/').pop() || '',
-        parent: path.includes('/') ? {
-            path: path.substring(0, path.lastIndexOf('/'))
-        } : null
-    } as unknown as TFile;
 } 

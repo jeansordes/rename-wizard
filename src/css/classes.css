@@ -301,7 +301,7 @@
     gap: 4px;
 }
 
-.modal-content.complex-rename-modal .input-container .button-container {
+.modal-content .input-container .button-container {
     display: flex;
     align-items: center;
     margin: auto;
@@ -309,24 +309,24 @@
     flex-shrink: 0;
 }
 
-.is-mobile .modal-content.complex-rename-modal .input-container .button-container {
+.is-mobile .modal-content .input-container .button-container {
     margin-top: var(--size-4-2);
     margin-left: 0;
 }
 
-.modal-content.complex-rename-modal .button-container .reset-button {
+.modal-content .button-container .reset-button {
     order: 1;
 }
 
-.modal-content.complex-rename-modal .button-container button.submit-button {
+.modal-content .button-container button.submit-button {
     order: 2;
 }
 
-.modal-content.complex-rename-modal .button-container .close-button {
+.modal-content .button-container .close-button {
     order: 3;
 }
 
-.modal-content.complex-rename-modal .button-container .reset-button[style*="display: none"] {
+.modal-content .button-container .reset-button[style*="display: none"] {
     display: none !important;
 }
 
@@ -368,12 +368,12 @@
     justify-self: center;
 }
 
-.complex-rename-modal .reset-button {
+.reset-button {
     background-color: var(--background-modifier-border);
     color: var(--text-normal);
 }
 
-.modal-content.complex-rename-modal .button-container button.submit-button {
+.modal-content .button-container button.submit-button {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
     opacity: 0.9;
@@ -384,7 +384,7 @@
     background-color: var(--background-modifier-hover);
 }
 
-.modal-content.complex-rename-modal .button-container button.submit-button:hover {
+.modal-content .button-container button.submit-button:hover {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
 }
@@ -396,29 +396,29 @@
     transform: scale(0.95);
 }
 
-.is-mobile .modal-content.complex-rename-modal .button-container button.submit-button {
+.is-mobile .modal-content .button-container button.submit-button {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
 
-.is-mobile .modal-content.complex-rename-modal .button-container button.submit-button:active {
+.is-mobile .modal-content .button-container button.submit-button:active {
     background-color: var(--interactive-accent-hover);
     color: var(--text-on-accent);
 }
 
-.complex-rename-modal .input-container:not(.is-mobile) button {
+.input-container:not(.is-mobile) button {
     margin-left: 2px;
     margin-right: 2px;
 }
 
-.complex-rename-modal .suggestion-highlight {
+.suggestion-highlight {
     border-radius: var(--radius-s);
     padding: 0 2px;
     margin: 0 -2px;
     background-color: var(--text-highlight-bg);
 }
 
-.modal-content.complex-rename-modal .input-container {
+.modal-content .input-container {
     display: flex;
     padding: var(--size-4-2) var(--size-4-3);
     background: none;
@@ -426,12 +426,12 @@
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.is-mobile .modal-content.complex-rename-modal .input-container {
+.is-mobile .modal-content .input-container {
     padding: var(--size-4-3);
     flex-wrap: wrap;
 }
 
-.complex-rename-modal .rename-input {
+.rename-input {
     flex: 1;
     background-color: transparent;
     border: none;
@@ -446,23 +446,23 @@
     word-wrap: break-word;
 }
 
-.is-mobile .complex-rename-modal .rename-input {
+.is-mobile .rename-input {
     font-size: var(--font-ui-large);
     padding: var(--size-4-3) var(--size-4-2);
 }
 
-.complex-rename-modal .rename-input::placeholder {
+.rename-input::placeholder {
     color: var(--text-faint);
     opacity: 0.8;
 }
 
-.complex-rename-modal .rename-input:focus {
+.rename-input:focus {
     outline: none;
     box-shadow: none;
 }
 
-.complex-rename-modal .error,
-.complex-rename-modal .preview-folder-creation {
+.error,
+.preview-folder-creation {
     padding: var(--size-4-2) var(--size-4-3);
     margin: var(--size-4-1) var(--size-4-3);
     font-size: var(--font-ui-small);
@@ -473,19 +473,19 @@
     border-radius: var(--radius-m);
 }
 
-.complex-rename-modal .error.show-error {
+.error.show-error {
     display: flex;
     background-color: rgba(var(--color-red-rgb), 0.1);
     color: var(--text-error);
 }
 
-.complex-rename-modal .error.show-warning {
+.error.show-warning {
     display: flex;
     background-color: rgba(var(--color-yellow-rgb), 0.1);
     color: var(--color-yellow);
 }
 
-.complex-rename-modal .preview-folder-creation {
+.preview-folder-creation {
     color: var(--color-green);
     background-color: rgba(var(--color-green-rgb), 0.1);
     display: flex;
@@ -573,7 +573,7 @@
     max-height: min(700px, calc(100vh - var(--safe-area-inset-top) - var(--header-height) - var(--size-4-4) * 2));
 }
 
-.complex-rename-modal .preview-path {
+.preview-path {
     font-family: var(--font-ui-small);
     word-break: break-all;
     font-size: var(--font-ui-medium);
@@ -770,7 +770,7 @@
     margin: 0;
 }
 
-.complex-rename-modal .suggestion-item {
+.suggestion-item {
     display: flex;
     padding: var(--size-4-2) var(--size-4-3);
     cursor: pointer;
@@ -781,46 +781,46 @@
     border-bottom: 1px solid var(--background-modifier-border-subtle, rgba(128, 128, 128, 0.1));
 }
 
-.is-mobile .complex-rename-modal .suggestion-item {
+.is-mobile .suggestion-item {
     padding: var(--size-4-3);
     margin: 2px 0;
     border-radius: var(--radius-s);
 }
 
 .suggestion-item:hover,
-.complex-rename-modal .suggestion-item.is-selected {
+.suggestion-item.is-selected {
     background-color: var(--background-modifier-hover);
 }
 
-.is-mobile .complex-rename-modal .suggestion-item:active {
+.is-mobile .suggestion-item:active {
     background-color: var(--background-modifier-hover);
 }
 
-.complex-rename-modal .suggestion-item.mod-complex {
+.suggestion-item.mod-complex {
     display: flex;
     justify-content: space-between;
 }
 
-.complex-rename-modal .suggestion-item .suggestion-content {
+.suggestion-item .suggestion-content {
     flex: 1;
     min-width: 0;
     overflow: hidden;
 }
 
-.complex-rename-modal .suggestion-item .suggestion-title {
+.suggestion-item .suggestion-title {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: var(--font-ui-small);
 }
 
-.complex-rename-modal .suggestion-item .suggestion-aux {
+.suggestion-item .suggestion-aux {
     display: flex;
     align-items: center;
     margin-left: var(--size-4-2);
 }
 
-.complex-rename-modal .suggestion-item .suggestion-flair {
+.suggestion-item .suggestion-flair {
     font-size: var(--font-ui-smaller);
     color: var(--text-faint);
 }
@@ -833,16 +833,8 @@
     font-size: var(--font-ui-small);
 }
 
-.complex-rename-modal .preview-folder-creation .suggestion-icon,
-.complex-rename-modal .error .suggestion-icon {
+.preview-folder-creation .suggestion-icon,
+.error .suggestion-icon {
     color: inherit;
     opacity: 1;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.visible {
-    display: inherit;
 }

@@ -8,6 +8,7 @@ import {
     handleArrowNavigation
 } from '../../../src/ui/handlers/InputHandlers';
 import { MockHTMLElement, MockTFile, MockApp, MockPlugin } from '../../mocks/ElementMocks';
+import { TFile } from 'obsidian';
 
 // Create a generic type for context info in tests
 interface SuggestionContextInfo {
@@ -34,17 +35,17 @@ describe('InputHandlers', () => {
 
         it('selects the last part when selectLastPart is true and filename has multiple parts', () => {
             file = new MockTFile('test/file.some.name.md');
-            setInitialSelection(inputEl, file as any, true);
+            setInitialSelection(inputEl, file as unknown as TFile, true);
             expect(inputEl.setSelectionRange).toHaveBeenCalledWith(15, 19); // 'test/file.some.name'.lastIndexOf('.') + 1 to 'test/file.some.name.md'.lastIndexOf('.')
         });
 
         it('selects the whole filename when selectLastPart is true but filename has no parts', () => {
-            setInitialSelection(inputEl, file as any, true);
+            setInitialSelection(inputEl, file as unknown as TFile, true);
             expect(inputEl.setSelectionRange).toHaveBeenCalledWith(5, 9); // 'test/file.md'.lastIndexOf('/') + 1 to 'test/file.md'.lastIndexOf('.')
         });
 
         it('places cursor at the end when selectLastPart is false', () => {
-            setInitialSelection(inputEl, file as any, false);
+            setInitialSelection(inputEl, file as unknown as TFile, false);
             expect(inputEl.setSelectionRange).toHaveBeenCalledWith(12, 12); // Length of 'test/file.md'
         });
     });
@@ -61,7 +62,7 @@ describe('InputHandlers', () => {
         });
 
         it('sets up auto-expansion and returns an adjustment function', () => {
-            const adjustHeight = configureInputAutoExpansion(inputEl as any, contentEl as any);
+            const adjustHeight = configureInputAutoExpansion(inputEl, contentEl);
             
             // Should set max-height and initial height
             expect(inputEl.style.maxHeight).toBe('500px'); // 800 - 300
@@ -99,10 +100,10 @@ describe('InputHandlers', () => {
             updateKeyboardInstructions = jest.fn();
             
             handler = createSuggestionClickHandler(
-                file as any,
-                inputEl as any,
-                suggestionList as any,
-                plugin as any,
+                file as unknown as TFile,
+                inputEl,
+                suggestionList,
+                plugin,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -185,7 +186,7 @@ describe('InputHandlers', () => {
             
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -197,7 +198,7 @@ describe('InputHandlers', () => {
         it('selects the first item when pressing ArrowDown with no selection', () => {
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -214,7 +215,7 @@ describe('InputHandlers', () => {
             
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -227,7 +228,7 @@ describe('InputHandlers', () => {
             
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -240,7 +241,7 @@ describe('InputHandlers', () => {
             
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -254,7 +255,7 @@ describe('InputHandlers', () => {
             
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );
@@ -268,7 +269,7 @@ describe('InputHandlers', () => {
             
             handleArrowNavigation(
                 event,
-                suggestionList as any,
+                suggestionList,
                 updateIsNavigatingSuggestions,
                 updateKeyboardInstructions
             );

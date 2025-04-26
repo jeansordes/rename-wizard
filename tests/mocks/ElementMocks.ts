@@ -3,6 +3,7 @@
  * Mocks for DOM elements and Obsidian components
  */
 import { RenameSuggestion } from '../../src/types';
+import obsidianMock from './obsidian-mock';
 
 // Define the missing types from Obsidian for our mock elements
 interface DomElementInfo {
@@ -42,7 +43,7 @@ export function mockElement(element: HTMLElement): void {
         }
         
         this.appendChild(div);
-        return div as HTMLDivElement;
+        return div;
     };
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +63,7 @@ export function mockElement(element: HTMLElement): void {
         }
         
         this.appendChild(span);
-        return span as HTMLSpanElement;
+        return span;
     };
     
     // Use type assertion to bypass TypeScript limitations with HTMLElement extensions
@@ -237,6 +238,12 @@ export class MockTFile {
     public parent = {
         path: 'test'
     };
+    public stat = {
+        ctime: 0,
+        mtime: 0,
+        size: 0
+    };
+    public vault = null;
 }
 
 export class MockApp {

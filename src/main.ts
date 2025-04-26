@@ -4,12 +4,13 @@ import { RenameWizardSettings } from './types';
 import { ComplexRenameModal } from './ui/ComplexRenameModal';
 import { RenameWizardSettingTab } from './ui/SettingsTab';
 import { DEFAULT_SETTINGS } from './utils/constants';
+import { logger } from './utils/logger';
 
 export default class RenameWizardPlugin extends Plugin {
 	settings: RenameWizardSettings;
 
 	async onload(): Promise<void> {
-		if (process.env.NODE_ENV === 'development') console.clear();
+        logger.enable();
 		await this.loadSettings();
 
 		// Add the rename command
@@ -40,6 +41,7 @@ export default class RenameWizardPlugin extends Plugin {
 	}
 
 	onunload(): void {
+		// No actions needed on unload
 	}
 
 	async loadSettings(): Promise<void> {

@@ -1,5 +1,6 @@
 {
 	"name": "rename-wizard",
+    "type": "module",
 	"version": "0.11.0",
 	"description": "Add suggestions when renaming a file in your Obsidian vault",
 	"main": "main.js",
@@ -16,7 +17,7 @@
 		"bump:major": "node version-bump.mjs major",
 		"bump:beta": "node version-bump.mjs beta",
 		"commit": "cz",
-		"cleanup-changelog": "node scripts/cleanup-changelog.js",
+		"cleanup-changelog": "ts-node --skipProject scripts/cleanup-changelog.ts",
 		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && npm run cleanup-changelog",
 		"changelog:first": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && npm run cleanup-changelog",
 		"release": "npm run build && npm run bump && npm run changelog && git add CHANGELOG.md && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
@@ -24,12 +25,13 @@
 		"release:major": "npm run build && npm run bump:major && npm run changelog && git add CHANGELOG.md && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
 		"release:beta": "npm run build && npm run bump:beta && npm run changelog && git add CHANGELOG.md beta-manifest.json && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
 		"test": "jest",
-		"lint": "eslint . --ext .ts",
-		"lint:fix": "eslint . --ext .ts --fix",
+		"lint": "eslint .",
+        "lint:open": "./scripts/lint-open.sh",
+        "lint:ls": "npm run lint | grep -E '^[^ ]+\\.js|^[^ ]+\\.ts' | awk '{print $1}' | sort | uniq",
 		"files:linecount": "ts-node --skipProject scripts/sortFilesByLineCount.ts",
 		"prepare": "husky",
-		"cleanup-css": "node scripts/remove-unused-css-blocks.js",
-		"refactor-css-to-utility": "node scripts/refactor-css-to-utility.js"
+		"cleanup-css": "ts-node --skipProject scripts/remove-unused-css-blocks.ts",
+		"refactor-css-to-utility": "ts-node --skipProject scripts/refactor-css-to-utility.ts"
 	},
 	"config": {
 		"commitizen": {
@@ -45,8 +47,8 @@
 	"devDependencies": {
 		"@types/jest": "^29.5.14",
 		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "^6.21.0",
-		"@typescript-eslint/parser": "^6.21.0",
+		"@typescript-eslint/eslint-plugin": "^8.31.0",
+		"@typescript-eslint/parser": "^8.31.0",
 		"builtin-modules": "3.3.0",
 		"commitizen": "^4.3.0",
 		"conventional-changelog-cli": "^4.1.0",
@@ -60,10 +62,11 @@
 		"ts-jest": "^29.3.2",
 		"ts-node": "^10.9.2",
 		"tslib": "2.4.0",
-		"typescript": "~5.3.3",
 		"css": "^3.0.0",
 		"glob": "^10.3.10",
-		"@types/css": "^0.0.33"
+		"@types/css": "^0.0.33",
+		"typescript": "^5.3.3",
+        "typescript-eslint": "^8.31.0"
 	},
 	"dependencies": {
 		"husky": "^9.1.7"

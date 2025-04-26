@@ -4,6 +4,7 @@ import RenameWizardPlugin from '../main';
 import { BatchOperationProgress, BatchOperationStatus, BatchRenameOperation, BatchRenameResult } from '../types';
 import { calculateSmartDiff } from '../utils/diffUtils';
 import { BatchRenameProgress } from './components/BatchRenameProgress';
+import { normalizePath } from '../validators/fileNameValidator';
 
 /**
  * Show a batch rename notification, removing any existing notifications
@@ -241,9 +242,6 @@ export class BatchRenameModal extends Modal {
                 } else {
                     // Use pattern-based rename
                     const newName = processNamePattern(this.pattern, file);
-                    // Import properly instead of using require
-                    // eslint-disable-next-line @typescript-eslint/no-var-requires
-                    const { normalizePath } = require('../validators/fileNameValidator');
                     const result = normalizePath(newName, file);
                     newPath = result.newPath;
                 }

@@ -2,7 +2,9 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
+import { logger } from '../src/utils/logger';
 
+logger.enable();
 interface FileLineInfo {
     path: string;
     lineCount: number;
@@ -35,7 +37,7 @@ function countLinesInFile(filePath: string): number {
         const content = fs.readFileSync(filePath, 'utf8');
         return content.split('\n').length;
     } catch (error) {
-        console.error(`Error reading file ${filePath}:`, error);
+        logger.logToConsole(`Error reading file ${filePath}:`, error);
         return 0;
     }
 }
@@ -67,12 +69,12 @@ const srcDir = path.join(projectRoot, 'src');
 const filesByLineCount = getFilesSortedByLineCount(projectRoot, srcDir);
 
 // Display the results in a table format
-console.log('\nFiles in src/ directory sorted by line count (highest to lowest):\n');
-console.log('Line Count | File Path');
-console.log('-'.repeat(100));
+logger.logToConsole('\nFiles in src/ directory sorted by line count (highest to lowest):\n');
+logger.logToConsole('Line Count | File Path');
+logger.logToConsole('-'.repeat(100));
 
 filesByLineCount.forEach((file: FileLineInfo) => {
-    console.log(`${file.lineCount.toString().padEnd(10)} | ${file.relativePath}`);
+    logger.logToConsole(`${file.lineCount.toString().padEnd(10)} | ${file.relativePath}`);
 });
 
 // Display some statistics
@@ -80,16 +82,16 @@ const totalFiles = filesByLineCount.length;
 const totalLines = filesByLineCount.reduce((sum: number, file: FileLineInfo) => sum + file.lineCount, 0);
 const averageLines = Math.round(totalLines / totalFiles);
 
-console.log('\nSummary:');
-console.log(`Total files: ${totalFiles}`);
-console.log(`Total lines: ${totalLines}`);
-console.log(`Average lines per file: ${averageLines}`);
+logger.logToConsole('\nSummary:');
+logger.logToConsole(`Total files: ${totalFiles}`);
+logger.logToConsole(`Total lines: ${totalLines}`);
+logger.logToConsole(`Average lines per file: ${averageLines}`);
 
 // Identify potentially large files that might need refactoring
 const largeFiles = filesByLineCount.filter((file: FileLineInfo) => file.lineCount > 300);
 if (largeFiles.length > 0) {
-    console.log('\nLarge files (>300 lines) that might need refactoring:');
+    logger.logToConsole('\nLarge files (>300 lines) that might need refactoring:');
     largeFiles.forEach((file: FileLineInfo) => {
-        console.log(`${file.lineCount} lines: ${file.relativePath}`);
+        logger.logToConsole(`${file.lineCount} lines: ${file.relativePath}`);
     });
 } 

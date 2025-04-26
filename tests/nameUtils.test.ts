@@ -80,7 +80,7 @@ describe('nameUtils', () => {
 
         test('should throw error for undefined template', () => {
             expect(() => {
-                mergeFilenames('file1.txt', 'file2.txt', undefined as unknown as string);
+                mergeFilenames('file1.txt', 'file2.txt', undefined);
             }).toThrow();
         });
     });

@@ -38,18 +38,24 @@ export function parseFilePath(path: string): FileComponents {
 
     // Split basename into Dendron segments
     const basenameDots = basename.split('.');
-    let dendronBasename = '';
-    let dendronLastSegment = basename;
-    
-    // If we have a multi-part basename (Dendron-style)
-    if (basenameDots.length > 1) {
-        // Take everything except the last part as the dendronBasename
-        dendronBasename = basenameDots.slice(0, -1).join('.');
-        // Take the last part as the dendronLastSegment
-        dendronLastSegment = basenameDots[basenameDots.length - 1];
-    }
+    const dendronBasename =
+        basenameDots.length > 1 ? basenameDots.slice(0, -1).join('.') : '';
+    const dendronLastSegment =
+        basenameDots.length > 1 ? basenameDots[basenameDots.length - 1] : basename;
 
     return { folderPath, basename, extension, dendronBasename, dendronLastSegment };
+}
+
+const validKeys = [
+    'folderPath',
+    'basename',
+    'extension',
+    'dendronBasename',
+    'dendronLastSegment'
+];
+
+function isFileComponentKey(key: string): key is keyof FileComponents {
+    return validKeys.includes(key);
 }
 
 /**
@@ -60,7 +66,10 @@ export function parseFilePath(path: string): FileComponents {
  * @returns The merged file name
  * @throws Error if template is invalid
  */
-export function mergeFilenames(currentFileName: string, suggestionFileName: string, template: string): string {
+export function mergeFilenames(currentFileName: string, suggestionFileName: string, template?: string): string {
+    if (template === undefined) {
+        throw new Error('Template is undefined');
+    }
     // Validate template
     const validation = validateTemplate(template);
     if (!validation.isValid) {
@@ -76,42 +85,46 @@ export function mergeFilenames(currentFileName: string, suggestionFileName: stri
     
     // Special handling for "||" fallback syntax
     result = result.replace(/\${([^}]+)\s*\|\|\s*([^}]+)}/g, (match, left, right) => {
-        // Parse left and right sides
         const leftParts = left.trim().split('.');
         const rightParts = right.trim().split('.');
-        
+
         if (leftParts.length !== 2 || rightParts.length !== 2) {
             throw new Error(`Invalid template variable: ${match}`);
         }
-        
+
         const [leftObj, leftProp] = leftParts;
         const [rightObj, rightProp] = rightParts;
-        
-        // Check if both sides reference valid objects
-        if ((leftObj !== 'current' && leftObj !== 'suggestion') || 
-            (rightObj !== 'current' && rightObj !== 'suggestion')) {
+
+        if (
+            (leftObj !== 'current' && leftObj !== 'suggestion') ||
+            (rightObj !== 'current' && rightObj !== 'suggestion')
+        ) {
             throw new Error(`Invalid template variable: ${match}`);
         }
-        
-        // Get the values
-        const leftVal = leftObj === 'current' ? current[leftProp as keyof FileComponents] : suggestion[leftProp as keyof FileComponents];
-        const rightVal = rightObj === 'current' ? current[rightProp as keyof FileComponents] : suggestion[rightProp as keyof FileComponents];
-        
-        // Return the first non-empty value
+
+        let leftVal: string = '';
+        let rightVal: string = '';
+        if (isFileComponentKey(leftProp)) {
+            leftVal = leftObj === 'current' ? current[leftProp] : suggestion[leftProp];
+        }
+        if (isFileComponentKey(rightProp)) {
+            rightVal = rightObj === 'current' ? current[rightProp] : suggestion[rightProp];
+        }
+
         return leftVal || rightVal;
     });
     
     // Replace all occurrences of current and suggestion variables
     result = result.replace(/\${current\.([^}]+)}/g, (match, prop) => {
-        if (prop in current) {
-            return current[prop as keyof FileComponents];
+        if (isFileComponentKey(prop)) {
+            return current[prop];
         }
         throw new Error(`Invalid template variable: current.${prop}`);
     });
 
     result = result.replace(/\${suggestion\.([^}]+)}/g, (match, prop) => {
-        if (prop in suggestion) {
-            return suggestion[prop as keyof FileComponents];
+        if (isFileComponentKey(prop)) {
+            return suggestion[prop];
         }
         throw new Error(`Invalid template variable: suggestion.${prop}`);
     });

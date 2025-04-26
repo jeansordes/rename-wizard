@@ -1,5 +1,12 @@
 import * as ObsidianMock from './obsidian-mock';
 
+beforeAll(() => {
+  process.env.OBSIDIAN_MOCK_TEST = '1';
+});
+afterAll(() => {
+  delete process.env.OBSIDIAN_MOCK_TEST;
+});
+
 describe('Obsidian Mock', () => {
     describe('Plugin', () => {
         test('should initialize with default values', () => {
@@ -29,7 +36,7 @@ describe('Obsidian Mock', () => {
         test('should create UI elements', () => {
             const plugin = new ObsidianMock.Plugin();
             
-            const ribbonIcon = plugin.addRibbonIcon('test-icon', 'Test Icon', () => {});
+            const ribbonIcon = plugin.addRibbonIcon('test-icon', 'Test Icon', () => undefined);
             expect(ribbonIcon).toBeDefined();
             expect(ribbonIcon instanceof HTMLElement).toBe(true);
             
@@ -92,13 +99,13 @@ describe('Obsidian Mock', () => {
             expect(setting.setHeading()).toBe(setting);
             expect(setting.setDisabled(true)).toBe(setting);
             expect(setting.setClass('test-class')).toBe(setting);
-            expect(setting.addText(() => {})).toBe(setting);
-            expect(setting.addTextArea(() => {})).toBe(setting);
-            expect(setting.addToggle(() => {})).toBe(setting);
-            expect(setting.addButton(() => {})).toBe(setting);
-            expect(setting.addSelect(() => {})).toBe(setting);
-            expect(setting.addSlider(() => {})).toBe(setting);
-            expect(setting.then(() => {})).toBe(setting);
+            expect(setting.addText(() => undefined)).toBe(setting);
+            expect(setting.addTextArea(() => undefined)).toBe(setting);
+            expect(setting.addToggle(() => undefined)).toBe(setting);
+            expect(setting.addButton(() => undefined)).toBe(setting);
+            expect(setting.addSelect(() => undefined)).toBe(setting);
+            expect(setting.addSlider(() => undefined)).toBe(setting);
+            expect(setting.then(() => undefined)).toBe(setting);
         });
     });
     
@@ -112,7 +119,7 @@ describe('Obsidian Mock', () => {
             expect(textComponent.getValue()).toBe('');
             expect(textComponent.setValue('test')).toBe(textComponent);
             expect(textComponent.setPlaceholder('placeholder')).toBe(textComponent);
-            expect(textComponent.onChanged(() => {})).toBe(textComponent);
+            expect(textComponent.onChanged(() => undefined)).toBe(textComponent);
         });
         
         test('TextAreaComponent should have expected methods', () => {
@@ -130,7 +137,7 @@ describe('Obsidian Mock', () => {
             
             expect(buttonComponent.setButtonText('Click me')).toBe(buttonComponent);
             expect(buttonComponent.setIcon('icon')).toBe(buttonComponent);
-            expect(buttonComponent.onClick(() => {})).toBe(buttonComponent);
+            expect(buttonComponent.onClick(() => undefined)).toBe(buttonComponent);
         });
     });
 }); 

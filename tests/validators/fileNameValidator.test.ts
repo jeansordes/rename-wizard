@@ -1,3 +1,11 @@
+// Use an inline import function that Jest can hoist properly
+jest.mock("obsidian", () => {
+    // This function will be properly hoisted by Jest
+    return jest.fn(() => {
+        return import('../mocks/obsidian-mock').then(module => module.default);
+    })();
+}, { virtual: true });
+
 import { 
     normalizePath, 
     validateEmptyName,

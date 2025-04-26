@@ -20,11 +20,11 @@ describe('SuggestionHandler', () => {
         
         beforeEach(() => {
             app = new MockApp();
-            // Pass empty functions for required callback parameters
+            // Pass a real HTMLElement for required callback parameters
             suggestionList = new MockSuggestionList(
-                null, 
-                () => {}, // Mock suggestion click handler
-                () => {}  // Mock selection change handler
+                document.createElement('div'), 
+                () => undefined, // Mock suggestion click handler
+                () => undefined  // Mock selection change handler
             );
             currentValue = 'test/file.md';
             maxSuggestions = 5;
