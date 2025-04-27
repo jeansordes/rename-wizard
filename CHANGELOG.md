@@ -1,3 +1,5 @@
+## [0.11.2](https://github.com/jeansordes/rename-wizard/compare/0.11.1...0.11.2) (2025-04-27)
+
 ## [0.11.1](https://github.com/jeansordes/rename-wizard/compare/0.11.0...0.11.1) (2025-04-27)
 
 # [0.11.0](https://github.com/jeansordes/rename-wizard/compare/0.10.0...0.11.0) (2025-04-21)
