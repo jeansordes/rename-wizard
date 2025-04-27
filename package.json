@@ -1,7 +1,7 @@
 {
 	"name": "rename-wizard",
-    "type": "module",
-	"version": "0.11.0",
+	"type": "module",
+	"version": "0.11.1",
 	"description": "Add suggestions when renaming a file in your Obsidian vault",
 	"main": "main.js",
 	"engines": {
@@ -26,8 +26,8 @@
 		"release:beta": "npm run build && npm run bump:beta && npm run changelog && git add CHANGELOG.md beta-manifest.json && git add . && git commit -m \"chore(release): $(node -p \"require('./package.json').version\")\" && git tag \"$(node -p \"require('./package.json').version\")\" && git push origin master --tags",
 		"test": "jest",
 		"lint": "eslint .",
-        "lint:open": "./scripts/lint-open.sh",
-        "lint:ls": "npm run lint | grep -E '^[^ ]+\\.js|^[^ ]+\\.ts' | awk '{print $1}' | sort | uniq",
+		"lint:open": "./scripts/lint-open.sh",
+		"lint:ls": "npm run lint | grep -E '^[^ ]+\\.js|^[^ ]+\\.ts' | awk '{print $1}' | sort | uniq",
 		"files:linecount": "ts-node --skipProject scripts/sortFilesByLineCount.ts",
 		"prepare": "husky",
 		"cleanup-css": "ts-node --skipProject scripts/remove-unused-css-blocks.ts",
@@ -66,7 +66,7 @@
 		"glob": "^10.3.10",
 		"@types/css": "^0.0.33",
 		"typescript": "^5.3.3",
-        "typescript-eslint": "^8.31.0"
+		"typescript-eslint": "^8.31.0"
 	},
 	"dependencies": {
 		"husky": "^9.1.7"
