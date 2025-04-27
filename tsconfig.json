@@ -14,7 +14,8 @@
         "lib": [
             "DOM",
             "ES2020"
-        ]
+        ],
+        "esModuleInterop": true
     },
     "include": [
         "**/*.ts"
