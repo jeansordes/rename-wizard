@@ -4,11 +4,10 @@
  */
 
 import * as fs from 'fs';
-import { join } from 'path';
-import { logger } from 'src/utils/logger';
+import { logger } from '../src/utils/logger';
 
 // Path to the CHANGELOG.md file
-const changelogPath = join(__dirname, '..', 'CHANGELOG.md');
+const changelogPath = 'CHANGELOG.md';
 
 // Read the contents of the file
 try {
