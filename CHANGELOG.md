@@ -1,3 +1,9 @@
+## [0.11.3](https://github.com/jeansordes/rename-wizard/compare/0.11.2...0.11.3) (2025-04-27)
+
+### Bug Fixes
+
+* update build configuration for CommonJS compatibility ([c1340f9](https://github.com/jeansordes/rename-wizard/commit/c1340f93cbefe19b5cc1128e2025fa921c6e776d))
+
 ## [0.11.2](https://github.com/jeansordes/rename-wizard/compare/0.11.1...0.11.2) (2025-04-27)
 
 ## [0.11.1](https://github.com/jeansordes/rename-wizard/compare/0.11.0...0.11.1) (2025-04-27)

@@ -4,7 +4,6 @@
  */
 
 import * as fs from 'fs';
-import { logger } from '../src/utils/logger';
 
 // Path to the CHANGELOG.md file
 const changelogPath = 'CHANGELOG.md';
@@ -19,8 +18,8 @@ try {
     // Write the contents back to the file
     fs.writeFileSync(changelogPath, cleanedContent, 'utf8');
 
-    logger.logToConsole('Successfully cleaned up the CHANGELOG.md file');
+    console.log('Successfully cleaned up the CHANGELOG.md file');
 } catch (error) {
-    logger.logToConsole('Error cleaning up the CHANGELOG.md file:', error);
+    console.error('Error cleaning up the CHANGELOG.md file:', error);
     process.exit(1);
 } 
